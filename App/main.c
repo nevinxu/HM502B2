@@ -62,14 +62,14 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
                     (task_param_t)0,
                     false,
                     &task_ecg_capture_task_handler);
-	OSA_TaskCreate(task_bluetooth_rx,
-                   (uint8_t*) "bluetooth_rx",
-                    TASK_BLUETOOTH_STACK_SIZE,
-                    task_bluetooth_rx_stack,
-                    TASK_BLUETOOTH_RX_PRIO,
-                    (task_param_t)0,
-                    false,
-                    &task_bluetooth_rx_task_handler);
+//	OSA_TaskCreate(task_bluetooth_rx,
+//                   (uint8_t*) "bluetooth_rx",
+//                    TASK_BLUETOOTH_STACK_SIZE,
+//                    task_bluetooth_rx_stack,
+//                    TASK_BLUETOOTH_RX_PRIO,
+//                    (task_param_t)0,
+//                    false,
+//                    &task_bluetooth_rx_task_handler);
 	OSA_TaskCreate(task_bluetooth_tx,
                    (uint8_t*) "bluetooth_tx",
                     TASK_BLUETOOTH_STACK_SIZE,
@@ -78,22 +78,22 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
                     (task_param_t)0,
                     false,
                     &task_bluetooth_tx_task_handler);
-	OSA_TaskCreate(task_connnectpc_rx,
-                   (uint8_t*) "connectpc_rx",
-                    TASK_CONNECT_PC_STACK_SIZE,
-                    task_connect_pc_rx_stack,
-                    TASK_CONNECT_PC_PRIO,
-                    (task_param_t)0,
-                    false,
-                    &task_connect_pc_rx_task_handler);
-    OSA_TaskCreate(task_connnectpc_tx,
-                   (uint8_t*) "connectpc_tx",
-                    TASK_CONNECT_PC_STACK_SIZE,
-                    task_connect_pc_tx_stack,
-                    TASK_CONNECT_PC_PRIO,
-                    (task_param_t)0,
-                    false,
-                    &task_connect_pc_tx_task_handler);
+//	OSA_TaskCreate(task_connnectpc_rx,
+//                   (uint8_t*) "connectpc_rx",
+//                    TASK_CONNECT_PC_STACK_SIZE,
+//                    task_connect_pc_rx_stack,
+//                    TASK_CONNECT_PC_PRIO,
+//                    (task_param_t)0,
+//                    false,
+//                    &task_connect_pc_rx_task_handler);
+//    OSA_TaskCreate(task_connnectpc_tx,
+//                   (uint8_t*) "connectpc_tx",
+//                    TASK_CONNECT_PC_STACK_SIZE,
+//                    task_connect_pc_tx_stack,
+//                    TASK_CONNECT_PC_PRIO,
+//                    (task_param_t)0,
+//                    false,
+//                    &task_connect_pc_tx_task_handler);
 	
 	OSA_Start();
 	for(;;) {}                    /* Should not achieve here */								

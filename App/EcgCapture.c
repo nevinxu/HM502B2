@@ -17,10 +17,8 @@ adc_state_t gAdcState;
 struct EcgDataPackage ecgdatapackage;   //心电数据结构
 
 msg_queue_handler_t hPCEcgMsgQueue;  //心电数据发送队列  
-//msg_queue_handler_t hBTEcgMsgQueue;  //心电数据发送队列 
 
 MSG_QUEUE_DECLARE(mqPCEcgData, 10, 1);  //大小在freertos上无效  
-//MSG_QUEUE_DECLARE(mqBTEcgData, 10, 1);  //大小在freertos上无效 
 
 /*!
  * @brief ADC channel0 callback for fetching sample data.

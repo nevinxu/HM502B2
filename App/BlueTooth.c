@@ -19,6 +19,10 @@ uint8_t     BLEConnectedFlag = 1;    //BLE连接状态
 static lpuart_state_t s_bt_lpuart[2];
 
 extern msg_queue_handler_t hBTEcgMsgQueue;  //心电数据发送队列 
+
+struct EcgDataPackage m_ecgdatapackage2;   //心电数据结构
+extern msg_queue_handler_t hPCEcgMsgQueue;  //心电数据发送队列 
+
                                                                                                                                                                                                                                                             
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
@@ -72,11 +76,9 @@ void task_bluetooth_tx(task_param_t param)
     
 	while(1)
 	{
-      //  if(kStatus_OSA_Success == OSA_MsgQGet(hBTEcgMsgQueue,&m_ecgdatapackage,1))
-        {
-           // LPUART_DRV_SendData(1,(uint8_t*)&m_ecgdatapackage,sizeof(m_ecgdatapackage)); 
-        }   
-        OSA_TimeDelay(10);        
+      OSA_MsgQGet(hPCEcgMsgQueue,&m_ecgdatapackage2,portMAX_DELAY);  
+			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_DEBUG_UART_INSTANCE,(uint8_t*)&m_ecgdatapackage2,12));            
+		
 	}
 }
 
