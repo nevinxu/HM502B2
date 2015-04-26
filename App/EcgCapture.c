@@ -12,8 +12,8 @@
 #include "BlueTooth.h"
 #include "ConnectPC.h"
 
-MSG_QUEUE_DECLARE(mqBTData, 10, 1);  //大小在freertos上无效  
-MSG_QUEUE_DECLARE(mqPCEcgData, 10, 1);  //大小在freertos上无效  
+MSG_QUEUE_DECLARE(mqBTData, 50, 1);  //大小在freertos上无效  
+MSG_QUEUE_DECLARE(mqPCEcgData, 50, 1);  //大小在freertos上无效  
 
 extern void init_trigger_source(uint32_t instance);
 extern void deinit_trigger_source(uint32_t instance);
@@ -113,14 +113,14 @@ static void ecg_adc_isr_callback(void)
 		EncodeData4WTo5B(ecgdatapackage.ecgdata,&btdatapackage.data[4],8);
 		btdatapackage.size = btdatapackage.size-6;
 		
-		OSA_MsgQPut(hBTMsgQueue,&btdatapackage);   
+//		OSA_MsgQPut(hBTMsgQueue,&btdatapackage);   
 
 
-//		pctransmitpackage.start = STARTHEAD;
-//		pctransmitpackage.command = ECGDATACODE;
-//		pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
-//		memcpy(pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-//		OSA_MsgQPut(hPCMsgQueue,&pctransmitpackage);  
+		pctransmitpackage.start = STARTHEAD;
+		pctransmitpackage.command = ECGDATACODE;
+		pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
+		memcpy(pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+		OSA_MsgQPut(hPCMsgQueue,&pctransmitpackage);  
 	}
 }
 
@@ -237,8 +237,10 @@ int32_t init_ecg(uint32_t instance)
 
 void task_ecgcapture(task_param_t param)
 {   
-	hBTMsgQueue = OSA_MsgQCreate(mqBTData, BTPACKAGEDEEP, sizeof(btdatapackage));  //定义心电数据传输队列 
-//	hPCMsgQueue = OSA_MsgQCreate(mqPCEcgData, PCPACKAGEDEEP, sizeof(pctransmitpackage));  //定义心电数据传输队列 
+	static uint8_t i;
+	i = sizeof(pctransmitpackage);
+//	hBTMsgQueue = OSA_MsgQCreate(mqBTData, BTPACKAGEDEEP, sizeof(btdatapackage));  //定义心电数据传输队列 
+	hPCMsgQueue = OSA_MsgQCreate(mqPCEcgData, PCPACKAGEDEEP, sizeof(pctransmitpackage));  //定义心电数据传输队列 
 
 	if(init_ecg(ECG_INST))
 	{
