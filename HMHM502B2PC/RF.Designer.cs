@@ -120,9 +120,10 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(48, 55);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(17, 12);
+            this.label12.Size = new System.Drawing.Size(11, 12);
             this.label12.TabIndex = 19;
-            this.label12.Text = "mV";
+            this.label12.Text = "%";
+            this.label12.Click += new System.EventHandler(this.label12_Click);
             // 
             // Lead
             // 
@@ -726,7 +727,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RF";
-            this.Text = "HM502B2心电数据显示软件V1.0(20150318)";
+            this.Text = "HM502B2心电数据显示软件V1.1(20150422)";
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();

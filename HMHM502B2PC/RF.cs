@@ -124,37 +124,10 @@ namespace MotionSensor
                 return;
             }
 
-                byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
-                SerialPort.Read(buf, 0, SerialReceiveLength);
-                SerialReceiveData.AddRange(buf); 
-            //this.Invoke((EventHandler)(delegate 
-            //{ 
-            
-            
-            //}));  
+            byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
+            SerialPort.Read(buf, 0, SerialReceiveLength);
+            SerialReceiveData.AddRange(buf);   
             WriteTheWin();
-
-            //FileStream fs = null;
-            //string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
-            //try
-            //{
-            //    fs = File.OpenWrite(filePath);
-            //    //设定书写的开始位置为文件的末尾   
-            //    fs.Position = fs.Length;
-            //    //将待写入内容追加到文件末尾   
-            //    //  fs.Write(bytes, 0, bytes.Length);
-            //  //  fs.Write(SerialReceiveData, 0, length);
-            //  //  fs.Write(test1, 0, 2);
-                
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("文件打开失败{0}", ex.ToString());
-            //}
-            //finally
-            //{
-            //    fs.Close();
-            //}
     
         }
         #endregion
@@ -407,9 +380,9 @@ namespace MotionSensor
         {
             int EcgMaxValue, EcgMinValue;
 
-            while (SerialReceiveData.Count >= 4)
+            while (SerialReceiveData.Count >= 6)
             {
-                
+                BLEConnectFlagTimerOut = 0;
                 if (SerialReceiveData[0] == 0x04)   //type (command)
                 {
                     if (SerialReceiveData[5] == 0x00)  //状态正常
@@ -483,28 +456,29 @@ namespace MotionSensor
                             }
                             else if ((SerialReceiveData[6] == 0x0A) && (SerialReceiveData[7] == 0xFE))
                             {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "GAP_TerminateLinkRequest！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                ConnectBLEButton.Text = "设备已断开";
-                                this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
+                                //System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                //string DisplayString = "GAP_TerminateLinkRequest！\r\n";
+                                //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                //OutMsg(MonitorText, DisplayString, Color.Red);
+                                //ConnectBLEButton.Text = "设备已断开";
+                                //ConnectBLEButton.Enabled = true;
+                                //this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
 
-                                DataStoreButton.Enabled = false;
+                                //DataStoreButton.Enabled = false;
 
-                                ScanButton.Enabled = true;
+                                //ScanButton.Enabled = true;
 
-                                DisplayString = "设备已断开！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                //DisplayString = "设备已断开！\r\n";
+                                //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                //OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                for (int i = 0; i < N * M; i++)
-                                {
-                                    XdataV[i] = 0;
-                                }
-                                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+                                //for (int i = 0; i < N * M; i++)
+                                //{
+                                //    XdataV[i] = 0;
+                                //}
+                                //chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
 
-                                BLEConnectFlag = 0;
+                                //BLEConnectFlag = 0;
                             }
                             else if ((SerialReceiveData[6] == 0x30) && (SerialReceiveData[7] == 0xFE))
                             {
@@ -517,6 +491,32 @@ namespace MotionSensor
                         else if ((SerialReceiveData[3] == 0x05) && (SerialReceiveData[4] == 0x06))
                         { 
                             connhandle = SerialReceiveData[13] + (SerialReceiveData[14]<<8);
+                        }
+                        else if ((SerialReceiveData[3] == 0x06) && (SerialReceiveData[4] == 0x06))
+                        {
+                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                            string DisplayString = "GAP_TerminateLinkRequest！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+                            ConnectBLEButton.Text = "设备已断开";
+                            ConnectBLEButton.Enabled = true;
+                            this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
+
+                            DataStoreButton.Enabled = false;
+
+                            ScanButton.Enabled = true;
+
+                            DisplayString = "设备已断开！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+
+                            for (int i = 0; i < N * M; i++)
+                            {
+                                XdataV[i] = 0;
+                            }
+                            chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+
+                            BLEConnectFlag = 0;
                         }
                         else if ((SerialReceiveData[3] == 0x0D) && (SerialReceiveData[4] == 0x06))
                         {
@@ -558,10 +558,6 @@ namespace MotionSensor
                             }
                             ConnectBLEButton.Enabled = true;
                             ConnectBLEButton.Text = "设备已断开";
-
-
-
-
                         }
                         else if ((SerialReceiveData[3] == 0x1b) && (SerialReceiveData[4] == 0x05))
                         {
@@ -576,7 +572,6 @@ namespace MotionSensor
                                         XdataV[k * M + j] = XdataV[(k + 1) * M + j];
                                     }
                                 }
-
                                 XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15] & 0x7f) + Convert.ToDouble((SerialReceiveData[16] & 0x07) << 7);
                                 XdataV[(N - 1) * M + 1] = Convert.ToDouble((SerialReceiveData[16] & 0x78) >> 3) + Convert.ToDouble((SerialReceiveData[17] & 0x3f) << 4);
                                 XdataV[(N - 1) * M + 2] = Convert.ToDouble((SerialReceiveData[17] & 0x40) >> 6) + Convert.ToDouble((SerialReceiveData[18] & 0x7f) << 1) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
@@ -586,27 +581,6 @@ namespace MotionSensor
                                 XdataV[(N - 1) * M + 6] = Convert.ToDouble((SerialReceiveData[23] & 0x70) >> 4) + Convert.ToDouble((SerialReceiveData[24] & 0x7f) << 3);
 
                                 XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[25] & 0x7f) + Convert.ToDouble((SerialReceiveData[26] & 0x07) << 7);
-                                //XdataV[8] = Convert.ToDouble((SerialReceiveData[26] & 0x78) >> 3) + Convert.ToDouble((SerialReceiveData[27] & 0x3f) << 4);
-
-                                //XdataV[9] = Convert.ToDouble((SerialReceiveData[27] & 0x40) >> 6) + Convert.ToDouble((SerialReceiveData[28] & 0x7f) << 1) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
-                                //XdataV[10] = Convert.ToDouble((SerialReceiveData[29] & 0x7c) >> 2) + Convert.ToDouble((SerialReceiveData[30] & 0x1f) << 5);
-                                //XdataV[11] = Convert.ToDouble((SerialReceiveData[30] & 0x60) >> 5) + Convert.ToDouble((SerialReceiveData[31] & 0x7f) << 2) + Convert.ToDouble((SerialReceiveData[22] & 0x01) << 9);
-                                //XdataV[12] = Convert.ToDouble((SerialReceiveData[32] & 0x7e) >> 1) + Convert.ToDouble((SerialReceiveData[33] & 0x0f) << 6);
-                                //XdataV[13] = Convert.ToDouble((SerialReceiveData[33] & 0x70) >> 4) + Convert.ToDouble((SerialReceiveData[34] & 0x7f) << 3);
-
-                                //XdataV[14] = Convert.ToDouble(SerialReceiveData[35] & 0x7f) + Convert.ToDouble((SerialReceiveData[36] & 0x07) << 7);
-                                //XdataV[15] = Convert.ToDouble((SerialReceiveData[36] & 0x78) >> 3) + Convert.ToDouble((SerialReceiveData[37] & 0x3f) << 4);
-
-                                //XdataV[7] = Convert.ToDouble((SerialReceiveData[]))
-                                //XdataV[8] = Convert.ToDouble((SerialReceiveData[]))
-                                //XdataV[9] = Convert.ToDouble((SerialReceiveData[]))
-                                //XdataV[10] = Convert.ToDouble((SerialReceiveData[]))  
-                                //XdataV[11] = Convert.ToDouble((SerialReceiveData[]))
-                                //XdataV[12] = Convert.ToDouble((SerialReceiveData[]))
-                                //XdataV[13] = Convert.ToDouble((SerialReceiveData[]))
-                                //XdataV[14] = Convert.ToDouble((SerialReceiveData[]))
-                                //XdataV[(N - 1) * M + 15] =
-
                                 DataTransmissionFlag = 1;
                                 BLEConnectFlagTimerOut = 0;
                                 LeadOffStatus = Convert.ToInt16(SerialReceiveData[13]);
@@ -621,19 +595,20 @@ namespace MotionSensor
                                         XdataV[k * M + j] = XdataV[(k + 1) * M + j];
                                     }
                                 }
-                                XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15] & 0x7f) + Convert.ToDouble((SerialReceiveData[16] & 0x07) << 7);
-                                XdataV[(N - 1) * M + 1] = Convert.ToDouble((SerialReceiveData[16] & 0x78) >> 3) + Convert.ToDouble((SerialReceiveData[17] & 0x3f) << 4);
-                                XdataV[(N - 1) * M + 2] = Convert.ToDouble((SerialReceiveData[17] & 0x40) >> 6) + Convert.ToDouble((SerialReceiveData[18] & 0x7f) << 1) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
-                                XdataV[(N - 1) * M + 3] = Convert.ToDouble((SerialReceiveData[19] & 0x7c) >> 2) + Convert.ToDouble((SerialReceiveData[20] & 0x1f) << 5);
-                                XdataV[(N - 1) * M + 4] = Convert.ToDouble((SerialReceiveData[20] & 0x60) >> 5) + Convert.ToDouble((SerialReceiveData[21] & 0x7f) << 2) + Convert.ToDouble((SerialReceiveData[22] & 0x01) << 9);
-                                XdataV[(N - 1) * M + 5] = Convert.ToDouble((SerialReceiveData[22] & 0x7e) >> 1) + Convert.ToDouble((SerialReceiveData[23] & 0x0f) << 6);
-                                XdataV[(N - 1) * M + 6] = Convert.ToDouble((SerialReceiveData[23] & 0x70) >> 4) + Convert.ToDouble((SerialReceiveData[24] & 0x7f) << 3);
+                                XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[19] & 0xc0) << 2);
+                                XdataV[(N - 1) * M + 1] = Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[19] & 0x30) << 4);
+                                XdataV[(N - 1) * M + 2] = Convert.ToDouble(SerialReceiveData[17]) + Convert.ToDouble((SerialReceiveData[19] & 0x0c) << 6);
+                                XdataV[(N - 1) * M + 3] = Convert.ToDouble(SerialReceiveData[18]) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
+                                XdataV[(N - 1) * M + 4] = Convert.ToDouble(SerialReceiveData[20]) + Convert.ToDouble((SerialReceiveData[24] & 0xc0) << 2);
+                                XdataV[(N - 1) * M + 5] = Convert.ToDouble(SerialReceiveData[21]) + Convert.ToDouble((SerialReceiveData[24] & 0x30) << 4);
+                                XdataV[(N - 1) * M + 6] = Convert.ToDouble(SerialReceiveData[22]) + Convert.ToDouble((SerialReceiveData[24] & 0x0c) << 6);
+                                XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[23]) + Convert.ToDouble((SerialReceiveData[24] & 0x03) << 8);
 
-                                XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[25] & 0x7f) + Convert.ToDouble((SerialReceiveData[26] & 0x07) << 7);
+
                                 DataTransmissionFlag = 1;
                                 BLEConnectFlagTimerOut = 0;
                                 LeadOffStatus = Convert.ToInt16(SerialReceiveData[13]);
-                                Vbat = Convert.ToInt16(SerialReceiveData[14]);
+                                Vbat = Convert.ToInt16(SerialReceiveData[14]);                          
                             }
 
                             else if (SerialReceiveData[8] == 22)
@@ -652,11 +627,11 @@ namespace MotionSensor
                                 LeadOffStatus = Convert.ToInt16(SerialReceiveData[12]);
                                 Vbat = Convert.ToInt16(SerialReceiveData[14]) * 256 + Convert.ToInt16(SerialReceiveData[13]);
                             }
-                            byte[] ECGData = new byte[M * 2 + 3];
-                            for (int i = 0; i < M * 2; i++)
-                            {
-                               // ECGData[i] = SerialReceiveData[11 + i];
-                            }
+                            //byte[] ECGData = new byte[M * 2 + 3];
+                            //for (int i = 0; i < M * 2; i++)
+                            //{
+                            //   // ECGData[i] = SerialReceiveData[11 + i];
+                            //}
 
                             FileStream fs = null;
                             string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
@@ -947,6 +922,10 @@ namespace MotionSensor
             string DisplayString = "Send <GAP_EstablishLinkRequest> Command!!!\r\n";
             DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
             OutMsg(MonitorText, DisplayString, Color.Red);
+
+            string DisplayString2 = "设备正在断开，请稍等。。。\r\n";
+            DisplayString2 = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
+            OutMsg(MonitorText, DisplayString2, Color.Red);
         }
         private void TGAP_GEN_DISC_SCANCommand(short msec)
         {
@@ -1143,8 +1122,10 @@ namespace MotionSensor
                 if (ConnectBLEButton.Text == "设备已连接")
                 {
                     DisconnectBLESerialCommand();
+                    ConnectBLEButton.Enabled = false;
+                    ConnectBLEButton.Text = "设备正在断开";
                 }
-                ConnectBLEButton.Text = "设备已断开";
+                
             }
         }
 
@@ -1156,6 +1137,11 @@ namespace MotionSensor
         private void button3_Click(object sender, EventArgs e)
         {
             DisconnectBLESerialCommand();
+        }
+
+        private void label12_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
