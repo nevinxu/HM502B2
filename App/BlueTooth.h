@@ -8,7 +8,7 @@
 #define TASK_BLUETOOTH_STACK_SIZE    512
 #define TASK_BLUETOOTH_TX_PRIO          10
 #define TASK_BLUETOOTH_RX_PRIO          11
-#define BLUEDATEPACKETSIZE							10
+#define BLUEDATEPACKETSIZE							20
 #define BTPACKAGEDEEP											10   //BLUE数据队列保存深度  
 
 

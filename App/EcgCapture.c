@@ -106,7 +106,7 @@ static void ecg_adc_isr_callback(void)
 		}
 		
 		btdatapackage.code = ECGDATACODE;
-		btdatapackage.size = sizeof(ecgdatapackage) + 2;
+		btdatapackage.size = sizeof(ecgdatapackage);
 		memcpy(btdatapackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
 
 //Ñ¹Ëõ		

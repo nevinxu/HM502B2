@@ -78,7 +78,7 @@ void task_bluetooth_tx(task_param_t param)
 {
 
 	uint8_t i;
-    i= sizeof(m_btdatapackage);
+//    i= sizeof(m_btdatapackage);
 //	InitBlueTooth();
     
 	while(1)
@@ -86,16 +86,19 @@ void task_bluetooth_tx(task_param_t param)
       OSA_MsgQGet(hBTMsgQueue,&m_btdatapackage,portMAX_DELAY); 
 			if(BLEConnectedFlag == 1)
 			{
-				i++;
-					while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage,sizeof(m_btdatapackage))); 
-					if(i%2)
+					i++;
+					if(m_btdatapackage.code == ECGDATACODE)
 					{
-						LED1_ON;    
+						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
+						if(i%2)
+						{
+							LED1_ON;    
+						}
+						else
+						{
+							LED1_OFF;
+						} 
 					}
-					else
-					{
-						LED1_OFF;
-					} 
 			}
 	}
 }

@@ -31,15 +31,14 @@ void task_connnectpc_tx(task_param_t param)
 		OSA_MsgQGet(hPCMsgQueue,&m_pctransmitpackage,portMAX_DELAY);
         {
 							
-              while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_DEBUG_UART_INSTANCE,(uint8_t*)&m_pctransmitpackage,sizeof(m_pctransmitpackage)));            
+              while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_DEBUG_UART_INSTANCE,(uint8_t*)&m_pctransmitpackage,m_pctransmitpackage.size));            
         }
 	}
 }
 
 void task_connnectpc_rx(task_param_t param)
 {
-    uint8_t pcrxbuffer[100];
-   // hPCMsgQueue = OSA_MsgQCreate(mqpcData, 1, sizeof(uint8_t));  //
+	uint8_t pcrxbuffer[100];
 	while(1)
 	{
 		if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_DEBUG_UART_INSTANCE,pcrxbuffer,100,100))
