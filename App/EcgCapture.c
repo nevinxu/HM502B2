@@ -11,6 +11,7 @@
 #include "gpio_pins.h"
 #include "BlueTooth.h"
 #include "ConnectPC.h"
+#include "ecg.c"
 
 MSG_QUEUE_DECLARE(mqBTData, 50, 1);  //大小在freertos上无效  
 MSG_QUEUE_DECLARE(mqPCData, 50, 1);  //大小在freertos上无效  
@@ -57,14 +58,15 @@ int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 	
 static void ecg_adc_isr_callback(void)
 {
-	static uint8_t i;
+	static uint8_t i,j;
 	static uint16_t batterybuffer[16];
 	uint16_t buffer = 0;
     
     adc_chn_config_t adcChnConfig;
     if(i % 2)
     {
-        ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+       // ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+				ecgdatapackage.ecgdata[i/2] = sineData[j++];
         adcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
         adcChnConfig.diffEnable = false;
         adcChnConfig.intEnable = true;
