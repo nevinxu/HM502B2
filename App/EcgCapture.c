@@ -1,10 +1,19 @@
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 #include "fsl_adc_driver.h"
+
+#include "fsl_lpuart_hal.h"
+#include "fsl_lpuart_common.h"
+#include "fsl_lpuart_driver.h"
 
 #include "EcgCapture.h"
 #include "gpio_pins.h"
+#include "BlueTooth.h"
+#include "ConnectPC.h"
 
+MSG_QUEUE_DECLARE(mqBTData, 10, 1);  //大小在freertos上无效  
+MSG_QUEUE_DECLARE(mqPCEcgData, 10, 1);  //大小在freertos上无效  
 
 extern void init_trigger_source(uint32_t instance);
 extern void deinit_trigger_source(uint32_t instance);
@@ -16,16 +25,35 @@ adc_state_t gAdcState;
 
 struct EcgDataPackage ecgdatapackage;   //心电数据结构
 
-msg_queue_handler_t hPCEcgMsgQueue;  //心电数据发送队列  
+msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列  
+msg_queue_handler_t hPCMsgQueue;  //心电数据发送队列  
 
-MSG_QUEUE_DECLARE(mqPCEcgData, 10, 1);  //大小在freertos上无效  
-
-/*!
- * @brief ADC channel0 callback for fetching sample data.
- */
- 
-
+BTDataPackage btdatapackage;
+PCTransmitComandPackage pctransmitpackage;
 	
+int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
+{
+	uint16_t k = 0;
+	uint8_t B = 0;
+	uint16_t W = 0;
+	for(int i=0;i<Count;i+=4)
+	{
+		B = 0;
+		W = 0;
+		for(int j=0;j<4;j++)
+		{
+		W = pData[i+j];
+		// if(W>1000)
+		// W= 1000;
+		rtnData[k] = (uint8_t)W;
+		B = B | ((W&0x0300)>>8)<<(6-j*2);//???????2?,??4?,???????
+		k++;
+		}
+		rtnData[k] = B;//(BYTE)W;
+		k++;
+	}		
+	return k;
+}	
 	
 static void ecg_adc_isr_callback(void)
 {
@@ -64,14 +92,35 @@ static void ecg_adc_isr_callback(void)
 		ecgdatapackage.leadoffstatus = GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK);
 		ecgdatapackage.sequence++;
 		ecgdatapackage.battery = 0;
-		for(uint8_t j = 0;j < 16; j++)
+		if(batterybuffer[15]>0)
 		{
-			buffer += batterybuffer[j];
+			for(uint8_t j = 0;j < 16; j++)
+			{
+				buffer += batterybuffer[j];
+			}
+			ecgdatapackage.battery = (buffer>>4);
 		}
-		ecgdatapackage.battery = (buffer>>4);
-        
-		OSA_MsgQPut(hPCEcgMsgQueue,&ecgdatapackage);
-          
+		else
+		{
+			ecgdatapackage.battery = batterybuffer[0];
+		}
+		
+		btdatapackage.code = ECGDATACODE;
+		btdatapackage.size = sizeof(ecgdatapackage) + 2;
+		memcpy(btdatapackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+
+//压缩		
+		EncodeData4WTo5B(ecgdatapackage.ecgdata,&btdatapackage.data[4],8);
+		btdatapackage.size = btdatapackage.size-6;
+		
+		OSA_MsgQPut(hBTMsgQueue,&btdatapackage);   
+
+
+//		pctransmitpackage.start = STARTHEAD;
+//		pctransmitpackage.command = ECGDATACODE;
+//		pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
+//		memcpy(pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+//		OSA_MsgQPut(hPCMsgQueue,&pctransmitpackage);  
 	}
 }
 
@@ -187,12 +236,10 @@ int32_t init_ecg(uint32_t instance)
 }
 
 void task_ecgcapture(task_param_t param)
-{
-	hPCEcgMsgQueue = OSA_MsgQCreate(mqPCEcgData, ECGPACKAGEDEEP, sizeof(ecgdatapackage));  //定义心电数据传输队列  
-   // hBTEcgMsgQueue = OSA_MsgQCreate(mqBTEcgData, ECGPACKAGEDEEP, sizeof(ecgdatapackage));  //定义心电数据传输队列  
-	
-    //printf("To do the ADC init\n");
-    
+{   
+	hBTMsgQueue = OSA_MsgQCreate(mqBTData, BTPACKAGEDEEP, sizeof(btdatapackage));  //定义心电数据传输队列 
+//	hPCMsgQueue = OSA_MsgQCreate(mqPCEcgData, PCPACKAGEDEEP, sizeof(pctransmitpackage));  //定义心电数据传输队列 
+
 	if(init_ecg(ECG_INST))
 	{
         //printf("Failed to do the ADC init\n");

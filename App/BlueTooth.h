@@ -8,6 +8,11 @@
 #define TASK_BLUETOOTH_STACK_SIZE    512
 #define TASK_BLUETOOTH_TX_PRIO          10
 #define TASK_BLUETOOTH_RX_PRIO          11
+#define BLUEDATEPACKETSIZE							20
+#define BTPACKAGEDEEP											10   //BLUE数据队列保存深度  
+
+
+#define ECGDATACODE									0x01
 
 #define     AT                          "AT"
 #define     GETATOB                     "AT+ATOB?"                      //查询/设置模块三通模式
@@ -111,6 +116,14 @@
 #define     SETSCAN1                    "AT+SCAN1"
 
 #define     GETVERS                     "AT+VERS?"                      //查询软件本
+
+
+typedef struct _BTDataPackage
+{
+	uint8_t	code;
+	uint8_t size;
+	uint8_t	data[BLUEDATEPACKETSIZE];
+}BTDataPackage;
     
 extern void task_bluetooth_tx(task_param_t param);
 extern void task_bluetooth_rx(task_param_t param);

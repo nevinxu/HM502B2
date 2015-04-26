@@ -18,7 +18,7 @@ uint8_t     BLEConnectedFlag = 1;    //BLE连接状态
 
 static lpuart_state_t s_bt_lpuart[2];
 
-extern msg_queue_handler_t hBTEcgMsgQueue;  //心电数据发送队列 
+extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列 
 
 struct EcgDataPackage m_ecgdatapackage2;   //心电数据结构
 extern msg_queue_handler_t hPCEcgMsgQueue;  //心电数据发送队列 
@@ -39,12 +39,12 @@ uint8_t OKGetReturn(uint8_t *buffer)
     return 0xff;
 }
 
-void task_bluetooth_tx(task_param_t param)
+
+
+void InitBlueTooth()
 {
-    struct EcgDataPackage m_ecgdatapackage;   //心电数据结构
-    lpuart_status_t ret;
-    
-    uint8_t rxbuffer[100];
+	lpuart_status_t ret;
+	uint8_t rxbuffer[100];
     
     while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
     while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
@@ -71,12 +71,20 @@ void task_bluetooth_tx(task_param_t param)
     {
         while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,SETNOTI1,strlen(SETNOTI1))); //连接后通知上位机
         while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-    }
+	} 
+}
+
+
+void task_bluetooth_tx(task_param_t param)
+{
+	BTDataPackage m_btdatapackage;
+
     
+//	InitBlueTooth();
     
 	while(1)
 	{
-      OSA_MsgQGet(hPCEcgMsgQueue,&m_ecgdatapackage2,portMAX_DELAY);  
+      OSA_MsgQGet(hBTMsgQueue,&m_btdatapackage,portMAX_DELAY);  
 			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_DEBUG_UART_INSTANCE,(uint8_t*)&m_ecgdatapackage2,12));            
 		
 	}

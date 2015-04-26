@@ -11,15 +11,15 @@
 #define PCFIFODEEP              100
 #define MINSIZEPCPACKAGE          8
 
+#define PCPACKAGEDEEP											1
+#define PCDATEPACKETSIZE									40
+
 typedef struct _PCTransmitComandPackage
 {
     uint16_t    start;
-    uint16_t     sequence;
     uint8_t     command;
-    uint8_t     status;
-    uint16_t     datalength;
-    uint8_t     *data;
-    uint16_t    checksum;
+    uint8_t    	size;
+		uint8_t			data[PCDATEPACKETSIZE];
 }PCTransmitComandPackage;
 
 struct EcgDataTxPackage

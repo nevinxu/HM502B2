@@ -14,80 +14,47 @@
 #include "EcgCapture.h"
 #include "ConnectPC.h"
 
-MSG_QUEUE_DECLARE(mqpcData, 10, 1);  //大小在freertos上无效   
+extern msg_queue_handler_t hPCMsgQueue;;  //心电数据发送队列 
 
-extern msg_queue_handler_t hPCEcgMsgQueue;  //心电数据发送队列 
-
-
-
-struct EcgDataPackage m_ecgdatapackage;   //心电数据结构
-
-struct EcgDataTxPackage mEcgDataTxPackage;
-    
-lpuart_state_t s_pc_bt_lpuart;    
-
+PCTransmitComandPackage m_pctransmitpackage;
+  
 extern uint8_t     BLEConnectedFlag;
 
 extern unsigned char MACEDR[12];
 extern unsigned char MACBLE[12];
     
-		
-int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
-{
-	uint16_t k = 0;
-	uint8_t B = 0;
-	uint16_t W = 0;
-	for(int i=0;i<Count;i+=4)
-	{
-		B = 0;
-		W = 0;
-		for(int j=0;j<4;j++)
-		{
-		W = pData[i+j];
-		// if(W>1000)
-		// W= 1000;
-		rtnData[k] = (uint8_t)W;
-		B = B | ((W&0x0300)>>8)<<(6-j*2);//???????2?,??4?,???????
-		k++;
-		}
-		rtnData[k] = B;//(BYTE)W;
-		k++;
-	}		
-	return k;
-}
-		
 void task_connnectpc_tx(task_param_t param)
 {
 	uint8_t i;
 	while(1)
 	{
-		OSA_MsgQGet(hPCEcgMsgQueue,&m_ecgdatapackage,portMAX_DELAY);
+		OSA_MsgQGet(hPCMsgQueue,&m_pctransmitpackage,portMAX_DELAY);
         {
             i++;
-            if(BLEConnectedFlag == 1)
+//            if(BLEConnectedFlag == 1)
             {
-							mEcgDataTxPackage.start = 0x80;
-							mEcgDataTxPackage.sequence = i&0x7f;
+//							mEcgDataTxPackage.start = 0x80;
+//							mEcgDataTxPackage.sequence = i&0x7f;
+//							
+//							if(m_ecgdatapackage.battery >= 317)
+//							{
+//								m_ecgdatapackage.battery = 100;
+//							}
+//							else if(m_ecgdatapackage.battery > 255)
+//							{
+//								m_ecgdatapackage.battery = 100 - 100/(m_ecgdatapackage.battery - 255);
+//							}
+//							else
+//							{
+//								m_ecgdatapackage.battery = 0;
+//							}
+//							mEcgDataTxPackage.battery = m_ecgdatapackage.battery&0x7f;
+//							mEcgDataTxPackage.leadoffstatus = m_ecgdatapackage.leadoffstatus&0x7f;
+//							
+////							EncodeData4WTo5B(m_ecgdatapackage.ecgdata,mEcgDataTxPackage.data,8);
 							
-							if(m_ecgdatapackage.battery >= 317)
-							{
-								m_ecgdatapackage.battery = 100;
-							}
-							else if(m_ecgdatapackage.battery > 255)
-							{
-								m_ecgdatapackage.battery = 100 - 100/(m_ecgdatapackage.battery - 255);
-							}
-							else
-							{
-								m_ecgdatapackage.battery = 0;
-							}
-							mEcgDataTxPackage.battery = m_ecgdatapackage.battery&0x7f;
-							mEcgDataTxPackage.leadoffstatus = m_ecgdatapackage.leadoffstatus&0x7f;
-							
-							EncodeData4WTo5B(m_ecgdatapackage.ecgdata,mEcgDataTxPackage.data,8);
-							
-              while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_DEBUG_UART_INSTANCE,(uint8_t*)&mEcgDataTxPackage,sizeof(mEcgDataTxPackage)));            
-              while ( kStatus_LPUART_TxBusy ==  LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&mEcgDataTxPackage,sizeof(mEcgDataTxPackage))); 
+              while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_DEBUG_UART_INSTANCE,(uint8_t*)&m_pctransmitpackage,sizeof(m_pctransmitpackage)));            
+//              while ( kStatus_LPUART_TxBusy ==  LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&mEcgDataTxPackage,sizeof(mEcgDataTxPackage))); 
                 if(i%2)
                 {
                     LED1_ON;    
