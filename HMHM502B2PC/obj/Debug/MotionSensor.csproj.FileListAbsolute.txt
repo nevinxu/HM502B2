@@ -1,0 +1,13 @@
+E:\project\VC\MotionSensor\bin\Debug\MotionSensor.exe
+E:\project\VC\MotionSensor\bin\Debug\MotionSensor.pdb
+E:\project\VC\MotionSensor\bin\Debug\DundasWinChart.dll
+E:\project\VC\MotionSensor\bin\Debug\DundasWinChart.xml
+E:\project\VC\MotionSensor\obj\Debug\ResolveAssemblyReference.cache
+E:\project\VC\MotionSensor\obj\Debug\MotionSensor.Motion.resources
+E:\project\VC\MotionSensor\obj\Debug\MotionSensor.Properties.Resources.resources
+E:\project\VC\MotionSensor\obj\Debug\MotionSensor.csproj.GenerateResource.Cache
+E:\project\VC\MotionSensor\obj\Debug\MotionSensor.exe.licenses
+E:\project\VC\MotionSensor\obj\Debug\MotionSensor.exe
+E:\project\VC\MotionSensor\obj\Debug\MotionSensor.pdb
+E:\project\VC\RFtest\obj\Debug\MotionSensor.exe
+E:\project\VC\RFtest\obj\Debug\MotionSensor.pdb
