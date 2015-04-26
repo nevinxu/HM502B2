@@ -14,14 +14,13 @@
 #include "BlueTooth.h"
 #include "EcgCapture.h"
 
-uint8_t     BLEConnectedFlag = 1;    //BLE连接状态
+uint8_t     BLEConnectedFlag = 0;    //BLE连接状态
 
 static lpuart_state_t s_bt_lpuart[2];
 
 extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列 
 
-struct EcgDataPackage m_ecgdatapackage2;   //心电数据结构
-extern msg_queue_handler_t hPCEcgMsgQueue;  //心电数据发送队列 
+BTDataPackage m_btdatapackage;
 
                                                                                                                                                                                                                                                             
 unsigned char MACEDR[12];
@@ -77,16 +76,27 @@ void InitBlueTooth()
 
 void task_bluetooth_tx(task_param_t param)
 {
-	BTDataPackage m_btdatapackage;
 
-    
+	uint8_t i;
+    i= sizeof(m_btdatapackage);
 //	InitBlueTooth();
     
 	while(1)
 	{
-      OSA_MsgQGet(hBTMsgQueue,&m_btdatapackage,portMAX_DELAY);  
-			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_DEBUG_UART_INSTANCE,(uint8_t*)&m_ecgdatapackage2,12));            
-		
+      OSA_MsgQGet(hBTMsgQueue,&m_btdatapackage,portMAX_DELAY); 
+			if(BLEConnectedFlag == 1)
+			{
+				i++;
+					while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage,sizeof(m_btdatapackage))); 
+					if(i%2)
+					{
+						LED1_ON;    
+					}
+					else
+					{
+						LED1_OFF;
+					} 
+			}
 	}
 }
 

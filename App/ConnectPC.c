@@ -25,45 +25,13 @@ extern unsigned char MACBLE[12];
     
 void task_connnectpc_tx(task_param_t param)
 {
-	uint8_t i;
+
 	while(1)
 	{
 		OSA_MsgQGet(hPCMsgQueue,&m_pctransmitpackage,portMAX_DELAY);
         {
-            i++;
-//            if(BLEConnectedFlag == 1)
-            {
-//							mEcgDataTxPackage.start = 0x80;
-//							mEcgDataTxPackage.sequence = i&0x7f;
-//							
-//							if(m_ecgdatapackage.battery >= 317)
-//							{
-//								m_ecgdatapackage.battery = 100;
-//							}
-//							else if(m_ecgdatapackage.battery > 255)
-//							{
-//								m_ecgdatapackage.battery = 100 - 100/(m_ecgdatapackage.battery - 255);
-//							}
-//							else
-//							{
-//								m_ecgdatapackage.battery = 0;
-//							}
-//							mEcgDataTxPackage.battery = m_ecgdatapackage.battery&0x7f;
-//							mEcgDataTxPackage.leadoffstatus = m_ecgdatapackage.leadoffstatus&0x7f;
-//							
-////							EncodeData4WTo5B(m_ecgdatapackage.ecgdata,mEcgDataTxPackage.data,8);
 							
               while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_DEBUG_UART_INSTANCE,(uint8_t*)&m_pctransmitpackage,sizeof(m_pctransmitpackage)));            
-//              while ( kStatus_LPUART_TxBusy ==  LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&mEcgDataTxPackage,sizeof(mEcgDataTxPackage))); 
-                if(i%2)
-                {
-                    LED1_ON;    
-                }
-                else
-                {
-                    LED1_OFF;
-                }    
-            }
         }
 	}
 }
