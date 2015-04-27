@@ -24,13 +24,18 @@ const uint32_t gSimBaseAddr[] = SIM_BASE_ADDRS;
 
 adc_state_t gAdcState;
 
-struct EcgDataPackage ecgdatapackage;   //心电数据结构
+struct EcgDataPackage ecgdatapackage;   //
 
-msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列  
-msg_queue_handler_t hPCMsgQueue;  //心电数据发送队列  
+msg_queue_handler_t hBTMsgQueue;  //
+msg_queue_handler_t hPCMsgQueue;  //
+
+uint8_t BT_Status = 0;
+uint8_t BT_StatusNum = 0;
 
 BTDataPackage btdatapackage;
 PCTransmitComandPackage pctransmitpackage;
+
+extern uint8_t     BLEConnectedFlag;    //BLE连接状态
 	
 int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 {
@@ -65,8 +70,8 @@ static void ecg_adc_isr_callback(void)
     adc_chn_config_t adcChnConfig;
     if(i % 2)
     {
-       // ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
-				ecgdatapackage.ecgdata[i/2] = sinTab[j++];
+        ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+			//	ecgdatapackage.ecgdata[i/2] = sinTab[j++];
         adcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
         adcChnConfig.diffEnable = false;
         adcChnConfig.intEnable = true;
@@ -91,6 +96,21 @@ static void ecg_adc_isr_callback(void)
 	if(i >= (ECGNUMPACKAGE<<1))
 	{
 		i = 0;
+		BT_Status = GPIO_DRV_ReadPinInput(kGpioBTPIO1);
+		if(BT_Status == 0)
+		{
+			BLEConnectedFlag = 0;
+			BT_StatusNum = 0;
+			LED1_OFF;
+		}
+		else
+		{
+			BT_StatusNum++;
+			if(BT_StatusNum >=10)
+			{
+				BLEConnectedFlag = 1;
+			}
+		}
 		ecgdatapackage.leadoffstatus = GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK);
 		ecgdatapackage.sequence++;
 		ecgdatapackage.battery = 0;

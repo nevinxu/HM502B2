@@ -607,8 +607,8 @@ namespace MotionSensor
 
                                 DataTransmissionFlag = 1;
                                 BLEConnectFlagTimerOut = 0;
-                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[13]);
-                                Vbat = Convert.ToInt16(SerialReceiveData[14]);                          
+                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[12]);
+                                Vbat = Convert.ToInt16(SerialReceiveData[14]<<8)+ Convert.ToInt16(SerialReceiveData[13]);                          
                             }
 
                             else if (SerialReceiveData[8] == 22)

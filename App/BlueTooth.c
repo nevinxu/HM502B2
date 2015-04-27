@@ -79,7 +79,7 @@ void task_bluetooth_tx(task_param_t param)
 
 	uint8_t i;
 //    i= sizeof(m_btdatapackage);
-//	InitBlueTooth();
+	InitBlueTooth();
     
 	while(1)
 	{
@@ -110,7 +110,7 @@ void task_bluetooth_rx(task_param_t param)
 	while(1)
 	{
         
-       if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,200))
+       if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,80))
        {
            if((bluerxbuffer[0] == 'O') && (bluerxbuffer[1] == 'K') && (bluerxbuffer[2] == '+'))
            {

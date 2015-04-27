@@ -41,7 +41,7 @@ void task_connnectpc_rx(task_param_t param)
 	uint8_t pcrxbuffer[100];
 	while(1)
 	{
-		if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_DEBUG_UART_INSTANCE,pcrxbuffer,100,100))
+		if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_DEBUG_UART_INSTANCE,pcrxbuffer,100,10))
         {
             if(pcrxbuffer[0] == 0x49 && pcrxbuffer[1] == 0x37)   //数据包头
             {
