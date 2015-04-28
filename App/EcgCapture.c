@@ -7,6 +7,8 @@
 #include "fsl_lpuart_common.h"
 #include "fsl_lpuart_driver.h"
 
+#include "board.h"
+
 #include "EcgCapture.h"
 #include "gpio_pins.h"
 #include "BlueTooth.h"

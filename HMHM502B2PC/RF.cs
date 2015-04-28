@@ -380,7 +380,7 @@ namespace MotionSensor
         {
             int EcgMaxValue, EcgMinValue;
 
-            while (SerialReceiveData.Count >= 6)
+            while (SerialReceiveData.Count >= 5)
             {
                 BLEConnectFlagTimerOut = 0;
                 if (SerialReceiveData[0] == 0x04)   //type (command)
@@ -917,15 +917,51 @@ namespace MotionSensor
             byte[] ssss ={ 01, 0x0A, 0xFE, 03, 00, 00, 0x13 };
             ssss[4] = (byte)connhandle;
             ssss[5] = (byte)(connhandle >> 8);
-            SerialPort.Write(ssss, 0, 7);
-            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-            string DisplayString = "Send <GAP_EstablishLinkRequest> Command!!!\r\n";
-            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-            OutMsg(MonitorText, DisplayString, Color.Red);
 
-            string DisplayString2 = "设备正在断开，请稍等。。。\r\n";
+            try
+            {
+                SerialPort.Write(ssss, 0, 7);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("串口连接失败{0}", ex.ToString());
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "主设备usb连接断开,请重新插拔设备!!\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+                ConnectBLEButton.Text = "设备已断开";
+                ConnectBLEButton.Enabled = true;
+                this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
+
+                DataStoreButton.Enabled = false;
+
+                ScanButton.Enabled = true;
+
+                DisplayString = "设备已断开！\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+
+                for (int i = 0; i < N * M; i++)
+                {
+                    XdataV[i] = 0;
+                }
+                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+
+                BLEConnectFlag = 0;
+                return;
+            }
+            finally
+            {
+
+            }
+            System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
+            string DisplayString2 = "Send <GAP_EstablishLinkRequest> Command!!!\r\n";
             DisplayString2 = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
             OutMsg(MonitorText, DisplayString2, Color.Red);
+
+            string DisplayString3 = "设备正在断开，请稍等。。。\r\n";
+            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+            OutMsg(MonitorText, DisplayString3, Color.Red);
         }
         private void TGAP_GEN_DISC_SCANCommand(short msec)
         {
@@ -1116,7 +1152,7 @@ namespace MotionSensor
         private void timer1_Tick(object sender, EventArgs e)
         {
             BLEConnectFlagTimerOut++;
-            if (BLEConnectFlagTimerOut >= 20)
+            if (BLEConnectFlagTimerOut >= 30)
             {
                 BLEConnectFlagTimerOut = 0;
                 if (ConnectBLEButton.Text == "设备已连接")

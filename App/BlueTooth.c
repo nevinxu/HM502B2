@@ -78,7 +78,6 @@ void task_bluetooth_tx(task_param_t param)
 {
 
 	uint8_t i;
-//    i= sizeof(m_btdatapackage);
 	InitBlueTooth();
     
 	while(1)

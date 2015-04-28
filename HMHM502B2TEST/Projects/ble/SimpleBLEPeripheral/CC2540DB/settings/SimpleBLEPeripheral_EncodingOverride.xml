@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<userOverrides>
+  <override>
+    <path>D:\HM502B1\HM502B1-Device\Components\hal\target\CC2540EB\hal_ecg.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>D:\HM502B1\HM502B1-Device\Projects\ble\SimpleBLEPeripheral\Source\ADS1194.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>D:\HM502B1\HM502B1-Device\Projects\ble\SimpleBLEPeripheral\Source\BLE_SEND.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>D:\HM502B1\HM502B1&#x4e0B;&#x4F4D;&#x673A;&#x7A0B;&#x5e8F;\Projects\ble\SimpleBLEPeripheral\Source\ADS1194.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>D:\HM502B1\HM502B1&#x4e0B;&#x4F4D;&#x673A;&#x7A0B;&#x5e8F;\Projects\ble\SimpleBLEPeripheral\Source\BLE_SEND.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>F:\Texas Instruments\BLE-CC254x-1.4.0\Components\hal\target\CC2540EB\hal_ecg.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>F:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SimpleBLEPeripheral\Source\ADS1194.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>F:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SimpleBLEPeripheral\Source\BLE_SEND.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>H:\Texas Instruments\BLE-CC254x-1.4.0\Components\hal\target\CC2540EB\hal_ecg.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>H:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SimpleBLEPeripheral\Source\ADS1194.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>H:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SimpleBLEPeripheral\Source\BLE_SEND.c</path>
+    <encoding>System</encoding>
+  </override>
+</userOverrides>
+
+

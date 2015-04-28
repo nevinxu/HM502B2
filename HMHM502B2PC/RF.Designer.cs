@@ -86,8 +86,6 @@
             this.button2 = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -673,36 +671,12 @@
             this.timer1.Enabled = true;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // button3
-            // 
-            this.button3.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.button3.Location = new System.Drawing.Point(873, 401);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(68, 23);
-            this.button3.TabIndex = 32;
-            this.button3.Text = "蓝牙断开";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // button4
-            // 
-            this.button4.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.button4.Location = new System.Drawing.Point(794, 401);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(70, 23);
-            this.button4.TabIndex = 33;
-            this.button4.Text = "蓝牙连接";
-            this.button4.UseVisualStyleBackColor = false;
-            this.button4.Click += new System.EventHandler(this.button4_Click_1);
-            // 
             // RF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(1063, 615);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.IDValuebutton);
@@ -727,7 +701,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RF";
-            this.Text = "HM502B2心电数据显示软件V1.2(20150426)";
+            this.Text = "HM502B2心电数据显示软件V1.2(20150427)";
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();
@@ -801,8 +775,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button3;
     }
 }
 
