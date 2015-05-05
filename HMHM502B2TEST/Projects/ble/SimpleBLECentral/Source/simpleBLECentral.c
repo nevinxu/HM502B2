@@ -510,7 +510,7 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
  */
 static void simpleBLECentralRssiCB( uint16 connHandle, int8 rssi )
 {
-    LCD_WRITE_STRING_VALUE( "RSSI -dB:", (uint8) (-rssi), 10, HAL_LCD_LINE_1 );
+  //  LCD_WRITE_STRING_VALUE( "RSSI -dB:", (uint8) (-rssi), 10, HAL_LCD_LINE_1 );
 }
 
 /*********************************************************************
@@ -663,24 +663,24 @@ static void simpleBLECentralPairStateCB( uint16 connHandle, uint8 state, uint8 s
 {
   if ( state == GAPBOND_PAIRING_STATE_STARTED )
   {
-    LCD_WRITE_STRING( "Pairing started", HAL_LCD_LINE_1 );
+//    LCD_WRITE_STRING( "Pairing started", HAL_LCD_LINE_1 );
   }
   else if ( state == GAPBOND_PAIRING_STATE_COMPLETE )
   {
     if ( status == SUCCESS )
     {
-      LCD_WRITE_STRING( "Pairing success", HAL_LCD_LINE_1 );
+//      LCD_WRITE_STRING( "Pairing success", HAL_LCD_LINE_1 );
     }
     else
     {
-      LCD_WRITE_STRING_VALUE( "Pairing fail", status, 10, HAL_LCD_LINE_1 );
+//      LCD_WRITE_STRING_VALUE( "Pairing fail", status, 10, HAL_LCD_LINE_1 );
     }
   }
   else if ( state == GAPBOND_PAIRING_STATE_BONDED )
   {
     if ( status == SUCCESS )
     {
-      LCD_WRITE_STRING( "Bonding success", HAL_LCD_LINE_1 );
+//      LCD_WRITE_STRING( "Bonding success", HAL_LCD_LINE_1 );
     }
   }
 }
