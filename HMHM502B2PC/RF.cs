@@ -59,7 +59,10 @@ namespace MotionSensor
 
         private int connhandle = 0;
 
+        private int DebugMode = 2;
+        private int EcgReceiveFlagTimer = 0;
 
+        private int DisConnectBLEEnableFlag = 0;
 
 
 
@@ -329,7 +332,7 @@ namespace MotionSensor
                 if (ComInit())
                 {
                     System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                    string DisplayString = "串口连接成功！\r\n";
+                    string DisplayString = "正在连接串口...\r\n";
                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                     OutMsg(MonitorText, DisplayString, Color.Red);
                     comboBoxCom.Enabled = false;
@@ -380,15 +383,17 @@ namespace MotionSensor
         {
             int EcgMaxValue, EcgMinValue;
 
-            while (SerialReceiveData.Count >= 5)
+            while (SerialReceiveData.Count >= 4)
             {
                 BLEConnectFlagTimerOut = 0;
-                if (SerialReceiveData[0] == 0x04)   //type (command)
+                if (DebugMode == 1)
                 {
-                    if (SerialReceiveData[5] == 0x00)  //状态正常
+                    if (SerialReceiveData[0] == 0x04)   //type (command)
                     {
-                        if ((SerialReceiveData[3] == 0x00) && (SerialReceiveData[4] == 0x06))
-                        { 
+                        if (SerialReceiveData[5] == 0x00)  //状态正常
+                        {
+                            if ((SerialReceiveData[3] == 0x00) && (SerialReceiveData[4] == 0x06))
+                            {
                                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                                 string DisplayString = "GAP_DeviceInitDone！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -412,250 +417,256 @@ namespace MotionSensor
                                     }
 
                                 }
-                        }
-                        else if ((SerialReceiveData[3] == 0x7f) && (SerialReceiveData[4] == 0x06)) //GAP_HCI_ExtentionCommandStatus
-                        {
-                            if ((SerialReceiveData[6] == 0x00) && (SerialReceiveData[7] == 0xFE))
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "GAP_DeviceInit！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
                             }
-                            else if ((SerialReceiveData[6] == 0x04) && (SerialReceiveData[7] == 0xFE))
+                            else if ((SerialReceiveData[3] == 0x7f) && (SerialReceiveData[4] == 0x06)) //GAP_HCI_ExtentionCommandStatus
                             {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "GAP_DeviceDiscoveryRequest！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            else if ((SerialReceiveData[6] == 0x09) && (SerialReceiveData[7] == 0xFE))
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "GAP_EstablishLinkRequest！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                ConnectBLEButton.Text = "设备已连接";
-                                PauseButton.Text = "运行中";
-
-                                DisplayString = "设备已连接！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                BLEConnectFlag = 1;
-
-                                DataStoreButton.Enabled = true;
-                                StartStoreDataTime = DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString();
-                                string filePath3 = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
-                                //判断文件是不是存在
-                                if (File.Exists(filePath3))
+                                if ((SerialReceiveData[6] == 0x00) && (SerialReceiveData[7] == 0xFE))
                                 {
-                                    //如果存在则删除
-                                    File.Delete(filePath3);
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "GAP_DeviceInit！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                                else if ((SerialReceiveData[6] == 0x04) && (SerialReceiveData[7] == 0xFE))
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "GAP_DeviceDiscoveryRequest！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                                else if ((SerialReceiveData[6] == 0x09) && (SerialReceiveData[7] == 0xFE))
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "GAP_EstablishLinkRequest！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                    ConnectBLEButton.Text = "设备已连接";
+                                    PauseButton.Text = "运行中";
+
+                                    DisplayString = "设备已连接！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                    BLEConnectFlag = 1;
+
+                                    DataStoreButton.Enabled = true;
+                                    StartStoreDataTime = DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString();
+                                    string filePath3 = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
+                                    //判断文件是不是存在
+                                    if (File.Exists(filePath3))
+                                    {
+                                        //如果存在则删除
+                                        File.Delete(filePath3);
+                                    }
+                                }
+                                else if ((SerialReceiveData[6] == 0x0A) && (SerialReceiveData[7] == 0xFE))
+                                {
+                                    //System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    //string DisplayString = "GAP_TerminateLinkRequest！\r\n";
+                                    //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    //OutMsg(MonitorText, DisplayString, Color.Red);
+                                    //ConnectBLEButton.Text = "设备已断开";
+                                    //ConnectBLEButton.Enabled = true;
+                                    //this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
+
+                                    //DataStoreButton.Enabled = false;
+
+                                    //ScanButton.Enabled = true;
+
+                                    //DisplayString = "设备已断开！\r\n";
+                                    //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    //OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                    //for (int i = 0; i < N * M; i++)
+                                    //{
+                                    //    XdataV[i] = 0;
+                                    //}
+                                    //chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+
+                                    //BLEConnectFlag = 0;
+                                }
+                                else if ((SerialReceiveData[6] == 0x30) && (SerialReceiveData[7] == 0xFE))
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "GAP_SetParam Success！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
                                 }
                             }
-                            else if ((SerialReceiveData[6] == 0x0A) && (SerialReceiveData[7] == 0xFE))
+                            else if ((SerialReceiveData[3] == 0x05) && (SerialReceiveData[4] == 0x06))
                             {
-                                //System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                //string DisplayString = "GAP_TerminateLinkRequest！\r\n";
-                                //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                //OutMsg(MonitorText, DisplayString, Color.Red);
-                                //ConnectBLEButton.Text = "设备已断开";
-                                //ConnectBLEButton.Enabled = true;
-                                //this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
+                                connhandle = SerialReceiveData[13] + (SerialReceiveData[14] << 8);
+                            }
+                            else if ((SerialReceiveData[3] == 0x06) && (SerialReceiveData[4] == 0x06))
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "GAP_TerminateLinkRequest！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                ConnectBLEButton.Text = "设备已断开";
+                                ConnectBLEButton.Enabled = true;
+                                this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
 
-                                //DataStoreButton.Enabled = false;
+                                DataStoreButton.Enabled = false;
 
-                                //ScanButton.Enabled = true;
+                                ScanButton.Enabled = true;
 
-                                //DisplayString = "设备已断开！\r\n";
-                                //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                //OutMsg(MonitorText, DisplayString, Color.Red);
+                                DisplayString = "设备已断开！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                //for (int i = 0; i < N * M; i++)
+                                for (int i = 0; i < N * M; i++)
+                                {
+                                    XdataV[i] = 0;
+                                }
+                                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+
+                                BLEConnectFlag = 0;
+                            }
+                            else if ((SerialReceiveData[3] == 0x0D) && (SerialReceiveData[4] == 0x06))
+                            {
+                                if ((SerialReceiveData[6] == 0x00) && (SerialReceiveData[7] == 0x02))
+                                {
+                                    for (int i = 0; i < 6; i++)
+                                    {
+                                        ScanBLEMAC[ScanBLENum, i] = SerialReceiveData[8 + i];
+                                    }
+                                    ScanBLENum++;
+
+                                    MACComboBox.Items.Add(Convert.ToString(SerialReceiveData[13], 16) + ":" + Convert.ToString(SerialReceiveData[12], 16) + ":" + Convert.ToString(SerialReceiveData[11], 16) + ":" + Convert.ToString(SerialReceiveData[10], 16) + ":" + Convert.ToString(SerialReceiveData[9], 16) + ":" + Convert.ToString(SerialReceiveData[8], 16));
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "搜索到一个设备！\r\n正在继续搜索设备...\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                }
+                                if ((SerialReceiveData[6] == 0x04) && (SerialReceiveData[7] == 0x02))
+                                {
+                                    //MACComboBox.Items.Add(SerialReceiveData[8] + ":" + SerialReceiveData[9] + ":" + SerialReceiveData[10] + ":" + SerialReceiveData[11] + ":" + SerialReceiveData[9] + ":" + SerialReceiveData[13]);
+                                    //System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    //string DisplayString = "搜索到一个设备！\r\n正在继续搜索设备...\r\n";
+                                    //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    //OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                            }
+                            else if ((SerialReceiveData[3] == 0x01) && (SerialReceiveData[4] == 0x06))
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "GAP_DeviceDiscoveryDone！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                ScanButton.Enabled = true;
+                                MACComboBox.Enabled = true;
+                                if (ScanBLENum > 0)
+                                {
+                                    MACComboBox.SelectedIndex = 0;
+                                }
+                                ConnectBLEButton.Enabled = true;
+                                ConnectBLEButton.Text = "设备已断开";
+                            }
+                            else if ((SerialReceiveData[3] == 0x1b) && (SerialReceiveData[4] == 0x05))
+                            {
+                                EcgCaptureFlag = 1;
+                                if (SerialReceiveData[8] == 18)
+                                {
+                                    ;
+                                    for (int j = (M - 8); j < M; j++)   //
+                                    {
+                                        for (int k = 0; k < N - 1; k++)
+                                        {
+                                            XdataV[k * M + j] = XdataV[(k + 1) * M + j];
+                                        }
+                                    }
+                                    XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15] & 0x7f) + Convert.ToDouble((SerialReceiveData[16] & 0x07) << 7);
+                                    XdataV[(N - 1) * M + 1] = Convert.ToDouble((SerialReceiveData[16] & 0x78) >> 3) + Convert.ToDouble((SerialReceiveData[17] & 0x3f) << 4);
+                                    XdataV[(N - 1) * M + 2] = Convert.ToDouble((SerialReceiveData[17] & 0x40) >> 6) + Convert.ToDouble((SerialReceiveData[18] & 0x7f) << 1) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
+                                    XdataV[(N - 1) * M + 3] = Convert.ToDouble((SerialReceiveData[19] & 0x7c) >> 2) + Convert.ToDouble((SerialReceiveData[20] & 0x1f) << 5);
+                                    XdataV[(N - 1) * M + 4] = Convert.ToDouble((SerialReceiveData[20] & 0x60) >> 5) + Convert.ToDouble((SerialReceiveData[21] & 0x7f) << 2) + Convert.ToDouble((SerialReceiveData[22] & 0x01) << 9);
+                                    XdataV[(N - 1) * M + 5] = Convert.ToDouble((SerialReceiveData[22] & 0x7e) >> 1) + Convert.ToDouble((SerialReceiveData[23] & 0x0f) << 6);
+                                    XdataV[(N - 1) * M + 6] = Convert.ToDouble((SerialReceiveData[23] & 0x70) >> 4) + Convert.ToDouble((SerialReceiveData[24] & 0x7f) << 3);
+
+                                    XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[25] & 0x7f) + Convert.ToDouble((SerialReceiveData[26] & 0x07) << 7);
+                                    DataTransmissionFlag = 1;
+                                    BLEConnectFlagTimerOut = 0;
+                                    LeadOffStatus = Convert.ToInt16(SerialReceiveData[13]);
+                                    Vbat = Convert.ToInt16(SerialReceiveData[14]);
+                                }
+                                else if (SerialReceiveData[8] == 16)
+                                {
+                                    for (int j = (M - 8); j < M; j++)   //
+                                    {
+                                        for (int k = 0; k < N - 1; k++)
+                                        {
+                                            XdataV[k * M + j] = XdataV[(k + 1) * M + j];
+                                        }
+                                    }
+                                    XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[19] & 0xc0) << 2);
+                                    XdataV[(N - 1) * M + 1] = Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[19] & 0x30) << 4);
+                                    XdataV[(N - 1) * M + 2] = Convert.ToDouble(SerialReceiveData[17]) + Convert.ToDouble((SerialReceiveData[19] & 0x0c) << 6);
+                                    XdataV[(N - 1) * M + 3] = Convert.ToDouble(SerialReceiveData[18]) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
+                                    XdataV[(N - 1) * M + 4] = Convert.ToDouble(SerialReceiveData[20]) + Convert.ToDouble((SerialReceiveData[24] & 0xc0) << 2);
+                                    XdataV[(N - 1) * M + 5] = Convert.ToDouble(SerialReceiveData[21]) + Convert.ToDouble((SerialReceiveData[24] & 0x30) << 4);
+                                    XdataV[(N - 1) * M + 6] = Convert.ToDouble(SerialReceiveData[22]) + Convert.ToDouble((SerialReceiveData[24] & 0x0c) << 6);
+                                    XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[23]) + Convert.ToDouble((SerialReceiveData[24] & 0x03) << 8);
+
+
+                                    DataTransmissionFlag = 1;
+                                    BLEConnectFlagTimerOut = 0;
+                                    LeadOffStatus = Convert.ToInt16(SerialReceiveData[12]);
+                                    Vbat = Convert.ToInt16(SerialReceiveData[14] << 8) + Convert.ToInt16(SerialReceiveData[13]);
+                                }
+
+                                else if (SerialReceiveData[8] == 22)
+                                {
+                                    ;
+                                    for (int j = 0; j < M; j++)   //
+                                    {
+                                        for (int k = 0; k < N - 1; k++)
+                                        {
+                                            XdataV[k * M + j] = XdataV[(k + 1) * M + j];
+                                        }
+                                        XdataV[(N - 1) * M + j] = (Convert.ToDouble(SerialReceiveData[(j << 1) + 16]) * 256) + Convert.ToDouble(SerialReceiveData[(j << 1) + 15]);
+                                    }
+                                    DataTransmissionFlag = 1;
+                                    BLEConnectFlagTimerOut = 0;
+                                    LeadOffStatus = Convert.ToInt16(SerialReceiveData[12]);
+                                    Vbat = Convert.ToInt16(SerialReceiveData[14]) * 256 + Convert.ToInt16(SerialReceiveData[13]);
+                                }
+                                //byte[] ECGData = new byte[M * 2 + 3];
+                                //for (int i = 0; i < M * 2; i++)
                                 //{
-                                //    XdataV[i] = 0;
+                                //   // ECGData[i] = SerialReceiveData[11 + i];
                                 //}
-                                //chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
 
-                                //BLEConnectFlag = 0;
-                            }
-                            else if ((SerialReceiveData[6] == 0x30) && (SerialReceiveData[7] == 0xFE))
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "GAP_SetParam Success！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                        }
-                        else if ((SerialReceiveData[3] == 0x05) && (SerialReceiveData[4] == 0x06))
-                        { 
-                            connhandle = SerialReceiveData[13] + (SerialReceiveData[14]<<8);
-                        }
-                        else if ((SerialReceiveData[3] == 0x06) && (SerialReceiveData[4] == 0x06))
-                        {
-                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                            string DisplayString = "GAP_TerminateLinkRequest！\r\n";
-                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                            OutMsg(MonitorText, DisplayString, Color.Red);
-                            ConnectBLEButton.Text = "设备已断开";
-                            ConnectBLEButton.Enabled = true;
-                            this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
-
-                            DataStoreButton.Enabled = false;
-
-                            ScanButton.Enabled = true;
-
-                            DisplayString = "设备已断开！\r\n";
-                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                            OutMsg(MonitorText, DisplayString, Color.Red);
-
-                            for (int i = 0; i < N * M; i++)
-                            {
-                                XdataV[i] = 0;
-                            }
-                            chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
-
-                            BLEConnectFlag = 0;
-                        }
-                        else if ((SerialReceiveData[3] == 0x0D) && (SerialReceiveData[4] == 0x06))
-                        {
-                            if ((SerialReceiveData[6] == 0x00) && (SerialReceiveData[7] == 0x02))
-                            {
-                                for (int i = 0; i < 6; i++)
+                                FileStream fs = null;
+                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
+                                try
                                 {
-                                    ScanBLEMAC[ScanBLENum, i] = SerialReceiveData[8 + i];
+                                    fs = File.OpenWrite(filePath);
+                                    //设定书写的开始位置为文件的末尾   
+                                    fs.Position = fs.Length;
+                                    //将待写入内容追加到文件末尾   
+                                    fs.Write(ECGData, 0, M * 2);
+                                    fs.Position = fs.Length;
+
                                 }
-                                ScanBLENum++;
-
-                                MACComboBox.Items.Add(Convert.ToString(SerialReceiveData[13], 16) + ":" + Convert.ToString(SerialReceiveData[12], 16) + ":" + Convert.ToString(SerialReceiveData[11], 16) + ":" + Convert.ToString(SerialReceiveData[10], 16) + ":" + Convert.ToString(SerialReceiveData[9], 16) + ":" + Convert.ToString(SerialReceiveData[8], 16));
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "搜索到一个设备！\r\n正在继续搜索设备...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("文件打开失败{0}", ex.ToString());
+                                }
+                                finally
+                                {
+                                    fs.Close();
+                                }
                             }
-                            if ((SerialReceiveData[6] == 0x04) && (SerialReceiveData[7] == 0x02))
-                            {
-                                //MACComboBox.Items.Add(SerialReceiveData[8] + ":" + SerialReceiveData[9] + ":" + SerialReceiveData[10] + ":" + SerialReceiveData[11] + ":" + SerialReceiveData[9] + ":" + SerialReceiveData[13]);
-                                //System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                //string DisplayString = "搜索到一个设备！\r\n正在继续搜索设备...\r\n";
-                                //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                //OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
+
+                            SerialReceiveData.RemoveRange(0, SerialReceiveData[2] + 3);//从接收列表中删除包
                         }
-                        else if ((SerialReceiveData[3] == 0x01) && (SerialReceiveData[4] == 0x06))
+                        else
                         {
-                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                            string DisplayString = "GAP_DeviceDiscoveryDone！\r\n";
-                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                            OutMsg(MonitorText, DisplayString, Color.Red);
-                            ScanButton.Enabled = true;
-                            MACComboBox.Enabled = true;
-                            if (ScanBLENum > 0)
-                            {
-                                MACComboBox.SelectedIndex = 0;
-                            }
-                            ConnectBLEButton.Enabled = true;
-                            ConnectBLEButton.Text = "设备已断开";
+                            //这里是很重要的，如果数据开始不是头，则删除数据  
+                            SerialReceiveData.RemoveAt(0);
                         }
-                        else if ((SerialReceiveData[3] == 0x1b) && (SerialReceiveData[4] == 0x05))
-                        {
-                            EcgCaptureFlag = 1;
-                            if (SerialReceiveData[8] == 18)
-                            {
-                                ;
-                                for (int j = (M - 8); j < M; j++)   //
-                                {
-                                    for (int k = 0; k < N - 1; k++)
-                                    {
-                                        XdataV[k * M + j] = XdataV[(k + 1) * M + j];
-                                    }
-                                }
-                                XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15] & 0x7f) + Convert.ToDouble((SerialReceiveData[16] & 0x07) << 7);
-                                XdataV[(N - 1) * M + 1] = Convert.ToDouble((SerialReceiveData[16] & 0x78) >> 3) + Convert.ToDouble((SerialReceiveData[17] & 0x3f) << 4);
-                                XdataV[(N - 1) * M + 2] = Convert.ToDouble((SerialReceiveData[17] & 0x40) >> 6) + Convert.ToDouble((SerialReceiveData[18] & 0x7f) << 1) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
-                                XdataV[(N - 1) * M + 3] = Convert.ToDouble((SerialReceiveData[19] & 0x7c) >> 2) + Convert.ToDouble((SerialReceiveData[20] & 0x1f) << 5);
-                                XdataV[(N - 1) * M + 4] = Convert.ToDouble((SerialReceiveData[20] & 0x60) >> 5) + Convert.ToDouble((SerialReceiveData[21] & 0x7f) << 2) + Convert.ToDouble((SerialReceiveData[22] & 0x01) << 9);
-                                XdataV[(N - 1) * M + 5] = Convert.ToDouble((SerialReceiveData[22] & 0x7e) >> 1) + Convert.ToDouble((SerialReceiveData[23] & 0x0f) << 6);
-                                XdataV[(N - 1) * M + 6] = Convert.ToDouble((SerialReceiveData[23] & 0x70) >> 4) + Convert.ToDouble((SerialReceiveData[24] & 0x7f) << 3);
-
-                                XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[25] & 0x7f) + Convert.ToDouble((SerialReceiveData[26] & 0x07) << 7);
-                                DataTransmissionFlag = 1;
-                                BLEConnectFlagTimerOut = 0;
-                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[13]);
-                                Vbat = Convert.ToInt16(SerialReceiveData[14]);
-                            }
-                            else if (SerialReceiveData[8] == 16)
-                            {
-                                for (int j = (M - 8); j < M; j++)   //
-                                {
-                                    for (int k = 0; k < N - 1; k++)
-                                    {
-                                        XdataV[k * M + j] = XdataV[(k + 1) * M + j];
-                                    }
-                                }
-                                XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[19] & 0xc0) << 2);
-                                XdataV[(N - 1) * M + 1] = Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[19] & 0x30) << 4);
-                                XdataV[(N - 1) * M + 2] = Convert.ToDouble(SerialReceiveData[17]) + Convert.ToDouble((SerialReceiveData[19] & 0x0c) << 6);
-                                XdataV[(N - 1) * M + 3] = Convert.ToDouble(SerialReceiveData[18]) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
-                                XdataV[(N - 1) * M + 4] = Convert.ToDouble(SerialReceiveData[20]) + Convert.ToDouble((SerialReceiveData[24] & 0xc0) << 2);
-                                XdataV[(N - 1) * M + 5] = Convert.ToDouble(SerialReceiveData[21]) + Convert.ToDouble((SerialReceiveData[24] & 0x30) << 4);
-                                XdataV[(N - 1) * M + 6] = Convert.ToDouble(SerialReceiveData[22]) + Convert.ToDouble((SerialReceiveData[24] & 0x0c) << 6);
-                                XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[23]) + Convert.ToDouble((SerialReceiveData[24] & 0x03) << 8);
-
-
-                                DataTransmissionFlag = 1;
-                                BLEConnectFlagTimerOut = 0;
-                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[12]);
-                                Vbat = Convert.ToInt16(SerialReceiveData[14]<<8)+ Convert.ToInt16(SerialReceiveData[13]);                          
-                            }
-
-                            else if (SerialReceiveData[8] == 22)
-                            {
-                                ;
-                                for (int j = 0; j < M; j++)   //
-                                {
-                                    for (int k = 0; k < N - 1; k++)
-                                    {
-                                        XdataV[k * M + j] = XdataV[(k + 1) * M + j];
-                                    }
-                                    XdataV[(N - 1) * M + j] = (Convert.ToDouble(SerialReceiveData[(j << 1) + 16]) * 256) + Convert.ToDouble(SerialReceiveData[(j << 1) + 15]);
-                                }
-                                DataTransmissionFlag = 1;
-                                BLEConnectFlagTimerOut = 0;
-                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[12]);
-                                Vbat = Convert.ToInt16(SerialReceiveData[14]) * 256 + Convert.ToInt16(SerialReceiveData[13]);
-                            }
-                            //byte[] ECGData = new byte[M * 2 + 3];
-                            //for (int i = 0; i < M * 2; i++)
-                            //{
-                            //   // ECGData[i] = SerialReceiveData[11 + i];
-                            //}
-
-                            FileStream fs = null;
-                            string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
-                            try
-                            {
-                                fs = File.OpenWrite(filePath);
-                                //设定书写的开始位置为文件的末尾   
-                                fs.Position = fs.Length;
-                                //将待写入内容追加到文件末尾   
-                                fs.Write(ECGData, 0, M * 2);
-                                fs.Position = fs.Length;
-
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("文件打开失败{0}", ex.ToString());
-                            }
-                            finally
-                            {
-                                fs.Close();
-                            }
-                        }
-                        
-                        SerialReceiveData.RemoveRange(0, SerialReceiveData[2] + 3);//从接收列表中删除包
                     }
                     else
                     {
@@ -663,13 +674,137 @@ namespace MotionSensor
                         SerialReceiveData.RemoveAt(0);
                     }
                 }
-                else
+                else if (DebugMode == 2)
                 {
-                    //这里是很重要的，如果数据开始不是头，则删除数据  
-                    SerialReceiveData.RemoveAt(0);
-                }
-                
+                    if (SerialReceiveData[0] == 0x77)   //type (command)
+                    {
+                        if (SerialReceiveData[2] == 0x00)  //状态正常
+                        {
+                            if (SerialReceiveData[1] == 0x02)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "串口连接成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                            }
+                            if (SerialReceiveData[1] == 0x0E)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "正在搜索设备！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                            }
+                            if (SerialReceiveData[1] == 0x04)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "搜索设备完成！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                if (SerialReceiveData[3] > 0)
+                                {
+                                    for (int i = 0; i < (SerialReceiveData[3] / 6); i++)
+                                    {
+                                        MACComboBox.Items.Add(Convert.ToString(SerialReceiveData[4 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[5 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[6 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[7 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[8 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[9 + 6 * i], 16));
+                                    }
+                                    ConnectBLEButton.Enabled = true;
+                                    ConnectBLEButton.Text = "设备已断开";  
+                                }
+                                else
+                                {
+                                    MACComboBox.Items.Add("无设备");
+                                }
+                                MACComboBox.SelectedIndex = 0;
+                                ScanButton.Enabled = true;
+                                MACComboBox.Enabled = true;
+                            }
+                            if (SerialReceiveData[1] == 0x06)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "心电补丁连接成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                BLEConnectFlag = 1;
+                            }
+                            if (SerialReceiveData[1] == 0x09)
+                            {
+                                EcgReceiveFlagTimer++;
+                                if(EcgReceiveFlagTimer >= 20)
+                                {
+                                    EcgReceiveFlagTimer = 0;
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "正在接收心电数据！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+
+                                for (int j = (M - 8); j < M; j++)   //
+                                {
+                                    for (int k = 0; k < N - 1; k++)
+                                    {
+                                        XdataV[k * M + j] = XdataV[(k + 1) * M + j];
+                                    }
+                                }
+                                XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2);
+                                XdataV[(N - 1) * M + 1] = Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4);
+                                XdataV[(N - 1) * M + 2] = Convert.ToDouble(SerialReceiveData[10]) + Convert.ToDouble((SerialReceiveData[12] & 0x0c) << 6);
+                                XdataV[(N - 1) * M + 3] = Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[12] & 0x03) << 8);
+                                XdataV[(N - 1) * M + 4] = Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[17] & 0xc0) << 2);
+                                XdataV[(N - 1) * M + 5] = Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4);
+                                XdataV[(N - 1) * M + 6] = Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6);
+                                XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8);
+
+
+                                DataTransmissionFlag = 1;
+                                BLEConnectFlagTimerOut = 0;
+                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[5]);
+                                Vbat = Convert.ToInt16(SerialReceiveData[7] << 8) + Convert.ToInt16(SerialReceiveData[6]);
+                            }
+                            if (SerialReceiveData[1] == 0x0B)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "设备已断开！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                ConnectBLEButton.Text = "设备已断开";
+                                ConnectBLEButton.Enabled = true;
+                                ScanButton.Enabled = true;
+
+                                if (DisConnectBLEEnableFlag == 0)
+                                {
+                                    MACComboBox.Items.Clear();
+                                    MACComboBox.Items.Add("无设备");
+                                    MACComboBox.SelectedIndex = 0;
+                                    ConnectBLEButton.Enabled = false;
+                                }
+
+                                for (int i = 0; i < N * M; i++)
+                                {
+                                    XdataV[i] = 0;
+                                }
+                                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+
+                                BLEConnectFlag = 0;
+                            }
+                            SerialReceiveData.RemoveRange(0, SerialReceiveData[3] + 4);//从接收列表中删除包
+                        }
+                        else
+                        {
+                            //这里是很重要的，如果数据开始不是头，则删除数据  
+                            SerialReceiveData.RemoveAt(0); 
+                        }
+                        
+                    }
+                    else
+                    {
+                        //这里是很重要的，如果数据开始不是头，则删除数据  
+                        SerialReceiveData.RemoveAt(0);
+                    }
+                    
+                    
+                }   
             }
+            
 
             if (BLEConnectFlag == 1)
             {
@@ -847,6 +982,7 @@ namespace MotionSensor
         {
             if (ConnectBLEButton.Text == "设备已连接")
             {
+
                 DisconnectBLESerialCommand();
             }
             else
@@ -865,15 +1001,30 @@ namespace MotionSensor
 
         private void SendConnectSerialCommand()
         {
-            byte[] ssss ={01, 00, 0xFE, 0x26, 08, 05, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 
-            00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 
-            00, 00, 00, 00, 00, 00, 01, 00, 00, 00 };
-            SerialPort.Write(ssss, 0, 42);
+            if (DebugMode == 1)
+            {
+                byte[] ssss ={01, 00, 0xFE, 0x26, 08, 05, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 
+                00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 
+                00, 00, 00, 00, 00, 00, 01, 00, 00, 00 };
+                SerialPort.Write(ssss, 0, 42);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "Send <GAP_DeviceInit> Command!!!\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
 
-            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-            string DisplayString = "Send <GAP_DeviceInit> Command!!!\r\n";
-            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-            OutMsg(MonitorText, DisplayString, Color.Red);
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x01, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+            }
+
+            //System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+            //string DisplayString = "Send <GAP_DeviceInit> Command!!!\r\n";
+            //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+            //OutMsg(MonitorText, DisplayString, Color.Red);
+
+
         }
         private void SendDisConnectSerialCommand()
         {
@@ -886,82 +1037,121 @@ namespace MotionSensor
         }
         private void SendDisAdvertiseSerialCommand()
         {
-            byte[] ssss = {01, 04, 0xFE, 03, 03, 01, 00};
-            SerialPort.Write(ssss, 0, 7);
+            if (DebugMode == 1)
+            {
+                byte[] ssss = { 01, 04, 0xFE, 03, 03, 01, 00 };
+                SerialPort.Write(ssss, 0, 7);
 
-            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-            string DisplayString = "Send <GAP_DeviceDiscoveryRequest> Command!!!\r\n";
-            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-            OutMsg(MonitorText, DisplayString, Color.Red);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "Send <GAP_DeviceDiscoveryRequest> Command!!!\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x03, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求搜索设备...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
 
             MACComboBox.Items.Clear();
         }
         private void ConnectBLESerialCommand()
         {
-            byte[] ssss ={ 01, 09, 0xFE, 0x09, 00, 00, 02, 0xE6, 0x39, 00, 0x0B, 0x0E, 00 };
-
-            for (int i = 0; i < 6; i++)
+            if (DebugMode == 1)
             {
-                ssss[7 + i] = ScanBLEMAC[ChoiceBLE, i];
-            }
+                byte[] ssss = { 01, 09, 0xFE, 0x09, 00, 00, 02, 0xE6, 0x39, 00, 0x0B, 0x0E, 00 };
+
+                for (int i = 0; i < 6; i++)
+                {
+                    ssss[7 + i] = ScanBLEMAC[ChoiceBLE, i];
+                }
 
                 SerialPort.Write(ssss, 0, 13);
 
-            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-            string DisplayString = "Send <GAP_EstablishLinkRequest> Command!!!\r\n";
-            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-            OutMsg(MonitorText, DisplayString, Color.Red);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "Send <GAP_EstablishLinkRequest> Command!!!\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x05, 0x00, 0x01,0x00 };
+                ssss[4] = (byte)MACComboBox.SelectedIndex;
+                SerialPort.Write(ssss, 0, 5);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求连接设备...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+                DisConnectBLEEnableFlag = 0;
+            }
         }
         private void DisconnectBLESerialCommand()
         {
-            byte[] ssss ={ 01, 0x0A, 0xFE, 03, 00, 00, 0x13 };
-            ssss[4] = (byte)connhandle;
-            ssss[5] = (byte)(connhandle >> 8);
-
-            try
+            if (DebugMode == 1)
             {
-                SerialPort.Write(ssss, 0, 7);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("串口连接失败{0}", ex.ToString());
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "主设备usb连接断开,请重新插拔设备!!\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-                ConnectBLEButton.Text = "设备已断开";
-                ConnectBLEButton.Enabled = true;
-                this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
+                byte[] ssss = { 01, 0x0A, 0xFE, 03, 00, 00, 0x13 };
+                ssss[4] = (byte)connhandle;
+                ssss[5] = (byte)(connhandle >> 8);
 
-                DataStoreButton.Enabled = false;
-
-                ScanButton.Enabled = true;
-
-                DisplayString = "设备已断开！\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                for (int i = 0; i < N * M; i++)
+                try
                 {
-                    XdataV[i] = 0;
+                    SerialPort.Write(ssss, 0, 7);
                 }
-                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+                catch (Exception ex)
+                {
+                    Console.WriteLine("串口连接失败{0}", ex.ToString());
+                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                    string DisplayString = "主设备usb连接断开,请重新插拔设备!!\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                    ConnectBLEButton.Text = "设备已断开";
+                    ConnectBLEButton.Enabled = true;
+                    this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
 
-                BLEConnectFlag = 0;
-                return;
+                    DataStoreButton.Enabled = false;
+
+                    ScanButton.Enabled = true;
+
+                    DisplayString = "设备已断开！\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+
+                    for (int i = 0; i < N * M; i++)
+                    {
+                        XdataV[i] = 0;
+                    }
+                    chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+
+                    BLEConnectFlag = 0;
+                    return;
+                }
+                finally
+                {
+
+                }
+                System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
+                string DisplayString2 = "Send <GAP_EstablishLinkRequest> Command!!!\r\n";
+                DisplayString2 = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
+                OutMsg(MonitorText, DisplayString2, Color.Red);
+
+                string DisplayString3 = "设备正在断开，请稍等。。。\r\n";
+                DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+                OutMsg(MonitorText, DisplayString3, Color.Red);
             }
-            finally
+            else if (DebugMode == 2)
             {
-
+                byte[] ssss = { 0x77, 0x0A, 0x00, 0x00};
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求断开设备...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+                DisConnectBLEEnableFlag = 1;
             }
-            System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
-            string DisplayString2 = "Send <GAP_EstablishLinkRequest> Command!!!\r\n";
-            DisplayString2 = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
-            OutMsg(MonitorText, DisplayString2, Color.Red);
-
-            string DisplayString3 = "设备正在断开，请稍等。。。\r\n";
-            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-            OutMsg(MonitorText, DisplayString3, Color.Red);
         }
         private void TGAP_GEN_DISC_SCANCommand(short msec)
         {

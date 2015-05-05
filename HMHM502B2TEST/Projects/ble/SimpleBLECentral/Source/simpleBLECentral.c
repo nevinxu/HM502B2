@@ -486,13 +486,15 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
 #if 1
   if ((pMsg->method == ATT_HANDLE_VALUE_NOTI) )
   {
-  //  osal_memcpy(&ecgdata,&pMsg->msg.handleValueNoti.len,20);
+    
     if(simpleBLEProcedureInProgress == FALSE )
     {
-     // osal_set_event( simpleBLETaskId, START_UARTECGSEND_EVT);
-      ecgsendflag = 1;
-      NPI_WriteTransport(pMsg->msg.handleValueNoti.value,pMsg->msg.handleValueNoti.len);
-      ecgsendflag = 0;
+      txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+      txSerialPkt.header.opCode = APP_CMD_DATASEND;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = pMsg->msg.handleValueNoti.len;
+      osal_memcpy(txSerialPkt.data,pMsg->msg.handleValueNoti.value,txSerialPkt.length);
+      sendSerialEvt();
     }
   }
 #endif
