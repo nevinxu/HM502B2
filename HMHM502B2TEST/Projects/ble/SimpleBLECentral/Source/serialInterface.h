@@ -32,7 +32,10 @@
 #define APP_CMD_AUTOCONNECT                0x11
 #define APP_CMD_AUTOCONNECTACK                0x12
 #define APP_CMD_RSSIVALUE                0x13
-
+#define APP_CMD_RECEIVEECGDATA                0x14
+#define APP_CMD_RECEIVEECGDATAACK                0x15
+#define APP_CMD_STOPRECEIVEECGDATA                0x16
+#define APP_CMD_STOPRECEIVEECGDATAACK                0x17
 // Serial Event Mnemonic        Opcode
 #define	APP_EVT_CMD_RESPONSE	0x81
 #define APP_EVT_CONNECT	        0x82 // Not used

@@ -38,6 +38,7 @@ BTDataPackage btdatapackage;
 PCTransmitComandPackage pctransmitpackage;
 
 extern uint8_t     BLEConnectedFlag;    //BLE连接状态
+extern uint8_t     ECGDataSendFlag;    //心电数据发送时能标志
 	
 int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 {
@@ -68,7 +69,7 @@ static void ecg_adc_isr_callback(void)
 	static uint8_t i,j;
 	static uint16_t batterybuffer[16];
 	uint16_t buffer = 0;
-    
+
     adc_chn_config_t adcChnConfig;
     if(i % 2)
     {
@@ -95,57 +96,61 @@ static void ecg_adc_isr_callback(void)
         ADC_DRV_ConfigConvChn(0, ECGCHNGROUP, &adcChnConfig);
     }
 		i++;
-	if(i >= (ECGNUMPACKAGE<<1))
-	{
-		i = 0;
-		BT_Status = GPIO_DRV_ReadPinInput(kGpioBTPIO1);
-		if(BT_Status == 0)
+		if(i >= (ECGNUMPACKAGE<<1))
 		{
-			BLEConnectedFlag = 0;
-			BT_StatusNum = 0;
-			LED1_OFF;
-		}
-		else
-		{
-			BT_StatusNum++;
-			if(BT_StatusNum >=10)
+			i = 0;
+			BT_Status = GPIO_DRV_ReadPinInput(kGpioBTPIO1);
+			if(BT_Status == 0)
 			{
-				BLEConnectedFlag = 1;
+				ECGDataSendFlag = 0;
+				BLEConnectedFlag = 0;
+				BT_StatusNum = 0;
+				LED1_OFF;
+			}
+			else
+			{
+				BT_StatusNum++;
+				if(BT_StatusNum >=10)
+				{
+					BLEConnectedFlag = 1;
+				}
+			}
+			if(ECGDataSendFlag  == 1)
+			{
+				ecgdatapackage.leadoffstatus = GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK);
+				ecgdatapackage.sequence++;
+				ecgdatapackage.battery = 0;
+				if(batterybuffer[15]>0)
+				{
+					for(uint8_t j = 0;j < 16; j++)
+					{
+						buffer += batterybuffer[j];
+					}
+					ecgdatapackage.battery = (buffer>>4);
+				}
+				else
+				{
+					ecgdatapackage.battery = batterybuffer[0];
+				}
+				
+				btdatapackage.code = ECGDATACODE;
+				btdatapackage.size = sizeof(ecgdatapackage);
+				memcpy(btdatapackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+
+		//压缩		
+				EncodeData4WTo5B(ecgdatapackage.ecgdata,&btdatapackage.data[4],8);
+				btdatapackage.size = btdatapackage.size-6;
+				
+				OSA_MsgQPut(hBTMsgQueue,&btdatapackage);   
+
+
+				pctransmitpackage.start = STARTHEAD;
+				pctransmitpackage.command = ECGDATACODE;
+				pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
+				memcpy(pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+				OSA_MsgQPut(hPCMsgQueue,&pctransmitpackage);  
 			}
 		}
-		ecgdatapackage.leadoffstatus = GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK);
-		ecgdatapackage.sequence++;
-		ecgdatapackage.battery = 0;
-		if(batterybuffer[15]>0)
-		{
-			for(uint8_t j = 0;j < 16; j++)
-			{
-				buffer += batterybuffer[j];
-			}
-			ecgdatapackage.battery = (buffer>>4);
-		}
-		else
-		{
-			ecgdatapackage.battery = batterybuffer[0];
-		}
-		
-		btdatapackage.code = ECGDATACODE;
-		btdatapackage.size = sizeof(ecgdatapackage);
-		memcpy(btdatapackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-
-//压缩		
-		EncodeData4WTo5B(ecgdatapackage.ecgdata,&btdatapackage.data[4],8);
-		btdatapackage.size = btdatapackage.size-6;
-		
-		OSA_MsgQPut(hBTMsgQueue,&btdatapackage);   
-
-
-		pctransmitpackage.start = STARTHEAD;
-		pctransmitpackage.command = ECGDATACODE;
-		pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
-		memcpy(pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-		OSA_MsgQPut(hPCMsgQueue,&pctransmitpackage);  
-	}
 }
 
 static void battery_adc_isr_callback(void)

@@ -12,7 +12,8 @@
 #define BTPACKAGEDEEP											10   //BLUE数据队列保存深度  
 
 
-#define ECGDATACODE									0x01
+#define ECGDATACODE												0x01
+#define SENDECGENABLECODE									0x02
 
 #define     AT                          "AT"
 #define     GETATOB                     "AT+ATOB?"                      //查询/设置模块三通模式

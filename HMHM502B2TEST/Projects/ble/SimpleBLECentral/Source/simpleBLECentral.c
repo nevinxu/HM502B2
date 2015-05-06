@@ -433,19 +433,25 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
   // Discard unknown events
   return 0;
 }
-/*
-void SendCommand2Peripheral()
+
+void SendCommand2Peripheral(uint8 command,uint8 *data,uint8 length)
 {
-        attWriteReq_t req;
-        
-        req.handle = simpleBLECharHdl;
-        req.len = 1;
-        req.value[0] = simpleBLECharVal;
-        req.sig = 0;
-        req.cmd = 0;
-        status = GATT_WriteCharValue( simpleBLEConnHandle, &req, simpleBLETaskId );   
+        attHandleValueNoti_t req; 
+
+#if 1
+        req.len = 4 + length;
+        req.value[0] = SERIAL_IDENTIFIER;
+        req.value[1] = command;
+        req.value[2] = 0;
+        req.value[3] = length;
+        if(length > 0)
+        {
+          osal_memcpy(&req.value[4],data,length);
+        }
+#endif
+        GATT_Notification(simpleBLEConnHandle,&req,false);
 }  
-*/
+
 /*********************************************************************
  * @fn      simpleBLECentral_ProcessOSALMsg
  *
@@ -540,12 +546,15 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
  */
 static void simpleBLECentralRssiCB( uint16 connHandle, int8 rssi )
 {
-  txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
-  txSerialPkt.header.opCode = APP_CMD_RSSIVALUE;
-  txSerialPkt.header.status = 0x00;
-  txSerialPkt.length = 1;
-  txSerialPkt.data[0] = rssi;
-  sendSerialEvt();
+  if(simpleBLEState == BLE_STATE_CONNECTED)
+  {
+    txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+    txSerialPkt.header.opCode = APP_CMD_RSSIVALUE;
+    txSerialPkt.header.status = 0x00;
+    txSerialPkt.length = 1;
+    txSerialPkt.data[0] = rssi;
+    sendSerialEvt();
+  }
  //   LCD_WRITE_STRING_VALUE( "RSSI -dB:", (uint8) (-rssi), 10, HAL_LCD_LINE_1 );
 }
 

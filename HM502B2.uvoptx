@@ -177,12 +177,12 @@
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>m_pctransmitpackage</ItemText>
+          <ItemText>bluerxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>batterybuffer</ItemText>
+          <ItemText>m_pctransmitpackage</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
@@ -237,12 +237,12 @@
         <Ww>
           <count>12</count>
           <WinNumber>2</WinNumber>
-          <ItemText>bluerxbuffer</ItemText>
+          <ItemText>batterybuffer</ItemText>
         </Ww>
         <Ww>
           <count>13</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>bluerxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>14</count>
@@ -262,17 +262,17 @@
         <Ww>
           <count>17</count>
           <WinNumber>2</WinNumber>
-          <ItemText>bluerxbuffer</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>18</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>bluerxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>19</count>
           <WinNumber>2</WinNumber>
-          <ItemText>pcrxbuffer</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>20</count>
@@ -287,7 +287,7 @@
         <Ww>
           <count>22</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>pcrxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>23</count>
@@ -327,7 +327,7 @@
         <Ww>
           <count>30</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>31</count>
@@ -337,22 +337,22 @@
         <Ww>
           <count>32</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>33</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState[uartInstance]</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>34</count>
           <WinNumber>2</WinNumber>
-          <ItemText>batterybuffer</ItemText>
+          <ItemText>lpuartState[uartInstance]</ItemText>
         </Ww>
         <Ww>
           <count>35</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>batterybuffer</ItemText>
         </Ww>
         <Ww>
           <count>36</count>
@@ -362,12 +362,12 @@
         <Ww>
           <count>37</count>
           <WinNumber>2</WinNumber>
-          <ItemText>buffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>38</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>buffer</ItemText>
         </Ww>
         <Ww>
           <count>39</count>
@@ -377,7 +377,7 @@
         <Ww>
           <count>40</count>
           <WinNumber>2</WinNumber>
-          <ItemText>pcrxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>41</count>
@@ -387,12 +387,12 @@
         <Ww>
           <count>42</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>pcrxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>43</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>44</count>
@@ -422,12 +422,12 @@
         <Ww>
           <count>49</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxByte</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>50</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxByte</ItemText>
         </Ww>
         <Ww>
           <count>51</count>
@@ -437,17 +437,17 @@
         <Ww>
           <count>52</count>
           <WinNumber>2</WinNumber>
-          <ItemText>s_debugConsole</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>53</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>s_debugConsole</ItemText>
         </Ww>
         <Ww>
           <count>54</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>55</count>
@@ -502,7 +502,7 @@
         <Ww>
           <count>65</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>66</count>
@@ -512,15 +512,20 @@
         <Ww>
           <count>67</count>
           <WinNumber>2</WinNumber>
-          <ItemText>result</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>68</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>result</ItemText>
         </Ww>
         <Ww>
           <count>69</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>rxbuffer</ItemText>
+        </Ww>
+        <Ww>
+          <count>70</count>
           <WinNumber>2</WinNumber>
           <ItemText>rxbuffer</ItemText>
         </Ww>

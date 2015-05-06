@@ -84,7 +84,7 @@ extern void SimpleBLECentral_Init( uint8 task_id );
 extern uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events );
 
 extern void simpleBLECentral_HandleKeys( uint8 shift, uint8 keys );
-
+extern void SendCommand2Peripheral(uint8 command,uint8 *data,uint8 length);
 /*********************************************************************
 *********************************************************************/
 

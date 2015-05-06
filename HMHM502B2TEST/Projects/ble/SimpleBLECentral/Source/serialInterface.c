@@ -16,6 +16,8 @@ BLEPacket_t  rxSerialPkt;
 BLEPacket_t  txSerialPkt;
 extern uint8 AutoConnectFlag;
 
+extern void SendCommand2Peripheral(uint8 command,uint8 *data,uint8 length);
+
 void SerialInterface_Init( uint8 task_id )
 {
   serialInterface_TaskID = task_id;   
@@ -132,6 +134,8 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_NOTIFYBLE:
           case APP_CMD_IDRECEIVE:
           case APP_CMD_AUTOCONNECT:
+          case APP_CMD_RECEIVEECGDATA:
+          case APP_CMD_STOPRECEIVEECGDATA:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -269,6 +273,7 @@ void parseCmd(void){
        memcpy(IDValue,rxSerialPkt.data,9);
        osal_set_event( simpleBLETaskId, START_IDVALUEMODIFY_EVT);
     }
+    break;
     case APP_CMD_AUTOCONNECT:
     {
        txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
@@ -279,9 +284,27 @@ void parseCmd(void){
        sendSerialEvt();
        AutoConnectFlag = txSerialPkt.data[0];
     }
-
     break;
-
+    case APP_CMD_RECEIVEECGDATA:
+    {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_RECEIVEECGDATAACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 0; 
+      sendSerialEvt();
+      SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);
+    }
+    break;
+    case APP_CMD_STOPRECEIVEECGDATA:
+    {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_STOPRECEIVEECGDATAACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 0; 
+      sendSerialEvt();
+      SendCommand2Peripheral(APP_CMD_STOPRECEIVEECGDATA,0,0);
+    }
+    break;
     } 
 }
 
@@ -302,7 +325,9 @@ void sendSerialEvt(void){
   case APP_CMD_DATASEND:
   case APP_CMD_IDRECEIVEACK:
   case APP_CMD_AUTOCONNECTACK:
-  case  APP_CMD_RSSIVALUE:
+  case APP_CMD_RSSIVALUE:
+  case APP_CMD_RECEIVEECGDATAACK:
+  case  APP_CMD_STOPRECEIVEECGDATAACK:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     

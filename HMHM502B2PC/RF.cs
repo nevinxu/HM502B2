@@ -737,6 +737,8 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
                                 BLEConnectFlag = 1;
+
+                                ReceiveECGDataSerialCommand();
                             }
                             if (SerialReceiveData[1] == 0x09)
                             {
@@ -826,6 +828,27 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
                                 RSSIValue = SerialReceiveData[4]-256;
+                                ConnectBLEButton.Text = "设备已连接";
+                                ConnectBLEButton.Enabled = true;
+                            }
+                            if (SerialReceiveData[1] == 0x15)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "设置接收心电数据成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                            }
+                            if (SerialReceiveData[1] == 0x17)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "设置停止接收心电数据成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                for (int i = 0; i < N * M; i++)
+                                {
+                                    XdataV[i] = 0;
+                                }
+                                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
                             }
                             SerialReceiveData.RemoveRange(0, SerialReceiveData[3] + 4);//从接收列表中删除包
                         }
@@ -1395,6 +1418,10 @@ namespace MotionSensor
                     ConnectBLEButton.Enabled = false;
                     ConnectBLEButton.Text = "设备正在断开";
                 }
+                if (!SerialPort.IsOpen)   //检测串口是否关闭
+                {
+                    return;
+                }
                 if (checkBox1.Checked == true)
                 {
                     AutoConnectBLESerialCommand();
@@ -1473,7 +1500,7 @@ namespace MotionSensor
             }
             else if (DebugMode == 2)
             {
-                byte[] ssss = { 0x77, 0x13, 0x00, 0x00 };
+                byte[] ssss = { 0x77, 0x14, 0x00, 0x00 };
                 SerialPort.Write(ssss, 0, 4);
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求接收心电数据...\r\n";
@@ -1482,9 +1509,31 @@ namespace MotionSensor
             }
 
         }
+        private void StopReceiveECGDataSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x16, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求停止接收心电数据...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
         private void button3_Click_1(object sender, EventArgs e)
         {
             ReceiveECGDataSerialCommand();
+        }
+
+        private void button4_Click_2(object sender, EventArgs e)
+        {
+            StopReceiveECGDataSerialCommand();
         }
     }
 }
