@@ -177,18 +177,10 @@ static bool simpleBLEProcedureInProgress = FALSE;
 
 extern BLEPacket_t  rxSerialPkt;
 extern BLEPacket_t  txSerialPkt;
-uint8 UartBuffer[100];
+
+uint8 AutoConnectFlag = 0;
 
 uint8 IDValue[9];
-
-typedef struct
-{
-  uint8 length;    //!< Connection message was received on
-  uint8 data[19];         //!< Type of message
-} EcgData;
-
-EcgData ecgdata;
-uint8 ecgsendflag;
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -341,7 +333,7 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
 
     // Register with bond manager after starting device
     GAPBondMgr_Register( (gapBondCBs_t *) &simpleBLEBondCB );
- //   osal_set_event(simpleBLETaskId, START_SCAN_EVT);
+    osal_start_timerEx( simpleBLETaskId, simpleBLE_PERIODIC_EVT, 500 );
     return ( events ^ START_DEVICE_EVT );
   }
   if ( events & START_SCAN_EVT )
@@ -387,7 +379,31 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
     }
     return ( events ^ START_CONNECT_EVT );
   }
-  
+   if ( events & simpleBLE_PERIODIC_EVT )
+  {
+    osal_start_timerEx( simpleBLETaskId, simpleBLE_PERIODIC_EVT, 4000 );
+    if ( simpleBLEState == BLE_STATE_IDLE )
+    {
+      if(AutoConnectFlag == 1)
+      {
+        txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+        txSerialPkt.header.opCode = APP_CMD_ADVERTISEBEGIN;
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 0;
+        sendSerialEvt();
+        osal_set_event( simpleBLETaskId, START_SCAN_EVT);
+      }
+    }
+    if(simpleBLEState == BLE_STATE_CONNECTED)
+    {
+      if ( !simpleBLERssi )
+      {
+        simpleBLERssi = TRUE;
+        GAPCentralRole_StartRssi( simpleBLEConnHandle, DEFAULT_RSSI_PERIOD );
+      }
+    }
+    return (events ^ simpleBLE_PERIODIC_EVT);
+  }
 /********************************************************************************/  
   
   if ( events & START_DISCOVERY_EVT )
@@ -417,7 +433,19 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
   // Discard unknown events
   return 0;
 }
-
+/*
+void SendCommand2Peripheral()
+{
+        attWriteReq_t req;
+        
+        req.handle = simpleBLECharHdl;
+        req.len = 1;
+        req.value[0] = simpleBLECharVal;
+        req.sig = 0;
+        req.cmd = 0;
+        status = GATT_WriteCharValue( simpleBLEConnHandle, &req, simpleBLETaskId );   
+}  
+*/
 /*********************************************************************
  * @fn      simpleBLECentral_ProcessOSALMsg
  *
@@ -512,7 +540,13 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
  */
 static void simpleBLECentralRssiCB( uint16 connHandle, int8 rssi )
 {
-  //  LCD_WRITE_STRING_VALUE( "RSSI -dB:", (uint8) (-rssi), 10, HAL_LCD_LINE_1 );
+  txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+  txSerialPkt.header.opCode = APP_CMD_RSSIVALUE;
+  txSerialPkt.header.status = 0x00;
+  txSerialPkt.length = 1;
+  txSerialPkt.data[0] = rssi;
+  sendSerialEvt();
+ //   LCD_WRITE_STRING_VALUE( "RSSI -dB:", (uint8) (-rssi), 10, HAL_LCD_LINE_1 );
 }
 
 /*********************************************************************
@@ -582,6 +616,13 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
         // initialize scan index to last device
         simpleBLEScanIdx = simpleBLEScanRes;
         simpleBLEScanIdx = 0;   //选择第一个index
+        if(simpleBLEScanRes > 0)
+        {
+          if(AutoConnectFlag == 1)
+          {
+            osal_start_timerEx( simpleBLETaskId, START_CONNECT_EVT,100);
+          }
+        }
 
       }
       break;

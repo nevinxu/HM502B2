@@ -64,6 +64,8 @@ namespace MotionSensor
 
         private int DisConnectBLEEnableFlag = 0;
 
+        private int RSSIValue = 0;
+
 
 
         public RF()
@@ -700,11 +702,22 @@ namespace MotionSensor
                                 string DisplayString = "搜索设备完成！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                MACComboBox.Items.Clear();
+
                                 if (SerialReceiveData[3] > 0)
                                 {
+                                    int[] macbuffer = new int[6];
+                                    ScanBLENum = 0;
                                     for (int i = 0; i < (SerialReceiveData[3] / 6); i++)
                                     {
-                                        MACComboBox.Items.Add(Convert.ToString(SerialReceiveData[4 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[5 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[6 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[7 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[8 + 6 * i], 16) + ":" + Convert.ToString(SerialReceiveData[9 + 6 * i], 16));
+                                        for(int j = 0;j<6;j++)
+                                        {
+                                            macbuffer[j] = SerialReceiveData[4+j + 6 * i];
+                                            ScanBLEMAC[ScanBLENum, j] = SerialReceiveData[4 + j + 6 * i];
+                                        }
+                                        ScanBLENum++;
+                                        MACComboBox.Items.Add(macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2"));
                                     }
                                     ConnectBLEButton.Enabled = true;
                                     ConnectBLEButton.Text = "设备已断开";  
@@ -785,6 +798,34 @@ namespace MotionSensor
                                 chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
 
                                 BLEConnectFlag = 0;
+
+                                this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
+                            }
+                            if (SerialReceiveData[1] == 0x12)
+                            {
+                                if (SerialReceiveData[4] == 0x01)
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "自动连接配置完成！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                                else if (SerialReceiveData[4] == 0x00)
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "停止自动连接！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+
+                            }
+                            if (SerialReceiveData[1] == 0x13)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "接收一次RSSI值！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                RSSIValue = SerialReceiveData[4]-256;
                             }
                             SerialReceiveData.RemoveRange(0, SerialReceiveData[3] + 4);//从接收列表中删除包
                         }
@@ -840,7 +881,11 @@ namespace MotionSensor
 
                     if (PauseButton.Text == "运行中")
                     {
-                        this.toolStripStatusLabel2.Text = "蓝牙设备状态：已连接";
+                        this.toolStripStatusLabel2.Text = "蓝牙设备状态：已连接,MAC:" + 
+                            ScanBLEMAC[MACComboBox.SelectedIndex, 5].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 4].ToString("X2") +
+                            ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 3].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 2].ToString("X2") 
+                            + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 1].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 0].ToString("X2")
+                            + "  " + "RSSI:" + Convert.ToInt16(RSSIValue);
                         chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
                     }
 
@@ -851,8 +896,8 @@ namespace MotionSensor
             {
                 //HeartRate.Text = rate.ToString();
                 BatteryValue.SelectAll();
-                //double batteryValue = 3300 *4 * Vbat / 65535;
-                double batteryValue = Vbat;
+                double batteryValue = 3300 *4 * Vbat /1024 ;
+               // double batteryValue = Vbat;
                 BatteryValue.Text = batteryValue.ToString();
               //  BloodPressure.Text = "";
 
@@ -861,14 +906,12 @@ namespace MotionSensor
                     Lead.Text = "连接正常";
                     Lead.SelectAll();
                     Lead.SelectionColor = Color.Green;
-                    Lead.Text = "连接正常";
                 }
                 else
                 {
                     Lead.Text = "导联脱落";
                     Lead.SelectAll();
                     Lead.SelectionColor = Color.Red;
-                    Lead.Text = "导联脱落";
 
                 }
             }
@@ -1151,6 +1194,7 @@ namespace MotionSensor
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                 OutMsg(MonitorText, DisplayString, Color.Red);
                 DisConnectBLEEnableFlag = 1;
+                this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
             }
         }
         private void TGAP_GEN_DISC_SCANCommand(short msec)
@@ -1351,7 +1395,14 @@ namespace MotionSensor
                     ConnectBLEButton.Enabled = false;
                     ConnectBLEButton.Text = "设备正在断开";
                 }
-                
+                if (checkBox1.Checked == true)
+                {
+                    AutoConnectBLESerialCommand();
+                }
+                else
+                {
+                    DisAutoConnectBLESerialCommand();
+                }
             }
         }
 
@@ -1368,6 +1419,72 @@ namespace MotionSensor
         private void label12_Click(object sender, EventArgs e)
         {
 
+        }
+        private void AutoConnectBLESerialCommand()
+        {
+            if(DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x11, 0x00, 0x01,0x01 };
+                SerialPort.Write(ssss, 0, 5);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求自动连接配置...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+        private void DisAutoConnectBLESerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x11, 0x00, 0x01, 0x00 };
+                SerialPort.Write(ssss, 0, 5);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求关闭自动连接配置...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked == true)
+            {
+                AutoConnectBLESerialCommand();
+            }
+            else
+            {
+                DisAutoConnectBLESerialCommand();
+            }
+        }
+        private void ReceiveECGDataSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x13, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求接收心电数据...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            ReceiveECGDataSerialCommand();
         }
     }
 }

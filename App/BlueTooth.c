@@ -123,6 +123,10 @@ void task_bluetooth_rx(task_param_t param)
                     LED1_OFF;
                 }
            }
+					 if(bluerxbuffer[0] == 0x31 && (bluerxbuffer[1] == 0x31))
+					 {
+						;
+					 }
         memset(bluerxbuffer,0,100);
        }
        

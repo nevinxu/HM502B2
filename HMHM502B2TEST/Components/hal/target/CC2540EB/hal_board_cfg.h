@@ -365,6 +365,7 @@ st( \
 /* Set to TRUE enable UART usage, FALSE disable it */
 #define HAL_UART TRUE
 
+
 #define HAL_UART_DMA 0
 #define HAL_UART_ISR  1
 

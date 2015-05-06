@@ -14,6 +14,7 @@ static void SerialInterface_ProcessOSALMsg( osal_event_hdr_t *pMsg );
 static uint8 serialInterface_TaskID;   // Task ID for internal task/event processing
 BLEPacket_t  rxSerialPkt;
 BLEPacket_t  txSerialPkt;
+extern uint8 AutoConnectFlag;
 
 void SerialInterface_Init( uint8 task_id )
 {
@@ -130,6 +131,7 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_DISCONNECTBLE:
           case APP_CMD_NOTIFYBLE:
           case APP_CMD_IDRECEIVE:
+          case APP_CMD_AUTOCONNECT:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -267,6 +269,17 @@ void parseCmd(void){
        memcpy(IDValue,rxSerialPkt.data,9);
        osal_set_event( simpleBLETaskId, START_IDVALUEMODIFY_EVT);
     }
+    case APP_CMD_AUTOCONNECT:
+    {
+       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+       txSerialPkt.header.opCode = APP_CMD_AUTOCONNECTACK;
+       txSerialPkt.header.status = 0x00;
+       txSerialPkt.length = 1; 
+       txSerialPkt.data[0] = rxSerialPkt.data[0];
+       sendSerialEvt();
+       AutoConnectFlag = txSerialPkt.data[0];
+    }
+
     break;
 
     } 
@@ -287,7 +300,9 @@ void sendSerialEvt(void){
   case APP_CMD_DISCONNECTBLEACK:
   case APP_CMD_NOTIFYBLEACK:
   case APP_CMD_DATASEND:
-  case  APP_CMD_IDRECEIVEACK:
+  case APP_CMD_IDRECEIVEACK:
+  case APP_CMD_AUTOCONNECTACK:
+  case  APP_CMD_RSSIVALUE:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     

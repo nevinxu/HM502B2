@@ -29,6 +29,9 @@
 #define APP_CMD_DATASEND                0x09
 #define APP_CMD_IDRECEIVEACK                0x0F
 #define APP_CMD_IDRECEIVE                0x10
+#define APP_CMD_AUTOCONNECT                0x11
+#define APP_CMD_AUTOCONNECTACK                0x12
+#define APP_CMD_RSSIVALUE                0x13
 
 // Serial Event Mnemonic        Opcode
 #define	APP_EVT_CMD_RESPONSE	0x81
