@@ -248,7 +248,8 @@ void parseCmd(void){
       break;
     case APP_CMD_CONNECTBLE:  
     simpleBLEScanIdx = rxSerialPkt.data[0];
-    osal_start_timerEx( simpleBLETaskId, START_CONNECT_EVT,100);
+  //  osal_start_timerEx( simpleBLETaskId, START_CONNECT_EVT,100);
+    osal_set_event( simpleBLETaskId, START_CONNECT_EVT);
   //  HalLedSet( HAL_LED_1, HAL_LED_MODE_BLINK );   //
       break;
     case APP_CMD_DISCONNECTBLE:  
@@ -292,6 +293,7 @@ void parseCmd(void){
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = 0; 
       sendSerialEvt();
+      
       SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);
     }
     break;

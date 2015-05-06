@@ -737,7 +737,7 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
                                 BLEConnectFlag = 1;
-
+                                System.Threading.Thread.Sleep(500);
                                 ReceiveECGDataSerialCommand();
                             }
                             if (SerialReceiveData[1] == 0x09)
@@ -1422,13 +1422,16 @@ namespace MotionSensor
                 {
                     return;
                 }
-                if (checkBox1.Checked == true)
+                if (BLEConnectFlag == 0)
                 {
-                    AutoConnectBLESerialCommand();
-                }
-                else
-                {
-                    DisAutoConnectBLESerialCommand();
+                    if (checkBox1.Checked == true)
+                    {
+                        AutoConnectBLESerialCommand();
+                    }
+                    else
+                    {
+                        DisAutoConnectBLESerialCommand();
+                    }
                 }
             }
         }
