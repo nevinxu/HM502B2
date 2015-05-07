@@ -108,6 +108,10 @@ void task_bluetooth_tx(task_param_t param)
 					{
 						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
 					}
+					else if(m_btdatapackage.code == SENDECGENABLECODE)
+					{
+						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
+					}
 			}
 	}
 }
@@ -163,11 +167,11 @@ void task_bluetooth_rx(task_param_t param)
 								if(bluerxbuffer[1] == 0x18)				//·¢ËÍIDÖµ
 								{
 									m_btdatapackage.code = SENDECGPATCHIDCODE;
-									m_btdatapackage.size = 4+m_btdatapackage.data[3];
 									m_btdatapackage.data[0] = 0x77;
 									m_btdatapackage.data[1] = 0x19;
 									m_btdatapackage.data[2] = 0;
 									m_btdatapackage.data[3] = 15;
+									m_btdatapackage.size = 4+m_btdatapackage.data[3];
 									memcpy(&m_btdatapackage.data[4],ECGPatchID,15);
 									OSA_MsgQPut(hBTMsgQueue,&m_btdatapackage); 							
 								}

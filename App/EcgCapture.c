@@ -76,7 +76,9 @@ static void ecg_adc_isr_callback(void)
     if(i % 2)
     {
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
-			//	ecgdatapackage.ecgdata[i/2] = sinTab[j++];
+
+		//		ecgdatapackage.ecgdata[i/2] = sinTab[j++];
+			//ecgdatapackage.ecgdata[i/2] = 512;
         adcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
         adcChnConfig.diffEnable = false;
         adcChnConfig.intEnable = true;

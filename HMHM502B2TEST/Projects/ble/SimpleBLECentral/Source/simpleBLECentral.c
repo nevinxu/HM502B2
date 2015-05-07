@@ -56,10 +56,10 @@
 #define DEFAULT_ENABLE_UPDATE_REQUEST         TRUE
 
 // Minimum connection interval (units of 1.25ms) if automatic parameter update request is enabled
-#define DEFAULT_UPDATE_MIN_CONN_INTERVAL      200
+#define DEFAULT_UPDATE_MIN_CONN_INTERVAL      20
 
 // Maximum connection interval (units of 1.25ms) if automatic parameter update request is enabled
-#define DEFAULT_UPDATE_MAX_CONN_INTERVAL      2000
+#define DEFAULT_UPDATE_MAX_CONN_INTERVAL      80
 
 // Slave latency to use if automatic parameter update request is enabled
 #define DEFAULT_UPDATE_SLAVE_LATENCY          0
@@ -529,9 +529,17 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
         {
           if(pMsg->msg.handleValueNoti.value[1] == 0x19)
           {
+           
             HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
           }
           else if(pMsg->msg.handleValueNoti.value[1] == 0x09)
+          {
+            if(pMsg->msg.handleValueNoti.len == 0x12)
+            {
+            HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+            }
+          }
+          else if(pMsg->msg.handleValueNoti.value[1] == 0x15)
           {
             HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
           }

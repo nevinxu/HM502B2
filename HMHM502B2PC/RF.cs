@@ -66,7 +66,7 @@ namespace MotionSensor
 
         private int RSSIValue = 0;
 
-
+        byte[] ECGPatchID = new byte[15];
 
         public RF()
         {
@@ -779,7 +779,7 @@ namespace MotionSensor
 
                                 System.Threading.Thread.Sleep(500);
                                 ReceiveECGPatchIDSerialCommand();
-                               // ReceiveECGDataSerialCommand();
+                              //  ReceiveECGDataSerialCommand();
 
                             }
                             if (SerialReceiveData[1] == 0x19)
@@ -788,7 +788,10 @@ namespace MotionSensor
                                 string DisplayString = "心电补丁ID获取成功！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
-                                //BLEConnectFlag = 1;
+                                for (int i = 0; i < 15; i++)
+                                {
+                                    ECGPatchID[i] = SerialReceiveData[4 + i];
+                                }
 
                                 System.Threading.Thread.Sleep(500);
                                 //ReceiveECGPatchIDSerialCommand();
@@ -984,11 +987,12 @@ namespace MotionSensor
 
                     if (PauseButton.Text == "运行中")
                     {
-                        this.toolStripStatusLabel2.Text = "蓝牙设备状态：已连接,MAC:" + 
+                        string str = System.Text.Encoding.Default.GetString(ECGPatchID);
+                        this.toolStripStatusLabel2.Text = "蓝牙设备状态：已连接,MAC:" +
                             ScanBLEMAC[MACComboBox.SelectedIndex, 5].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 4].ToString("X2") +
-                            ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 3].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 2].ToString("X2") 
+                            ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 3].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 2].ToString("X2")
                             + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 1].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 0].ToString("X2")
-                            + "  " + "RSSI:" + Convert.ToInt16(RSSIValue);
+                            + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  未定标";
                         chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
                     }
 
