@@ -28,6 +28,10 @@
 
 struct EcgDataPackage
 {
+	uint8_t	start;
+	uint8_t	command;
+	uint8_t	status;
+	uint8_t	length;
 	uint8_t sequence;
 	uint8_t leadoffstatus;
 	uint16_t battery;

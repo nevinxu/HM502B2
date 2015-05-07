@@ -15,6 +15,8 @@
 #include "ConnectPC.h"
 #include "ecg.c"
 
+uint8_t ECGPatchID[15] = {0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30};
+
 MSG_QUEUE_DECLARE(mqBTData, 50, 1);  //大小在freertos上无效  
 MSG_QUEUE_DECLARE(mqPCData, 50, 1);  //大小在freertos上无效  
 
@@ -135,10 +137,14 @@ static void ecg_adc_isr_callback(void)
 				
 				btdatapackage.code = ECGDATACODE;
 				btdatapackage.size = sizeof(ecgdatapackage);
+				ecgdatapackage.start = 0x77;
+				ecgdatapackage.command = 0x09;
+				ecgdatapackage.status = 0;
+				ecgdatapackage.length = 14;
 				memcpy(btdatapackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
 
 		//压缩		
-				EncodeData4WTo5B(ecgdatapackage.ecgdata,&btdatapackage.data[4],8);
+				EncodeData4WTo5B(ecgdatapackage.ecgdata,&btdatapackage.data[8],8);
 				btdatapackage.size = btdatapackage.size-6;
 				
 				OSA_MsgQPut(hBTMsgQueue,&btdatapackage);   

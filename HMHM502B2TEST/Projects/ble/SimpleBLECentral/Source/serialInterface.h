@@ -36,6 +36,8 @@
 #define APP_CMD_RECEIVEECGDATAACK                0x15
 #define APP_CMD_STOPRECEIVEECGDATA                0x16
 #define APP_CMD_STOPRECEIVEECGDATAACK                0x17
+#define APP_CMD_ECGPATCHID                      0x18
+#define APP_CMD_ECGPATCHIDACK                0x19
 // Serial Event Mnemonic        Opcode
 #define	APP_EVT_CMD_RESPONSE	0x81
 #define APP_EVT_CONNECT	        0x82 // Not used

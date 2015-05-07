@@ -21,6 +21,8 @@ static lpuart_state_t s_bt_lpuart[2];
 
 extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列 
 
+extern uint8_t ECGPatchID[15];
+
 BTDataPackage m_btdatapackage;
 
                                                                                                                                                                                                                                                             
@@ -84,20 +86,27 @@ void task_bluetooth_tx(task_param_t param)
 	while(1)
 	{
       OSA_MsgQGet(hBTMsgQueue,&m_btdatapackage,portMAX_DELAY); 
-			if(ECGDataSendFlag == 1)
 			{
-					i++;
+
 					if(m_btdatapackage.code == ECGDATACODE)
 					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-						if(i%2)
+						i++;
+						if(ECGDataSendFlag == 1)
 						{
-							LED1_ON;    
+							while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
+							if(i%2)
+							{
+								LED1_ON;    
+							}
+							else
+							{
+								LED1_OFF;
+							} 
 						}
-						else
-						{
-							LED1_OFF;
-						} 
+					}
+					else if(m_btdatapackage.code == SENDECGPATCHIDCODE)
+					{
+						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
 					}
 			}
 	}
@@ -129,7 +138,7 @@ void task_bluetooth_rx(task_param_t param)
 					 {
 						 if(bluerxbuffer[2] == 0x00)
 						 {
-								if(bluerxbuffer[1] == 0x14)
+								if(bluerxbuffer[1] == 0x14)    //开始发送心电数据
 								{
 									m_btdatapackage.code = SENDECGENABLECODE;
 									m_btdatapackage.size = 4;
@@ -140,7 +149,7 @@ void task_bluetooth_rx(task_param_t param)
 									OSA_MsgQPut(hBTMsgQueue,&m_btdatapackage); 
 									ECGDataSendFlag  = 1;									
 								}
-								if(bluerxbuffer[1] == 0x16)
+								if(bluerxbuffer[1] == 0x16)				//停止发送心电数据
 								{
 									m_btdatapackage.code = SENDECGENABLECODE;
 									m_btdatapackage.size = 4;
@@ -150,6 +159,17 @@ void task_bluetooth_rx(task_param_t param)
 									m_btdatapackage.data[3] = 0;
 									OSA_MsgQPut(hBTMsgQueue,&m_btdatapackage); 
 									ECGDataSendFlag  = 0;									
+								}
+								if(bluerxbuffer[1] == 0x18)				//发送ID值
+								{
+									m_btdatapackage.code = SENDECGPATCHIDCODE;
+									m_btdatapackage.size = 4+m_btdatapackage.data[3];
+									m_btdatapackage.data[0] = 0x77;
+									m_btdatapackage.data[1] = 0x19;
+									m_btdatapackage.data[2] = 0;
+									m_btdatapackage.data[3] = 15;
+									memcpy(&m_btdatapackage.data[4],ECGPatchID,15);
+									OSA_MsgQPut(hBTMsgQueue,&m_btdatapackage); 							
 								}
 						 }
 					 }

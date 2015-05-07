@@ -45,7 +45,7 @@ namespace MotionSensor
         private byte PauseFlag = 1;  //初始化时暂停的
 
         private List<byte> SerialReceiveData = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
-        private List<byte> SerialEcgData = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
+        private List<double> SerialEcgData = new List<double>(512);//默认分配1页内存，并始终限制不允许超
 
         private byte EcgCaptureFlag = 0;
         private byte BLEConnectFlag = 0;
@@ -380,8 +380,47 @@ namespace MotionSensor
             chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
         }
 
+
+    unsafe int rhythmcount(double* fifo)
+{
+    int max_data = 512;
+    int i;
+    uint *diff = stackalloc uint[max_data];            //求导数数据区
+    uint dif_max=0;                  //导数最大值
+    uint thr_max;                    //阈值最大值
+    int j=0;
+    int *k = stackalloc int[8];                       //最大值数组
+	int rhythm = 0;
+    float DR_R;                             //R-R间距
+	
+    *diff=0;                                //数据区首两个数据导数置0
+    *(diff+1)=0;
+    for(i=2;i<max_data-2;i++)               //按DIFF(i)=f(i+1)-f(i-1)+2*f(i+2)-2*f(i-2)公式计算导数
+    {
+        *(diff+i)=(uint)(*(fifo+i+1))+2*(uint)(*(fifo+i+2))-(uint)(*(fifo+i-1))-2*(uint)(*(fifo+i-2));
+    }
+    *(diff+max_data-1)=0;                   //数据区末两个数据导数置0
+    *(diff+max_data)=0;
+    max_data = 512;
+    for(i=0;i<max_data;i++)                 //求导数最大值
+    {
+        if((dif_max)>*(diff+i))
+        dif_max=*(diff+i);
+    } 
+    thr_max=(dif_max>>1)-(dif_max>>3);       //设定阈值，为导数最大值的0.375倍
+    for(i=1;i<max_data-1;i++)                //将满足f(i)>thr_max和f(i)*f(i+1)<0这两个条件的值找到,即为R波最高点
+    {
+        if ((*(diff + i) > thr_max))
+            if ((((*(diff + i)) ^ (*(diff + i + 1))) >> 7) >0)
+        k[j++]=i;
+    }
+    DR_R=(k[j-1]-k[0])/(j-1);                //计算R-R间距
+    rhythm=(int)(12000/DR_R);      //通过公式200*60/DR-R求得心率值
+	return rhythm;
+}
+
         #region 定时器处理函数
-        private void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    unsafe private void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             int EcgMaxValue, EcgMinValue;
 
@@ -737,8 +776,24 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
                                 BLEConnectFlag = 1;
+
                                 System.Threading.Thread.Sleep(500);
-                                ReceiveECGDataSerialCommand();
+                                ReceiveECGPatchIDSerialCommand();
+                               // ReceiveECGDataSerialCommand();
+
+                            }
+                            if (SerialReceiveData[1] == 0x19)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "心电补丁ID获取成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                //BLEConnectFlag = 1;
+
+                                System.Threading.Thread.Sleep(500);
+                                //ReceiveECGPatchIDSerialCommand();
+                                 ReceiveECGDataSerialCommand();
+
                             }
                             if (SerialReceiveData[1] == 0x09)
                             {
@@ -767,6 +822,31 @@ namespace MotionSensor
                                 XdataV[(N - 1) * M + 5] = Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4);
                                 XdataV[(N - 1) * M + 6] = Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6);
                                 XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8);
+
+
+                                SerialEcgData.Add(XdataV[0]);
+                                SerialEcgData.Add(XdataV[1]);
+                                SerialEcgData.Add(XdataV[2]);
+                                SerialEcgData.Add(XdataV[3]);
+                                SerialEcgData.Add(XdataV[4]);
+                                SerialEcgData.Add(XdataV[5]); 
+                                SerialEcgData.Add(XdataV[6]);
+                                SerialEcgData.Add(XdataV[7]);
+
+                                if (SerialEcgData.Count > 512)
+                                {
+                                    SerialEcgData.RemoveRange(0, SerialEcgData.Count - 512);//从接收列表中删除包
+                                    double* ecgbuffer = stackalloc double[512];            //求导数数据区
+                                    for (int i = 0; i < 512; i++)
+                                    { 
+                                        ecgbuffer[i] = SerialEcgData[i];
+                                    }
+                                    int t = rhythmcount(ecgbuffer);
+                                }
+
+                                
+
+
 
 
                                 DataTransmissionFlag = 1;
@@ -1210,6 +1290,10 @@ namespace MotionSensor
             }
             else if (DebugMode == 2)
             {
+                if (!SerialPort.IsOpen)   //检测串口是否关闭
+                {
+                    return;
+                }
                 byte[] ssss = { 0x77, 0x0A, 0x00, 0x00};
                 SerialPort.Write(ssss, 0, 4);
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
@@ -1529,6 +1613,25 @@ namespace MotionSensor
             }
 
         }
+
+        private void ReceiveECGPatchIDSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x18, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求接收心电补丁ID\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+
         private void button3_Click_1(object sender, EventArgs e)
         {
             ReceiveECGDataSerialCommand();

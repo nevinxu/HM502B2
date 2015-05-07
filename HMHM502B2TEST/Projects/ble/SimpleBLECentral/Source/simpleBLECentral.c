@@ -523,12 +523,28 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
     
     if(simpleBLEProcedureInProgress == FALSE )
     {
+      if(pMsg->msg.handleValueNoti.value[0] == 0x77)
+      {
+        if(pMsg->msg.handleValueNoti.value[2] == 0)
+        {
+          if(pMsg->msg.handleValueNoti.value[1] == 0x19)
+          {
+            HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+          }
+          else if(pMsg->msg.handleValueNoti.value[1] == 0x09)
+          {
+            HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+          }
+        }
+      }
+      /*
       txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
       txSerialPkt.header.opCode = APP_CMD_DATASEND;
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = pMsg->msg.handleValueNoti.len;
       osal_memcpy(txSerialPkt.data,pMsg->msg.handleValueNoti.value,txSerialPkt.length);
       sendSerialEvt();
+      */
     }
   }
 #endif

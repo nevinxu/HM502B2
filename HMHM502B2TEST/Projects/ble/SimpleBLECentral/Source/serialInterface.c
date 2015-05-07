@@ -136,6 +136,7 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_AUTOCONNECT:
           case APP_CMD_RECEIVEECGDATA:
           case APP_CMD_STOPRECEIVEECGDATA:
+          case APP_CMD_ECGPATCHID:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -288,23 +289,39 @@ void parseCmd(void){
     break;
     case APP_CMD_RECEIVEECGDATA:
     {
+      /*
       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
       txSerialPkt.header.opCode = APP_CMD_RECEIVEECGDATAACK;
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = 0; 
       sendSerialEvt();
+      */
       
       SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);
     }
     break;
     case APP_CMD_STOPRECEIVEECGDATA:
     {
+      /*
       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
       txSerialPkt.header.opCode = APP_CMD_STOPRECEIVEECGDATAACK;
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = 0; 
       sendSerialEvt();
+      */
       SendCommand2Peripheral(APP_CMD_STOPRECEIVEECGDATA,0,0);
+    }
+    break;
+    case APP_CMD_ECGPATCHID:
+    {
+      /*
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_ECGPATCHIDACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 0; 
+      sendSerialEvt();
+      */
+      SendCommand2Peripheral(APP_CMD_ECGPATCHID,0,0);
     }
     break;
     } 
