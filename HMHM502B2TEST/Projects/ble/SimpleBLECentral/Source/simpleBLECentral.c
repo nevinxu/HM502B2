@@ -151,7 +151,7 @@ static uint8 simpleBLERssi = FALSE;
 static uint16 simpleBLEConnHandle = GAP_CONNHANDLE_INIT;
 
 // Application state
-static uint8 simpleBLEState = BLE_STATE_IDLE;
+uint8 simpleBLEState = BLE_STATE_IDLE;
 
 // Discovery state
 static uint8 simpleBLEDiscState = BLE_DISC_STATE_IDLE;
@@ -179,6 +179,8 @@ extern BLEPacket_t  rxSerialPkt;
 extern BLEPacket_t  txSerialPkt;
 
 uint8 AutoConnectFlag = 1;   //自动连接初始化时能
+uint8 DeviceMode = 0;     //303模式
+//uint8 DeviceMode = 1;     //测试模式
 
 uint8 IDValue[9];
 uint8 CentralMAC[6];
@@ -522,39 +524,53 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
 #if 1
   if ((pMsg->method == ATT_HANDLE_VALUE_NOTI) )
   {
-    
-    if(simpleBLEProcedureInProgress == FALSE )
+    if(DeviceMode == 0)
     {
-      if(pMsg->msg.handleValueNoti.value[0] == 0x77)
-      {
-        if(pMsg->msg.handleValueNoti.value[2] == 0)
+        uint8 valueReadSize = pMsg->msg.handleValueNoti.len; 
+        static uint8 rxpacketnum = 0;
+        static uint8 serial_txbuffer[100];
         {
-          if(pMsg->msg.handleValueNoti.value[1] == 0x19)
+          osal_memcpy(&serial_txbuffer[3+(rxpacketnum*10)],&pMsg->msg.handleValueNoti.value[4],10);
+          rxpacketnum++;
+          if(rxpacketnum >= 8)
           {
-           
-            HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
-          }
-          else if(pMsg->msg.handleValueNoti.value[1] == 0x09)
-          {
-            if(pMsg->msg.handleValueNoti.len == 0x12)
-            {
-            HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
-            }
-          }
-          else if(pMsg->msg.handleValueNoti.value[1] == 0x15)
-          {
-            HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+            rxpacketnum = 0;
+            serial_txbuffer[0] = '[';
+            serial_txbuffer[83] = ']';
+            serial_txbuffer[1] = 84;
+            serial_txbuffer[2] = ((pMsg->msg.handleValueNoti.value[2]&0x01)<<7)+ (pMsg->msg.handleValueNoti.value[3]&0x7f);
+    //        osal_memcpy(serial_txbuffer,pMsg->msg.handleValueNoti.value,4);
+            NPI_WriteTransport(serial_txbuffer,84);
           }
         }
-      }
-      /*
-      txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
-      txSerialPkt.header.opCode = APP_CMD_DATASEND;
-      txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = pMsg->msg.handleValueNoti.len;
-      osal_memcpy(txSerialPkt.data,pMsg->msg.handleValueNoti.value,txSerialPkt.length);
-      sendSerialEvt();
-      */
+    }
+    else if(DeviceMode == 1)
+    {
+        if(simpleBLEProcedureInProgress == FALSE )
+        {
+          if(pMsg->msg.handleValueNoti.value[0] == 0x77)
+          {
+            if(pMsg->msg.handleValueNoti.value[2] == 0)
+            {
+              if(pMsg->msg.handleValueNoti.value[1] == 0x19)
+              {
+               
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == 0x09)
+              {
+                if(pMsg->msg.handleValueNoti.len == 0x12)
+                {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+                }
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == 0x15)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+            }
+          }
+        }
     }
   }
 #endif
@@ -574,12 +590,15 @@ static void simpleBLECentralRssiCB( uint16 connHandle, int8 rssi )
 {
   if(simpleBLEState == BLE_STATE_CONNECTED)
   {
-    txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
-    txSerialPkt.header.opCode = APP_CMD_RSSIVALUE;
-    txSerialPkt.header.status = 0x00;
-    txSerialPkt.length = 1;
-    txSerialPkt.data[0] = rssi;
-    sendSerialEvt();
+    if(DeviceMode == 1)
+    {
+      txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+      txSerialPkt.header.opCode = APP_CMD_RSSIVALUE;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 1;
+      txSerialPkt.data[0] = rssi;
+      sendSerialEvt();
+    }
   }
  //   LCD_WRITE_STRING_VALUE( "RSSI -dB:", (uint8) (-rssi), 10, HAL_LCD_LINE_1 );
 }
@@ -699,6 +718,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           sendSerialEvt();    
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_ON ); 
           HalLedSet( HAL_LED_YELLOW, HAL_LED_MODE_OFF );
+          osal_memset(ECGPatchMAC,0,6);
         }
       }
       break;
@@ -722,7 +742,8 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
         txSerialPkt.header.opCode = APP_CMD_DISCONNECTBLEACK;
         txSerialPkt.header.status = 0x00;
         txSerialPkt.length = 0;
-        sendSerialEvt();  
+        sendSerialEvt(); 
+       osal_memset(ECGPatchMAC,0,6); 
       }
       break;
 /***********************************************************************************************/

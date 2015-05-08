@@ -44,6 +44,10 @@
 #define APP_CMD_CentralMACACK               0x1D
 #define APP_CMD_ECGPatchMAC               0x1E
 #define APP_CMD_ECGPatchMACACK               0x1F
+#define APP_CMD_PairingStatus               0x22
+#define APP_CMD_PairingStatusACK               0x23
+#define APP_CMD_SETRUMMODE               0x24
+#define APP_CMD_SETRUMMODEACK               0x25
 
 // Serial Event Mnemonic        Opcode
 #define	APP_EVT_CMD_RESPONSE	0x81

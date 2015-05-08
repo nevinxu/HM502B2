@@ -70,7 +70,7 @@ namespace MotionSensor
         byte[] ECGPatchMAC = new byte[6];
         byte[] BLECentralMAC = new byte[6];
         private int ScalingFlag = 0;
-
+        private int PairingFlag = 0;
         public RF()
         {
             InitializeComponent();
@@ -550,6 +550,9 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
                                 ConnectBLEButton.Text = "设备已断开";
                                 ConnectBLEButton.Enabled = true;
+
+                                button6.Enabled = false;   //定标按键
+
                                 this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
 
                                 DataStoreButton.Enabled = false;
@@ -732,6 +735,7 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
+                                System.Threading.Thread.Sleep(100);
                                 AutoConnectBLEStatusSerialCommand();
                             }
                             if (SerialReceiveData[1] == 0x0E)
@@ -765,7 +769,8 @@ namespace MotionSensor
                                         MACComboBox.Items.Add(macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2"));
                                     }
                                     ConnectBLEButton.Enabled = true;
-                                    ConnectBLEButton.Text = "设备已断开";  
+                                    ConnectBLEButton.Text = "设备已断开";
+                                    button6.Enabled = false;   //定标按键
                                 }
                                 else
                                 {
@@ -872,6 +877,7 @@ namespace MotionSensor
 
                                 ConnectBLEButton.Text = "设备已断开";
                                 ConnectBLEButton.Enabled = true;
+                                button6.Enabled = false;   //定标按键
                                 ScanButton.Enabled = true;
 
                                 if (DisConnectBLEEnableFlag == 0)
@@ -922,6 +928,7 @@ namespace MotionSensor
                                 RSSIValue = SerialReceiveData[4]-256;
                                 ConnectBLEButton.Text = "设备已连接";
                                 ConnectBLEButton.Enabled = true;
+                                button6.Enabled = true;   //定标按键
                             }
                             if (SerialReceiveData[1] == 0x15)
                             {
@@ -956,6 +963,19 @@ namespace MotionSensor
                                 {
                                     checkBox1.Checked = false;
                                 }
+                                System.Threading.Thread.Sleep(200);
+
+                                SetTestModeCommand();
+                                
+                            }
+                            if (SerialReceiveData[1] == 0x25)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "设置测试模式成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                System.Threading.Thread.Sleep(200);
                                 ReceiveCentralMACCommand();
                             }
                             if (SerialReceiveData[1] == 0x1D)
@@ -995,6 +1015,15 @@ namespace MotionSensor
                                 {
                                     ECGPatchMAC[i] = SerialReceiveData[4 + i];
                                 }
+                                ReceivePairingStatusCCommand();
+                            }
+                            if (SerialReceiveData[1] == 0x23)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "获取配对状态成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                ReceiveECGPatchIDSerialCommand();
                             }
                             SerialReceiveData.RemoveRange(0, SerialReceiveData[3] + 4);//从接收列表中删除包
                         }
@@ -1023,6 +1052,7 @@ namespace MotionSensor
                     DataTransmissionFlag = 0;
                     ConnectBLEButton.Text = "设备已连接";
                     ConnectBLEButton.Enabled = true;
+                    button6.Enabled = true;   //定标按键
                     PauseButton.Enabled = true;
                     ScanButton.Enabled = false;
 
@@ -1054,7 +1084,7 @@ namespace MotionSensor
                         string str2;
                         if (ScalingFlag == 0)
                         { 
-                            str2 = "未定标" ;
+                            str2 = "未定标          " ;
                         }
                         else if (ScalingFlag == 1)
                         {
@@ -1064,13 +1094,22 @@ namespace MotionSensor
                         {
                             str2 = "定标状态未知";
                         }
+                        string str3;
+                        if (PairingFlag == 0)
+                        {
+                            str3 = "未配对";
+                        }
+                        else
+                        {
+                            str3 = "已配对";
+                        }
                         this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
                                     + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
                                     + "  连接状态：心电补丁已连接 MAC:" +
                             ECGPatchMAC[5].ToString("X2") + ":" + ECGPatchMAC[4].ToString("X2") +
                             ":" + ECGPatchMAC[3].ToString("X2") + ":" + ECGPatchMAC[2].ToString("X2")
                             + ":" + ECGPatchMAC[1].ToString("X2") + ":" + ECGPatchMAC[0].ToString("X2")
-                            + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  "+str2;
+                            + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  " + str2 + str3;
                         chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
                     }
 
@@ -1759,6 +1798,41 @@ namespace MotionSensor
                 SerialPort.Write(ssss, 0, 4);
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取心电补丁蓝牙MAC\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+
+        private void ReceivePairingStatusCCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x22, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求获取配对状态\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+        private void SetTestModeCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x24, 0x00, 0x01,0x01 };
+                SerialPort.Write(ssss, 0, 5);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "设置为测试模式\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                 OutMsg(MonitorText, DisplayString, Color.Red);
             }

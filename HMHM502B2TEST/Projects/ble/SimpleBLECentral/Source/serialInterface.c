@@ -5,11 +5,21 @@
 #include "hal_lcd.h"
 #include "simpleBLECentral.h"
 
+enum
+{
+  BLE_STATE_IDLE,
+  BLE_STATE_CONNECTING,
+  BLE_STATE_CONNECTED,
+  BLE_STATE_DISCONNECTING
+};
+
+extern uint8 simpleBLEState;
 extern uint8 simpleBLEScanIdx;
 extern uint8 simpleBLETaskId;
 extern uint8 IDValue[9];
 extern uint8 CentralMAC[6];
 extern uint8 ECGPatchMAC[6];
+extern uint8 DeviceMode;
 
 static void SerialInterface_ProcessOSALMsg( osal_event_hdr_t *pMsg );
 
@@ -142,6 +152,8 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_AUTOCONNECTSTATUS:
           case APP_CMD_CentralMAC:
           case APP_CMD_ECGPatchMAC:
+          case APP_CMD_PairingStatus:
+          case APP_CMD_SETRUMMODE:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -319,14 +331,19 @@ void parseCmd(void){
     break;
     case APP_CMD_ECGPATCHID:
     {
-      /*
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_ECGPATCHID,0,0);
+      }
+      else
+      {
+
       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
       txSerialPkt.header.opCode = APP_CMD_ECGPATCHIDACK;
       txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 0; 
+      txSerialPkt.length = 15; 
       sendSerialEvt();
-      */
-      SendCommand2Peripheral(APP_CMD_ECGPATCHID,0,0);
+      }
     }
     break;
     case APP_CMD_AUTOCONNECTSTATUS:
@@ -359,6 +376,26 @@ void parseCmd(void){
       sendSerialEvt();
     }
     break;
+    case APP_CMD_PairingStatus:
+    {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_PairingStatusACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 1; 
+      sendSerialEvt();
+    }
+    break;
+    case APP_CMD_SETRUMMODE:
+    {
+      DeviceMode = rxSerialPkt.data[0];
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_SETRUMMODEACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 1; 
+      txSerialPkt.data[0] = DeviceMode;
+      sendSerialEvt();
+    }
+    break;
     } 
 }
 
@@ -385,6 +422,9 @@ void sendSerialEvt(void){
   case  APP_CMD_AUTOCONNECTSTATUSACK:
   case   APP_CMD_CentralMACACK:
   case APP_CMD_ECGPatchMACACK:
+  case APP_CMD_PairingStatusACK:
+  case APP_CMD_ECGPATCHIDACK:
+  case  APP_CMD_SETRUMMODEACK:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     
