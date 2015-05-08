@@ -38,6 +38,11 @@
 #define APP_CMD_STOPRECEIVEECGDATAACK                0x17
 #define APP_CMD_ECGPATCHID                      0x18
 #define APP_CMD_ECGPATCHIDACK                0x19
+#define APP_CMD_AUTOCONNECTSTATUS                0x1A
+#define APP_CMD_AUTOCONNECTSTATUSACK                0x1B
+#define APP_CMD_CentralMAC               0x1C
+#define APP_CMD_CentralMACACK               0x1D
+
 // Serial Event Mnemonic        Opcode
 #define	APP_EVT_CMD_RESPONSE	0x81
 #define APP_EVT_CONNECT	        0x82 // Not used

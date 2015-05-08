@@ -178,9 +178,10 @@ static bool simpleBLEProcedureInProgress = FALSE;
 extern BLEPacket_t  rxSerialPkt;
 extern BLEPacket_t  txSerialPkt;
 
-uint8 AutoConnectFlag = 0;
+uint8 AutoConnectFlag = 1;   //自动连接初始化时能
 
 uint8 IDValue[9];
+uint8 CentralMAC[6];
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -598,7 +599,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
 /***********************************************************************************************/    
     case GAP_DEVICE_INIT_DONE_EVENT:     //初始化完成回调函数
       {
-        
+        osal_memcpy(CentralMAC,pEvent->initDone.devAddr,6);
       }
       break;
       

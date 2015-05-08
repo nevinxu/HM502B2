@@ -17,6 +17,7 @@
 
 uint8_t ECGPatchID[15] = {0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30};
 
+
 MSG_QUEUE_DECLARE(mqBTData, 50, 1);  //大小在freertos上无效  
 MSG_QUEUE_DECLARE(mqPCData, 50, 1);  //大小在freertos上无效  
 
@@ -75,7 +76,14 @@ static void ecg_adc_isr_callback(void)
     adc_chn_config_t adcChnConfig;
     if(i % 2)
     {
+			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
+			{
+				ecgdatapackage.ecgdata[i/2] = 500;
+			}
+			else
+			{
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+			}
 
 		//		ecgdatapackage.ecgdata[i/2] = sinTab[j++];
 			//ecgdatapackage.ecgdata[i/2] = 512;
