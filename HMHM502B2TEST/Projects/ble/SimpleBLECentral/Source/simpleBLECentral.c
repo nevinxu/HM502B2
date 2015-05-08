@@ -182,6 +182,7 @@ uint8 AutoConnectFlag = 1;   //自动连接初始化时能
 
 uint8 IDValue[9];
 uint8 CentralMAC[6];
+uint8 ECGPatchMAC[6];
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -677,9 +678,13 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           txSerialPkt.length = 0;
           sendSerialEvt();
           
+          osal_memcpy(ECGPatchMAC,simpleBLEDevList[simpleBLEScanIdx].addr,6);
+          
           HalLedSet( HAL_LED_YELLOW, HAL_LED_MODE_ON );    
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_OFF );
           simpleBLEProcedureInProgress = FALSE;
+          
+          SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);
          // osal_start_timerEx( simpleBLETaskId, START_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY );
         }
         else    //连接失败   

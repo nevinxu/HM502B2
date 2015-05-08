@@ -9,6 +9,7 @@ extern uint8 simpleBLEScanIdx;
 extern uint8 simpleBLETaskId;
 extern uint8 IDValue[9];
 extern uint8 CentralMAC[6];
+extern uint8 ECGPatchMAC[6];
 
 static void SerialInterface_ProcessOSALMsg( osal_event_hdr_t *pMsg );
 
@@ -140,6 +141,7 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_ECGPATCHID:
           case APP_CMD_AUTOCONNECTSTATUS:
           case APP_CMD_CentralMAC:
+          case APP_CMD_ECGPatchMAC:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -275,7 +277,7 @@ void parseCmd(void){
        txSerialPkt.header.status = 0x00;
        txSerialPkt.length = 0; 
        sendSerialEvt();
-       memcpy(IDValue,rxSerialPkt.data,9);
+       osal_memcpy(IDValue,rxSerialPkt.data,9);
        osal_set_event( simpleBLETaskId, START_IDVALUEMODIFY_EVT);
     }
     break;
@@ -347,6 +349,16 @@ void parseCmd(void){
       sendSerialEvt();
     }
       break;
+    case APP_CMD_ECGPatchMAC:
+    {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_ECGPatchMACACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 6; 
+      osal_memcpy(txSerialPkt.data,ECGPatchMAC,6);
+      sendSerialEvt();
+    }
+    break;
     } 
 }
 
@@ -372,6 +384,7 @@ void sendSerialEvt(void){
   case  APP_CMD_STOPRECEIVEECGDATAACK:
   case  APP_CMD_AUTOCONNECTSTATUSACK:
   case   APP_CMD_CentralMACACK:
+  case APP_CMD_ECGPatchMACACK:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     

@@ -67,6 +67,7 @@ namespace MotionSensor
         private int RSSIValue = 0;
 
         byte[] ECGPatchID = new byte[15];
+        byte[] ECGPatchMAC = new byte[6];
         byte[] BLECentralMAC = new byte[6];
         private int ScalingFlag = 0;
 
@@ -967,10 +968,33 @@ namespace MotionSensor
                                 {
                                     BLECentralMAC[i] = SerialReceiveData[4 + i];
                                 }
-                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") +":"+ BLECentralMAC[4].ToString("X2")
+                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
                                     + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
 
                                     + "  连接状态：心电补丁未连接";
+
+                                ReceiveECGPatchMACCommand();
+                            }
+                            if (SerialReceiveData[1] == 0x1F)
+                            {
+                                if (SerialReceiveData[4] == 0 && (SerialReceiveData[5] == 0) && (SerialReceiveData[6] == 0) && (SerialReceiveData[7] == 0))
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "蓝牙心电补丁未连接，无法获取MAC\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                                else
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "获取心电补丁MAC成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                                for (int i = 0; i < 6; i++)
+                                {
+                                    ECGPatchMAC[i] = SerialReceiveData[4 + i];
+                                }
                             }
                             SerialReceiveData.RemoveRange(0, SerialReceiveData[3] + 4);//从接收列表中删除包
                         }
@@ -1043,9 +1067,9 @@ namespace MotionSensor
                         this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
                                     + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
                                     + "  连接状态：心电补丁已连接 MAC:" +
-                            ScanBLEMAC[MACComboBox.SelectedIndex, 5].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 4].ToString("X2") +
-                            ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 3].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 2].ToString("X2")
-                            + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 1].ToString("X2") + ":" + ScanBLEMAC[MACComboBox.SelectedIndex, 0].ToString("X2")
+                            ECGPatchMAC[5].ToString("X2") + ":" + ECGPatchMAC[4].ToString("X2") +
+                            ":" + ECGPatchMAC[3].ToString("X2") + ":" + ECGPatchMAC[2].ToString("X2")
+                            + ":" + ECGPatchMAC[1].ToString("X2") + ":" + ECGPatchMAC[0].ToString("X2")
                             + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  "+str2;
                         chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
                     }
@@ -1718,6 +1742,23 @@ namespace MotionSensor
                 SerialPort.Write(ssss, 0, 4);
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取主设备蓝牙MAC\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+        private void ReceiveECGPatchMACCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x1E, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求获取心电补丁蓝牙MAC\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                 OutMsg(MonitorText, DisplayString, Color.Red);
             }

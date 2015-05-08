@@ -42,6 +42,8 @@
 #define APP_CMD_AUTOCONNECTSTATUSACK                0x1B
 #define APP_CMD_CentralMAC               0x1C
 #define APP_CMD_CentralMACACK               0x1D
+#define APP_CMD_ECGPatchMAC               0x1E
+#define APP_CMD_ECGPatchMACACK               0x1F
 
 // Serial Event Mnemonic        Opcode
 #define	APP_EVT_CMD_RESPONSE	0x81
