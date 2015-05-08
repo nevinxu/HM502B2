@@ -530,7 +530,7 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
         static uint8 rxpacketnum = 0;
         static uint8 serial_txbuffer[100];
         {
-          osal_memcpy(&serial_txbuffer[3+(rxpacketnum*10)],&pMsg->msg.handleValueNoti.value[4],10);
+          osal_memcpy(&serial_txbuffer[3+(rxpacketnum*10)],&pMsg->msg.handleValueNoti.value[8],10);
           rxpacketnum++;
           if(rxpacketnum >= 8)
           {

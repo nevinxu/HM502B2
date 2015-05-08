@@ -306,27 +306,34 @@ void parseCmd(void){
     break;
     case APP_CMD_RECEIVEECGDATA:
     {
-      /*
-      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
-      txSerialPkt.header.opCode = APP_CMD_RECEIVEECGDATAACK;
-      txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 0; 
-      sendSerialEvt();
-      */
-      
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
       SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);
+      }
+      else
+      {
+        txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+        txSerialPkt.header.opCode = APP_CMD_RECEIVEECGDATAACK;
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 0; 
+        sendSerialEvt();
+      }
     }
     break;
     case APP_CMD_STOPRECEIVEECGDATA:
     {
-      /*
-      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
-      txSerialPkt.header.opCode = APP_CMD_STOPRECEIVEECGDATAACK;
-      txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 0; 
-      sendSerialEvt();
-      */
-      SendCommand2Peripheral(APP_CMD_STOPRECEIVEECGDATA,0,0);
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_STOPRECEIVEECGDATA,0,0);
+      }
+      else
+      {
+        txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+        txSerialPkt.header.opCode = APP_CMD_STOPRECEIVEECGDATAACK;
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 0; 
+        sendSerialEvt();
+      }
     }
     break;
     case APP_CMD_ECGPATCHID:

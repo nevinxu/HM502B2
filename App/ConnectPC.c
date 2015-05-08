@@ -65,9 +65,7 @@ void task_connnectpc_rx(task_param_t param)
                 }
                 pcrxbuffer[0] = 0;
             }
-        }
-
-        
+        }  
 	}
 }
 

@@ -177,10 +177,6 @@ void task_bluetooth_rx(task_param_t param)
 								}
 						 }
 					 }
-					 if(bluerxbuffer[0] == 0x31)
-					 {
-						bluerxbuffer[0] = 0x41;
-					 }
         memset(bluerxbuffer,0,100);
        }
        

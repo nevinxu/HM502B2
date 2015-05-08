@@ -771,12 +771,17 @@ namespace MotionSensor
                                     ConnectBLEButton.Enabled = true;
                                     ConnectBLEButton.Text = "设备已断开";
                                     button6.Enabled = false;   //定标按键
+                                    for(int j = 0;j<6;j++)
+                                    {
+                                        ECGPatchMAC[j] = ScanBLEMAC[0, j];
+                                    }
                                 }
                                 else
                                 {
                                     MACComboBox.Items.Add("无设备");
                                 }
                                 MACComboBox.SelectedIndex = 0;
+
                                 ScanButton.Enabled = true;
                                 MACComboBox.Enabled = true;
                             }
@@ -1234,6 +1239,10 @@ namespace MotionSensor
         private void MACComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             ChoiceBLE = (byte)MACComboBox.SelectedIndex;
+            for (int j = 0; j < 6; j++)
+            {
+                ECGPatchMAC[j] = ScanBLEMAC[ChoiceBLE, j];
+            }
         }
         #endregion
 
