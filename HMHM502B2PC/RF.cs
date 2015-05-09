@@ -1623,7 +1623,7 @@ namespace MotionSensor
         private void timer1_Tick(object sender, EventArgs e)
         {
             BLEConnectFlagTimerOut++;
-            if (BLEConnectFlagTimerOut >= 30)
+            if (BLEConnectFlagTimerOut >= 50)
             {
                 BLEConnectFlagTimerOut = 0;
                 if (ConnectBLEButton.Text == "设备已连接")
