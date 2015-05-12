@@ -15,7 +15,7 @@
 #include "EcgCapture.h"
 
 uint8_t     BLEConnectedFlag = 0;    //BLE连接状态
-uint8_t     ECGDataSendFlag = 0;    //心电数据发送时能标志
+uint8_t     ECGDataSendFlag = 1;    //心电数据发送时能标志
 
 static lpuart_state_t s_bt_lpuart[2];
 
@@ -50,7 +50,11 @@ void InitBlueTooth()
     
     while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
     while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-    
+    while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,strlen(SETNAME), portMAX_DELAY));
+		while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+		while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,strlen(SETNAMB), portMAX_DELAY));
+    while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	
     while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETPI10,strlen(GETPI10))); //
     while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
     if(OKGetReturn(rxbuffer) == '1')
@@ -81,7 +85,10 @@ void task_bluetooth_tx(task_param_t param)
 {
 
 	uint8_t i;
-	//InitBlueTooth();
+	if(BLEConnectedFlag == 0)
+	{
+		InitBlueTooth();
+	}
     
 	while(1)
 	{
@@ -109,6 +116,10 @@ void task_bluetooth_tx(task_param_t param)
 						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
 					}
 					else if(m_btdatapackage.code == SENDECGENABLECODE)
+					{
+						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
+					}
+					else if(m_btdatapackage.code == SENDECGDISABLECODE)
 					{
 						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
 					}
@@ -155,7 +166,7 @@ void task_bluetooth_rx(task_param_t param)
 								}
 								if(bluerxbuffer[1] == 0x16)				//停止发送心电数据
 								{
-									m_btdatapackage.code = SENDECGENABLECODE;
+									m_btdatapackage.code = SENDECGDISABLECODE;
 									m_btdatapackage.size = 4;
 									m_btdatapackage.data[0] = 0x77;
 									m_btdatapackage.data[1] = 0x17;

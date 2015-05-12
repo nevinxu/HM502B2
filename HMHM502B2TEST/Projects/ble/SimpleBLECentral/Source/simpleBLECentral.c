@@ -16,6 +16,7 @@
 #include "ECGGATTprofile.h"
 #include "simpleBLECentral.h"
 #include "serialInterface.h"
+#include "hal_flash.h"
 
 /*********************************************************************
  * MACROS
@@ -90,6 +91,10 @@
 
 // TRUE to filter discovery results on desired service UUID
 #define DEFAULT_DEV_DISC_BY_SVC_UUID          FALSE
+
+
+#define PairMACAddr                     PairMACPage*512
+#define PairMACPage                     250
 
 // Application states
 enum
@@ -185,6 +190,10 @@ uint8 DeviceMode = 0;     //303ģʽ
 uint8 IDValue[9];
 uint8 CentralMAC[6];
 uint8 ECGPatchMAC[6];
+uint8 PairMAC[6];
+
+
+
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -240,7 +249,12 @@ static const gapBondCBs_t simpleBLEBondCB =
  */
 void SimpleBLECentral_Init( uint8 task_id )
 {
+  uint8 buffer[5] = {0x01,0x02,0x03};
+  uint8 buffer2[5];
   simpleBLETaskId = task_id;
+  HalFlashErase(PairMACPage);
+  HalFlashWrite(PairMACAddr, buffer, 5);
+  HalFlashRead(PairMACPage, 0, buffer2, 5);
 
   // Setup Central Profile
   {

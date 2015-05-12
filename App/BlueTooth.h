@@ -13,6 +13,7 @@
 
 
 #define ECGDATACODE												0x01
+#define SENDECGDISABLECODE									0x04
 #define SENDECGENABLECODE									0x02
 #define SENDECGPATCHIDCODE								0x03
 
@@ -80,8 +81,8 @@
 
 #define     GETNAME                     "AT+NAME?"                           //查询、设置 EDR 设备名称
 #define     GETNAMB                     "AT+NAMB?"                           //查询、设置 BLE 设备名称
-#define     SETNAME                     "AT+NAMEHM502B2"
-#define     SETNAMB                     "AT+NAMBHM502B2"
+#define     SETNAME                     "AT+NAMEHM502B2_EDR"
+#define     SETNAMB                     "AT+NAMBHM502B2_BLE"
 
 #define     GETPIO0                     "AT+PIO0?"                  //PIO0 按键管脚功能设置
 #define     SETPIO00                     "AT+PIO00"
