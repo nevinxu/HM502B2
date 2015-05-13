@@ -90,6 +90,8 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
+            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -623,7 +625,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(965, 519);
+            this.button1.Location = new System.Drawing.Point(965, 491);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(93, 23);
             this.button1.TabIndex = 25;
@@ -653,7 +655,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(965, 548);
+            this.button2.Location = new System.Drawing.Point(965, 520);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(93, 23);
             this.button2.TabIndex = 30;
@@ -707,12 +709,29 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(965, 491);
+            this.button6.Location = new System.Drawing.Point(965, 548);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(93, 23);
             this.button6.TabIndex = 37;
             this.button6.Text = "配对";
             this.button6.UseVisualStyleBackColor = true;
+            // 
+            // textBox5
+            // 
+            this.textBox5.Location = new System.Drawing.Point(794, 550);
+            this.textBox5.Name = "textBox5";
+            this.textBox5.Size = new System.Drawing.Size(165, 21);
+            this.textBox5.TabIndex = 38;
+            this.textBox5.TextChanged += new System.EventHandler(this.textBox5_TextChanged);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(799, 531);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(155, 12);
+            this.label13.TabIndex = 39;
+            this.label13.Text = "需要配对的心电补丁MAC地址";
             // 
             // RF
             // 
@@ -720,6 +739,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(1063, 615);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.textBox5);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button3);
@@ -826,6 +847,8 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.Label label13;
     }
 }
 

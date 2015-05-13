@@ -1861,5 +1861,10 @@ namespace MotionSensor
         {
             ScalingFlag = 1;
         }
+
+        private void textBox5_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

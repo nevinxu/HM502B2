@@ -190,7 +190,8 @@ uint8 DeviceMode = 0;     //303模式
 uint8 IDValue[9];
 uint8 CentralMAC[6];
 uint8 ECGPatchMAC[6];
-uint8 PairMAC[6];
+uint8 PairMAC[6] ;
+uint8 PairFlag = 0;   //配对功能使能
 
 
 
@@ -354,6 +355,7 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
     osal_start_timerEx( simpleBLETaskId, simpleBLE_PERIODIC_EVT, 500 );
     return ( events ^ START_DEVICE_EVT );
   }
+/********************************************************************************/
   if ( events & START_SCAN_EVT )
   {
     if ( simpleBLEState != BLE_STATE_CONNECTED )
@@ -614,7 +616,6 @@ static void simpleBLECentralRssiCB( uint16 connHandle, int8 rssi )
       sendSerialEvt();
     }
   }
- //   LCD_WRITE_STRING_VALUE( "RSSI -dB:", (uint8) (-rssi), 10, HAL_LCD_LINE_1 );
 }
 
 /*********************************************************************
