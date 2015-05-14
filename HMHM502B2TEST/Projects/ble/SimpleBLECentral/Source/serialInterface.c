@@ -20,6 +20,7 @@ extern uint8 IDValue[9];
 extern uint8 CentralMAC[6];
 extern uint8 ECGPatchMAC[6];
 extern uint8 DeviceMode;
+extern uint8 PairMAC[6];
 
 static void SerialInterface_ProcessOSALMsg( osal_event_hdr_t *pMsg );
 
@@ -154,6 +155,7 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_ECGPatchMAC:
           case APP_CMD_PairingStatus:
           case APP_CMD_SETRUMMODE:
+          case APP_CMD_PairingSTART:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -315,7 +317,8 @@ void parseCmd(void){
         txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
         txSerialPkt.header.opCode = APP_CMD_RECEIVEECGDATAACK;
         txSerialPkt.header.status = 0x00;
-        txSerialPkt.length = 0; 
+        txSerialPkt.length = 1;
+        txSerialPkt.data[0] = 0; 
         sendSerialEvt();
       }
     }
@@ -349,6 +352,7 @@ void parseCmd(void){
       txSerialPkt.header.opCode = APP_CMD_ECGPATCHIDACK;
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = 15; 
+      osal_memset(txSerialPkt.data,0,15);    
       sendSerialEvt();
       }
     }
@@ -388,7 +392,8 @@ void parseCmd(void){
       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
       txSerialPkt.header.opCode = APP_CMD_PairingStatusACK;
       txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 1; 
+      txSerialPkt.length = 6; 
+      osal_memcpy(txSerialPkt.data,PairMAC,6);
       sendSerialEvt();
     }
     break;
@@ -400,6 +405,17 @@ void parseCmd(void){
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = 1; 
       txSerialPkt.data[0] = DeviceMode;
+      sendSerialEvt();
+    }
+    break;
+    case APP_CMD_PairingSTART:
+    {
+      osal_memcpy(PairMAC,rxSerialPkt.data,6);
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_PairingSTARTACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 6; 
+      osal_memcpy(txSerialPkt.data,rxSerialPkt.data,6);
       sendSerialEvt();
     }
     break;
@@ -432,6 +448,7 @@ void sendSerialEvt(void){
   case APP_CMD_PairingStatusACK:
   case APP_CMD_ECGPATCHIDACK:
   case  APP_CMD_SETRUMMODEACK:
+  case APP_CMD_PairingSTARTACK:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     

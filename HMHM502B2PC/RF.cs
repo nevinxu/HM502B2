@@ -70,7 +70,8 @@ namespace MotionSensor
         byte[] ECGPatchMAC = new byte[6];
         byte[] BLECentralMAC = new byte[6];
         private int ScalingFlag = 0;
-        private int PairingFlag = 0;
+        private int PairingFlag = 1;
+        byte[] ECGPairMAC = new byte[6];
         public RF()
         {
             InitializeComponent();
@@ -736,6 +737,7 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 System.Threading.Thread.Sleep(100);
+
                                 AutoConnectBLEStatusSerialCommand();
                             }
                             if (SerialReceiveData[1] == 0x0E)
@@ -768,17 +770,24 @@ namespace MotionSensor
                                         ScanBLENum++;
                                         MACComboBox.Items.Add(macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2"));
                                     }
+
+
+
                                     ConnectBLEButton.Enabled = true;
                                     ConnectBLEButton.Text = "设备已断开";
-                                    button6.Enabled = false;   //定标按键
-                                    for(int j = 0;j<6;j++)
-                                    {
-                                        ECGPatchMAC[j] = ScanBLEMAC[0, j];
-                                    }
+                                   // button6.Enabled = false;   //定标按键
+                                    //for(int j = 0;j<6;j++)
+                                    //{
+                                    //    ECGPatchMAC[j] = ScanBLEMAC[0, j];
+                                    //}
+
+                                    textBox5.Text = ScanBLEMAC[0, 5].ToString("X2") + ":" + ScanBLEMAC[0, 4].ToString("X2") + ":" + ScanBLEMAC[0, 3].ToString("X2")
+                                       + ":" + ScanBLEMAC[0, 2].ToString("X2") + ":" + ScanBLEMAC[0, 1].ToString("X2") + ":" + ScanBLEMAC[0, 0].ToString("X2"); 
                                 }
                                 else
                                 {
                                     MACComboBox.Items.Add("无设备");
+                                    textBox5.Text = "00:00:00:00:00:00";
                                 }
                                 MACComboBox.SelectedIndex = 0;
 
@@ -800,14 +809,32 @@ namespace MotionSensor
                             }
                             if (SerialReceiveData[1] == 0x19)
                             {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "心电补丁ID获取成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                for (int i = 0; i < 15; i++)
+
+                                if (SerialReceiveData[4] == 0)
                                 {
-                                    ECGPatchID[i] = SerialReceiveData[4 + i];
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "蓝牙心电补丁未连接，无法获取ID\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
                                 }
+                                else
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "心电补丁ID获取成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                    for (int i = 0; i < 15; i++)
+                                    {
+                                        ECGPatchID[i] = SerialReceiveData[4 + i];
+                                    }
+                                }
+
+                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
+                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
+
+                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
+                                    ":"+ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
+                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
 
                                 System.Threading.Thread.Sleep(500);
                                 //ReceiveECGPatchIDSerialCommand();
@@ -882,7 +909,7 @@ namespace MotionSensor
 
                                 ConnectBLEButton.Text = "设备已断开";
                                 ConnectBLEButton.Enabled = true;
-                                button6.Enabled = false;   //定标按键
+                             //   button6.Enabled = false;   //定标按键
                                 ScanButton.Enabled = true;
 
                                 if (DisConnectBLEEnableFlag == 0)
@@ -938,9 +965,19 @@ namespace MotionSensor
                             if (SerialReceiveData[1] == 0x15)
                             {
                                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "设置接收心电数据成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                if (SerialReceiveData[4] == 0)
+                                {
+                                    string DisplayString = "设备未连接,无法设置成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                                else
+                                {
+                                    string DisplayString = "设置接收心电数据成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                                
                             }
                             if (SerialReceiveData[1] == 0x17)
                             {
@@ -993,10 +1030,6 @@ namespace MotionSensor
                                 {
                                     BLECentralMAC[i] = SerialReceiveData[4 + i];
                                 }
-                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
-                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
-
-                                    + "  连接状态：心电补丁未连接";
 
                                 ReceiveECGPatchMACCommand();
                             }
@@ -1028,7 +1061,37 @@ namespace MotionSensor
                                 string DisplayString = "获取配对状态成功！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                textBox5.Text = SerialReceiveData[9].ToString("X2") + ":" + SerialReceiveData[8].ToString("X2") + ":" + SerialReceiveData[7].ToString("X2")
+                                       + ":" + SerialReceiveData[6].ToString("X2") + ":" + SerialReceiveData[5].ToString("X2") + ":" + SerialReceiveData[4].ToString("X2"); 
+                                for(int i = 0;i<6;i++)
+                                {
+                                    ECGPairMAC[i] = SerialReceiveData[4 + i];
+                                }
+
                                 ReceiveECGPatchIDSerialCommand();
+                            }
+                            if (SerialReceiveData[1] == 0x21)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "设置配对MAC地址成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                textBox5.Text = SerialReceiveData[9].ToString("X2") + ":" + SerialReceiveData[8].ToString("X2") + ":" + SerialReceiveData[7].ToString("X2")
+                                      + ":" + SerialReceiveData[6].ToString("X2") + ":" + SerialReceiveData[5].ToString("X2") + ":" + SerialReceiveData[4].ToString("X2");
+                                for (int i = 0; i < 6; i++)
+                                {
+                                    ECGPairMAC[i] = SerialReceiveData[4 + i];
+                                }
+
+                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
+                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
+
+                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
+                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
+                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
+
                             }
                             SerialReceiveData.RemoveRange(0, SerialReceiveData[3] + 4);//从接收列表中删除包
                         }
@@ -1089,7 +1152,7 @@ namespace MotionSensor
                         string str2;
                         if (ScalingFlag == 0)
                         { 
-                            str2 = "未定标          " ;
+                            str2 = "未定标    " ;
                         }
                         else if (ScalingFlag == 1)
                         {
@@ -1103,10 +1166,14 @@ namespace MotionSensor
                         if (PairingFlag == 0)
                         {
                             str3 = "未配对";
+                            
                         }
                         else
                         {
-                            str3 = "已配对";
+                            str3 = "配对MAC：" + ECGPairMAC[0].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") +
+                                    ":" + ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") +
+                                    ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[5].ToString("X2");
+
                         }
                         this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
                                     + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
@@ -1239,10 +1306,11 @@ namespace MotionSensor
         private void MACComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             ChoiceBLE = (byte)MACComboBox.SelectedIndex;
-            for (int j = 0; j < 6; j++)
-            {
-                ECGPatchMAC[j] = ScanBLEMAC[ChoiceBLE, j];
-            }
+            textBox5.Text = ScanBLEMAC[ChoiceBLE, 5].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 4].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 3].ToString("X2")
+        + ":" + ScanBLEMAC[ChoiceBLE, 2].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 1].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 0].ToString("X2"); 
+
+
+
         }
         #endregion
 
@@ -1822,6 +1890,7 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x22, 0x00, 0x00 };
+             //   ECGPairMAC
                 SerialPort.Write(ssss, 0, 4);
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取配对状态\r\n";
@@ -1864,7 +1933,94 @@ namespace MotionSensor
 
         private void textBox5_TextChanged(object sender, EventArgs e)
         {
+            string InputChar;
+                try
+                {
+                    InputChar = textBox5.Text.Substring(textBox5.Text.Length - 1, 1);
+                    char[] cc = InputChar.ToCharArray();
+                    if ((textBox5.Text.Length <= 17))
+                    {
+                        if ((cc[0] >= '0') && (cc[0] <= '9') || (cc[0] >= 'a') && (cc[0] <= 'f') || (cc[0] >= 'A') && (cc[0] <= 'F') || (cc[0] <= ':'))
+                        {
+                            string s = textBox5.Text.ToUpper();
+                            this.textBox5.Text = s;
+                            textBox5.Text = s;
+                         //   this.textBox5.SelectionStart = this.textBox5.Text.Length;
+                         //   this.textBox5.Focus();
+                            if (((this.textBox5.Text.Length + 1) % 3) == 0 && (this.textBox5.Text.Length < 17))
+                            {
+                                string ss = textBox5.Text;
+                                int idx = textBox5.SelectionStart;
+                                ss = ss.Insert(idx, ":");
+                                textBox5.Text = ss;
+                                textBox5.SelectionStart = idx + 1;
+                                textBox5.Focus();
+                            }
+                        }
+                        else
+                        {
+                            string strNew = this.textBox5.Text.Substring(0, this.textBox5.Text.Length - 1);
+                            this.textBox5.Text = strNew;
+                           // this.textBox5.SelectionStart = this.textBox5.Text.Length;
+                           // this.textBox5.Focus();
+                            MessageBox.Show("超出输入范围", "MAC地址输入异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    else
+                    {
+                        string strNew = this.textBox5.Text.Substring(0, this.textBox5.Text.Length - 1);
+                        this.textBox5.Text = strNew;
+                        this.textBox5.SelectionStart = this.textBox5.Text.Length;
+                        this.textBox5.Focus();
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                   // MessageBox.Show("条码长度大于15位或者小于9位，可能导致数据截取错误！", "条码扫描异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
 
+        }
+        private void PairingCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x20, 0x00, 0x06,0x00,0x00,0x00,0x00,0x00 ,0x00};
+
+                string InputChar = textBox5.Text;
+                char[] cc = InputChar.ToCharArray();
+                for (int i = 0; i < 0x11; i++)
+                {
+                    if (cc[i] >= '0' && (cc[i] <= '9'))
+                    {
+                        cc[i] = (char)(cc[i] - 0x30);
+                    }
+                    else if (cc[i] >= 'A' && (cc[i] <= 'E'))
+                    {
+                        cc[i] = (char)(cc[i] - 'A'+10);
+                    }
+                }
+                for (int i = 0; i < 6; i++)
+                {
+                    ssss[4 + i] = (byte)((cc[(5-i) * 3] << 4) + (cc[(5-i) * 3+1]));
+                }
+
+
+                    //   ECGPairMAC
+                    SerialPort.Write(ssss, 0, 10);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求设置配对心电补丁的MAC\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+        private void button6_Click(object sender, EventArgs e)
+        {
+            PairingCommand();
         }
     }
 }

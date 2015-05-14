@@ -44,6 +44,8 @@
 #define APP_CMD_CentralMACACK               0x1D
 #define APP_CMD_ECGPatchMAC               0x1E
 #define APP_CMD_ECGPatchMACACK               0x1F
+#define APP_CMD_PairingSTART               0x20
+#define APP_CMD_PairingSTARTACK               0x21
 #define APP_CMD_PairingStatus               0x22
 #define APP_CMD_PairingStatusACK               0x23
 #define APP_CMD_SETRUMMODE               0x24
@@ -68,7 +70,7 @@ typedef struct _BLEPacket
 BLEPacketHeader_t header;
 // payload
 uint8 length;  // opCode specific, 
-uint8 data[64];  // command or event specific data, 10 Bytes currently
+uint8 data[128];  // command or event specific data, 10 Bytes currently
 } BLEPacket_t;
 
 typedef struct _SerialEventPacket
