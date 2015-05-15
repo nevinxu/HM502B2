@@ -28,8 +28,9 @@ uint8_t	SoftWareVersion[4] = {"1.00"};
 
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
-unsigned char NAMEEDR[64];
-unsigned char NAMEBLE[64];
+
+const unsigned char NameEDR[] = "HM502B2_EDR";
+const unsigned char NameBLE[] = "HM502B2_BLE";
 
 BTTransmitPackage m_btdatapackage;
 
@@ -52,10 +53,20 @@ void InitBlueTooth()
     
     while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
     while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-    while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,strlen(SETNAME), portMAX_DELAY));
-		while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-		while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,strlen(SETNAMB), portMAX_DELAY));
+		if(!memcmp(&rxbuffer[7],NameBLE,sizeof(NameBLE)))
+		{
+			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,strlen(SETNAMB), portMAX_DELAY));
+			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+		}
+		while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
     while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+		if(!memcmp(rxbuffer,NameEDR,sizeof(NameEDR)))
+		{
+			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,strlen(SETNAME), portMAX_DELAY));
+			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+		}
+		
+		
 	
     while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETPI10,strlen(GETPI10))); //
     while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));

@@ -17,7 +17,7 @@
 #define ECG_ADC_INPUT_CHAN          13U  /* default input signal channel */
 #define BATTERY_ADC_INPUT_CHAN      23U  /* default input signal channel */
 
-#define ECGNUMPACKAGE     					8
+#define ECGNUMPACKAGE     									8
 
 #define ECGPACKAGEDEEP											5   //心电数据队列保存深度   
 
