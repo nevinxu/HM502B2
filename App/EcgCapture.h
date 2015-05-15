@@ -8,9 +8,8 @@
 #include "device/fsl_device_registers.h"
 #include "fsl_sim_hal.h"
 
-#define ECG_INST          0U   /*!< ADC instance */
+#define ECG_INST          		0U   /*!< ADC instance */
 #define BATTERY_INST          0U   /*!< ADC instance */
-#define INPUT_SIGNAL_FREQ 20U  /* in HZ */
 #define ECGCHNGROUP		        1u
 #define BATTERYCHNGROUP		    0u
 
@@ -18,15 +17,11 @@
 #define ECG_ADC_INPUT_CHAN          13U  /* default input signal channel */
 #define BATTERY_ADC_INPUT_CHAN      23U  /* default input signal channel */
 
-#define ECGNUMPACKAGE     8
-
-
-#define TASK_ECG_CAPTURE_STACK_SIZE    512
-#define TASK_ECG_CAPTURE_PRIO          4
+#define ECGNUMPACKAGE     					8
 
 #define ECGPACKAGEDEEP											5   //心电数据队列保存深度   
 
-struct EcgDataPackage
+typedef struct _EcgDataPackage
 {
 	uint8_t	start;
 	uint8_t	command;
@@ -36,12 +31,13 @@ struct EcgDataPackage
 	uint8_t leadoffstatus;
 	uint16_t battery;
 	uint16_t ecgdata[ECGNUMPACKAGE];
-
-};
+}EcgDataPackage;
 
 void ecgcaptureenable(uint32_t instance);
 extern int32_t init_ecg(uint32_t instance);
-extern void task_ecgcapture();
+
+extern void init_trigger_source(uint32_t instance);
+extern void deinit_trigger_source(uint32_t instance);
 
 
 #endif

@@ -16,7 +16,7 @@
 
 extern msg_queue_handler_t hPCMsgQueue;;  //心电数据发送队列 
 
-PCTransmitComandPackage m_pctransmitpackage;
+PCTransmitPackage m_pctransmitpackage;
   
 extern uint8_t     BLEConnectedFlag;
 

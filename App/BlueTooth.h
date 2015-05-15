@@ -5,17 +5,46 @@
 #include "device/fsl_device_registers.h"
 #include "fsl_sim_hal.h"
 
-#define TASK_BLUETOOTH_STACK_SIZE    512
-#define TASK_BLUETOOTH_TX_PRIO          10
-#define TASK_BLUETOOTH_RX_PRIO          11
-#define BLUEDATEPACKETSIZE							20
-#define BTPACKAGEDEEP											10   //BLUE数据队列保存深度  
+#define TASK_BLUETOOTH_STACK_SIZE    					512
+#define TASK_BLUETOOTH_TX_PRIO          			10
+#define TASK_BLUETOOTH_RX_PRIO          			11
+#define BLUEDATEPACKETSIZE										20
+#define BTPACKAGEDEEP													10   //BLUE数据队列保存深度  
 
 
-#define ECGDATACODE												0x01
-#define SENDECGDISABLECODE									0x04
-#define SENDECGENABLECODE									0x02
-#define SENDECGPATCHIDCODE								0x03
+#define ECGDATACODE												0x01      //心电数据发送
+#define SENDECGDISABLECODE								0x04			//停止发送心电数据
+#define SENDECGENABLECODE									0x02			//使能发送心电数据
+#define SENDECGPATCHIDCODE								0x03			//发送心电补丁ID
+#define SENDHARDVERSIONCODE								0x05			//硬件版本
+#define SENDSOFTVERSIONCODE								0x06			//软件版本
+
+
+#define SERIAL_IDENTIFIER       									0x77
+
+#define SERIAL_STATUS_OK       										0x00
+
+#define SERIAL_DATASIZE_NONE       								0x00
+
+#define SERIAL_DATAADDR_NONE       								0x00
+
+#define ECGPATCHIDSIZE														15
+#define ECGPATCHHARDVERSIONSIZE										4
+#define ECGPATCHSOFTVERSIONSIZE										4
+#define ECGDATASIZE																14
+
+#define APP_CMD_ECGDATASEND                				0x09
+#define APP_CMD_RECEIVEECGDATAACK                	0x14
+#define APP_CMD_RECEIVEECGDATAREQ                	0x15
+#define APP_CMD_STOPRECEIVEECGDATAACK            	0x16
+#define APP_CMD_STOPRECEIVEECGDATAREQ           	0x17
+#define APP_CMD_ECGPATCHIDACK                    	0x18
+#define APP_CMD_ECGPATCHIDREQ                			0x19
+#define APP_CMD_ECGPATCHHARDVERSIONACK          	0x26
+#define APP_CMD_ECGPATCHHARDVERSIONREQ        		0x27
+#define APP_CMD_ECGPATCHSOFTVERSIONACK          	0x28
+#define APP_CMD_ECGPATCHSOFTVERSIONREQ        		0x29
+
 
 #define     AT                          "AT"
 #define     GETATOB                     "AT+ATOB?"                      //查询/设置模块三通模式
@@ -121,15 +150,16 @@
 #define     GETVERS                     "AT+VERS?"                      //查询软件本
 
 
-typedef struct _BTDataPackage
+typedef struct _BTTransmitPackage
 {
 	uint8_t	code;
 	uint8_t size;
 	uint8_t	data[BLUEDATEPACKETSIZE];
-}BTDataPackage;
+}BTTransmitPackage;
     
 extern void task_bluetooth_tx(task_param_t param);
 extern void task_bluetooth_rx(task_param_t param);
+extern void BlueToothSendCommand(uint8_t command,uint8_t DataSize,uint8_t *Data);
 
 extern lpuart_status_t lpuart_Init(
         uint32_t uartInstance, uint32_t baudRate);

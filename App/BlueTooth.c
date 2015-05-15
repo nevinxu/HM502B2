@@ -23,13 +23,15 @@ extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列
 
 extern uint8_t ECGPatchID[15];
 
-BTDataPackage m_btdatapackage;
+uint8_t	HardWareVersion[4] = {"1.00"};
+uint8_t	SoftWareVersion[4] = {"1.00"};
 
-                                                                                                                                                                                                                                                            
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
 unsigned char NAMEEDR[64];
 unsigned char NAMEBLE[64];
+
+BTTransmitPackage m_btdatapackage;
 
 
 uint8_t OKGetReturn(uint8_t *buffer)
@@ -83,7 +85,6 @@ void InitBlueTooth()
 
 void task_bluetooth_tx(task_param_t param)
 {
-
 	uint8_t i;
 	if(BLEConnectedFlag == 0)
 	{
@@ -129,14 +130,14 @@ void task_bluetooth_tx(task_param_t param)
 
 void task_bluetooth_rx(task_param_t param)
 {
-	BTDataPackage m_btdatapackage;
 	uint8_t bluerxbuffer[100];
     
 	while(1)
 	{
-        
+       
        if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,100))
        {
+/************************************************************************************************/ 
            if((bluerxbuffer[0] == 'O') && (bluerxbuffer[1] == 'K') && (bluerxbuffer[2] == '+'))
            {
                 if((bluerxbuffer[3] == 'C') && (bluerxbuffer[4] == 'O') && (bluerxbuffer[5] == 'N')&& (bluerxbuffer[6] == 'B'))
@@ -149,50 +150,54 @@ void task_bluetooth_rx(task_param_t param)
                     LED1_OFF;
                 }
            }
-					 if(bluerxbuffer[0] == 0x77)
+/************************************************************************************************/					 
+					 if(bluerxbuffer[0] == SERIAL_IDENTIFIER)
 					 {
-						 if(bluerxbuffer[2] == 0x00)
+						 if(bluerxbuffer[2] == SERIAL_STATUS_OK)
 						 {
-								if(bluerxbuffer[1] == 0x14)    //开始发送心电数据
+								if(bluerxbuffer[1] == APP_CMD_RECEIVEECGDATAACK)    //开始发送心电数据
 								{
-									m_btdatapackage.code = SENDECGENABLECODE;
-									m_btdatapackage.size = 4;
-									m_btdatapackage.data[0] = 0x77;
-									m_btdatapackage.data[1] = 0x15;
-									m_btdatapackage.data[2] = 0;
-									m_btdatapackage.data[3] = 0;
-									OSA_MsgQPut(hBTMsgQueue,&m_btdatapackage); 
+									BlueToothSendCommand(APP_CMD_RECEIVEECGDATAREQ,SERIAL_DATASIZE_NONE,SERIAL_DATAADDR_NONE);
 									ECGDataSendFlag  = 1;									
 								}
-								if(bluerxbuffer[1] == 0x16)				//停止发送心电数据
+								else if(bluerxbuffer[1] == APP_CMD_STOPRECEIVEECGDATAACK)				//停止发送心电数据
 								{
-									m_btdatapackage.code = SENDECGDISABLECODE;
-									m_btdatapackage.size = 4;
-									m_btdatapackage.data[0] = 0x77;
-									m_btdatapackage.data[1] = 0x17;
-									m_btdatapackage.data[2] = 0;
-									m_btdatapackage.data[3] = 0;
-									OSA_MsgQPut(hBTMsgQueue,&m_btdatapackage); 
+									BlueToothSendCommand(APP_CMD_STOPRECEIVEECGDATAREQ,SERIAL_DATASIZE_NONE,SERIAL_DATAADDR_NONE);
 									ECGDataSendFlag  = 0;									
 								}
-								if(bluerxbuffer[1] == 0x18)				//发送ID值
+								else if(bluerxbuffer[1] == APP_CMD_ECGPATCHIDACK)				//发送ID值
 								{
-									m_btdatapackage.code = SENDECGPATCHIDCODE;
-									m_btdatapackage.data[0] = 0x77;
-									m_btdatapackage.data[1] = 0x19;
-									m_btdatapackage.data[2] = 0;
-									m_btdatapackage.data[3] = 15;
-									m_btdatapackage.size = 4+m_btdatapackage.data[3];
-									memcpy(&m_btdatapackage.data[4],ECGPatchID,15);
-									OSA_MsgQPut(hBTMsgQueue,&m_btdatapackage); 							
+									BlueToothSendCommand(APP_CMD_ECGPATCHIDREQ,ECGPATCHIDSIZE,ECGPatchID); 							
+								}
+								else if(bluerxbuffer[1] == APP_CMD_ECGPATCHHARDVERSIONACK)				//发送硬件版本
+								{
+									BlueToothSendCommand(APP_CMD_ECGPATCHHARDVERSIONREQ,ECGPATCHHARDVERSIONSIZE,HardWareVersion); 							
+								}
+								else if(bluerxbuffer[1] == APP_CMD_ECGPATCHSOFTVERSIONACK)				//发送软件版本
+								{
+									BlueToothSendCommand(APP_CMD_ECGPATCHSOFTVERSIONREQ,ECGPATCHSOFTVERSIONSIZE,SoftWareVersion); 							
 								}
 						 }
 					 }
+/************************************************************************************************/	
         memset(bluerxbuffer,0,100);
        }
        
 	}
 }
+
+void BlueToothSendCommand(uint8_t command,uint8_t DataSize,uint8_t *Data)
+{
+		m_btdatapackage.code = SENDECGENABLECODE;
+		m_btdatapackage.size = 4;
+		m_btdatapackage.data[0] = SERIAL_IDENTIFIER;
+		m_btdatapackage.data[1] = APP_CMD_RECEIVEECGDATAREQ;
+		m_btdatapackage.data[2] = SERIAL_STATUS_OK;
+		m_btdatapackage.data[3] = SERIAL_DATASIZE_NONE + DataSize;
+		memcpy(&m_btdatapackage.data[4],Data,DataSize);
+		OSA_MsgQPut(hBTMsgQueue,&m_btdatapackage); 
+}
+
 
 
 lpuart_status_t lpuart_Init(

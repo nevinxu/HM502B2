@@ -15,33 +15,18 @@
 #include "ConnectPC.h"
 #include "ecg.c"
 
+//心电补丁ID值
 uint8_t ECGPatchID[15] = {0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30};
-
-
-MSG_QUEUE_DECLARE(mqBTData, 50, 1);  //大小在freertos上无效  
-MSG_QUEUE_DECLARE(mqPCData, 50, 1);  //大小在freertos上无效  
-
-extern void init_trigger_source(uint32_t instance);
-extern void deinit_trigger_source(uint32_t instance);
 
 /* SIM base address */
 const uint32_t gSimBaseAddr[] = SIM_BASE_ADDRS;
-
 adc_state_t gAdcState;
-
-struct EcgDataPackage ecgdatapackage;   //
-
-msg_queue_handler_t hBTMsgQueue;  //
-msg_queue_handler_t hPCMsgQueue;  //
-
-uint8_t BT_Status = 0;
-uint8_t BT_StatusNum = 0;
-
-BTDataPackage btdatapackage;
-PCTransmitComandPackage pctransmitpackage;
 
 extern uint8_t     BLEConnectedFlag;    //BLE连接状态
 extern uint8_t     ECGDataSendFlag;    //心电数据发送时能标志
+
+extern msg_queue_handler_t hBTMsgQueue;  //
+extern msg_queue_handler_t hPCMsgQueue;  //
 	
 int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 {
@@ -69,18 +54,22 @@ int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 	
 static void ecg_adc_isr_callback(void)
 {
-	static uint8_t i,j;
-	static uint16_t batterybuffer[16];
-	uint16_t buffer = 0;
-
-    adc_chn_config_t adcChnConfig;
+		static uint8_t i,j;
+		static uint16_t batterybuffer[16];
+		uint16_t buffer = 0;
+		BTTransmitPackage 	m_bttransmitpackage;
+		static uint8_t BT_Status = 0;
+		static uint8_t BT_StatusNum = 0;
+		EcgDataPackage ecgdatapackage;   //
+		adc_chn_config_t adcChnConfig;
+	
     if(i % 2)
     {
-//			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
-//			{
-//				ecgdatapackage.ecgdata[i/2] = 500;
-//			}
-//			else
+			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
+			{
+				ecgdatapackage.ecgdata[i/2] = 500;
+			}
+			else
 			{
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}
@@ -145,79 +134,29 @@ static void ecg_adc_isr_callback(void)
 					ecgdatapackage.battery = batterybuffer[0];
 				}
 				
-				btdatapackage.code = ECGDATACODE;
-				btdatapackage.size = sizeof(ecgdatapackage);
-				ecgdatapackage.start = 0x77;
-				ecgdatapackage.command = 0x09;
-				ecgdatapackage.status = 0;
-				ecgdatapackage.length = 14;
-				memcpy(btdatapackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+				m_bttransmitpackage.code = ECGDATACODE;
+				m_bttransmitpackage.size = sizeof(ecgdatapackage);
+				ecgdatapackage.start = SERIAL_IDENTIFIER;
+				ecgdatapackage.command = APP_CMD_ECGDATASEND;
+				ecgdatapackage.status = SERIAL_STATUS_OK;
+				ecgdatapackage.length = ECGDATASIZE;
+				memcpy(m_bttransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
 
 		//压缩		
-				EncodeData4WTo5B(ecgdatapackage.ecgdata,&btdatapackage.data[8],8);
-				btdatapackage.size = btdatapackage.size-6;
+				EncodeData4WTo5B(ecgdatapackage.ecgdata,&m_bttransmitpackage.data[8],8);
+				m_bttransmitpackage.size = m_bttransmitpackage.size-6;
 				
-				OSA_MsgQPut(hBTMsgQueue,&btdatapackage);   
+				OSA_MsgQPut(hBTMsgQueue,&m_bttransmitpackage);   
 
 
-				pctransmitpackage.start = STARTHEAD;
-				pctransmitpackage.command = ECGDATACODE;
-				pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
-				memcpy(pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-				OSA_MsgQPut(hPCMsgQueue,&pctransmitpackage);  
+//				pctransmitpackage.start = STARTHEAD;
+//				pctransmitpackage.command = ECGDATACODE;
+//				pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
+//				memcpy(pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+//				OSA_MsgQPut(hPCMsgQueue,&pctransmitpackage);  
 			}
 		}
 }
-
-static void battery_adc_isr_callback(void)
-{
-	static uint8_t i;
-    init_ecg(ECG_INST);
-}
-
-int32_t init_battery_adc(uint32_t instance)
-{
-    #if FSL_FEATURE_ADC_HAS_CALIBRATION
-    adc_calibration_param_t batteryadcCalibraitionParam;
-#endif
-    adc_user_config_t batteryadcUserConfig;
-    adc_chn_config_t batteryadcChnConfig;
-
-#if FSL_FEATURE_ADC_HAS_CALIBRATION
-    /* Auto calibraion. */   
-    ADC_DRV_GetAutoCalibrationParam(instance, &batteryadcCalibraitionParam);
-    ADC_DRV_SetCalibrationParam(instance, &batteryadcCalibraitionParam);
-#endif
-
-    /*
-     * Initialization ADC for
-     * 12bit resolution, interrrupt mode, hw trigger enabled.
-     * normal convert speed, VREFH/L as reference, 
-     * disable continuouse convert mode.
-     */ 
-    ADC_DRV_StructInitUserConfigForIntMode(&batteryadcUserConfig);
-    //ecgadcUserConfig.hwTriggerEnable = true;
-    batteryadcUserConfig.continuousConvEnable = false;
-    batteryadcUserConfig.resolutionMode = kAdcResolutionBitOfSingleEndAs10;
-	//	adcUserConfig.refVoltSrcMode = kAdcRefVoltSrcOfValt;
-    ADC_DRV_Init(instance, &batteryadcUserConfig, &gAdcState);
-    
-    ADC_DRV_EnableHwAverage(instance,kAdcHwAverageCountOf32);
-
-    /* Install Callback function into ISR. */
-    ADC_DRV_InstallCallback(instance, BATTERYCHNGROUP, battery_adc_isr_callback);
-
-    batteryadcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
-    batteryadcChnConfig.diffEnable = false;
-    batteryadcChnConfig.intEnable = true;
-    batteryadcChnConfig.chnMux = kAdcChnMuxOfA;
-    
-    /* Configure channel0. */
-    ADC_DRV_ConfigConvChn(instance, BATTERYCHNGROUP, &batteryadcChnConfig);
-		
-    return 0;
-}
-
 
 void ecgcaptureenable(uint32_t instance)
 {
@@ -269,32 +208,7 @@ int32_t init_ecg(uint32_t instance)
     ecgadcChnConfig.intEnable = true;
     ecgadcChnConfig.chnMux = kAdcChnMuxOfB;
     ADC_DRV_ConfigConvChn(instance, ECGCHNGROUP, &ecgadcChnConfig);	
-    
-    
-//    ecgadcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
-//    ecgadcChnConfig.diffEnable = false;
-//    ecgadcChnConfig.intEnable = true;
-//    ecgadcChnConfig.chnMux = kAdcChnMuxOfB;
-//    ADC_DRV_ConfigConvChn(instance, ECGCHNGROUP, &ecgadcChnConfig);	
-    
+
     return 0;
 }
 
-void task_ecgcapture(task_param_t param)
-{   
-	static uint8_t i;
-	i = sizeof(pctransmitpackage);
-	hBTMsgQueue = OSA_MsgQCreate(mqBTData, BTPACKAGEDEEP, sizeof(btdatapackage));  //定义心电数据传输队列 
-	hPCMsgQueue = OSA_MsgQCreate(mqPCData, PCPACKAGEDEEP, sizeof(pctransmitpackage));  //定义心电数据传输队列 
-
-	if(init_ecg(ECG_INST))
-	{
-        //printf("Failed to do the ADC init\n");
-        return;
-	}
-	init_trigger_source(ECG_INST);
-	while(1)
-	{
-		OSA_TimeDelay(100);
-	}
-}

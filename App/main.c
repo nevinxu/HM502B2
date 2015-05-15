@@ -9,25 +9,32 @@
 
 #include "fsl_lpuart_driver.h"
 #include "fsl_adc_driver.h"
-
+		
 #include "EcgCapture.h"
 #include "ConnectPC.h"
 #include "BlueTooth.h"
 #include "flash_demo.h"
 #include "SSD_FTFx.h"
 
-uint8_t     EcgCaptureEnableFlag = 0;
-
-OSA_TASK_DEFINE(task_ecg_capture, TASK_ECG_CAPTURE_STACK_SIZE);
 OSA_TASK_DEFINE(task_connect_pc_rx, TASK_CONNECT_PC_STACK_SIZE);
 OSA_TASK_DEFINE(task_connect_pc_tx, TASK_CONNECT_PC_STACK_SIZE);
 OSA_TASK_DEFINE(task_bluetooth_rx, TASK_BLUETOOTH_STACK_SIZE);
 OSA_TASK_DEFINE(task_bluetooth_tx, TASK_BLUETOOTH_STACK_SIZE);
 
+MSG_QUEUE_DECLARE(mqBTData, 50, 1);  //大小在freertos上无效  
+MSG_QUEUE_DECLARE(mqPCData, 50, 1);  //大小在freertos上无效  
 
+msg_queue_handler_t hBTMsgQueue;  //
+msg_queue_handler_t hPCMsgQueue;  //
+
+BTTransmitPackage 						bttransmitpackage;
+PCTransmitPackage 						pctransmitpackage;
+
+/********************************************************************************/
 uint32_t runBootloaderAddress;    //在线升级相关
 void (*runBootloader)(void * arg);
 
+/********************************************************************************/
 uint8_t program_buffer[BUFFER_SIZE_BYTE];
 pFLASHCOMMANDSEQUENCE g_FlashLaunchCommand = (pFLASHCOMMANDSEQUENCE)0xFFFFFFFF;
 /* array to copy __Launch_Command func to RAM */
@@ -57,7 +64,7 @@ void ErrorTrap(uint32_t ret)
 void callback(void)
 {
 }
-
+/********************************************************************************/
 
 int main(void)
 {	
@@ -70,7 +77,7 @@ int main(void)
 runBootloaderAddress = **(uint32_t **)(0x1c00001c);
 runBootloader = (void (*)(void * arg))runBootloaderAddress;
 // Start the bootloader.
-runBootloader(NULL);
+//runBootloader(NULL);
 	
 //	smc_power_mode_protection_config_t smc_power_prot_cfg =
 //	{
@@ -125,14 +132,12 @@ runBootloader(NULL);
 
 	BT_uart_init();
 	
-	OSA_TaskCreate(task_ecgcapture,
-                   (uint8_t*) "ecgcapture",
-                    TASK_ECG_CAPTURE_STACK_SIZE,
-                    task_ecg_capture_stack,
-                    TASK_ECG_CAPTURE_PRIO,
-                    (task_param_t)0,
-                    false,
-                    &task_ecg_capture_task_handler);
+	init_ecg(ECG_INST);
+	init_trigger_source(ECG_INST);
+	
+	hBTMsgQueue = OSA_MsgQCreate(mqBTData, BTPACKAGEDEEP, sizeof(bttransmitpackage));  //定义蓝牙发送传输队列 
+	hPCMsgQueue = OSA_MsgQCreate(mqPCData, PCPACKAGEDEEP, sizeof(pctransmitpackage));  //定义调试串口发送传输队列
+	
 	OSA_TaskCreate(task_bluetooth_rx,
                    (uint8_t*) "bluetooth_rx",
                     TASK_BLUETOOTH_STACK_SIZE,

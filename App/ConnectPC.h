@@ -14,13 +14,13 @@
 #define PCPACKAGEDEEP											1
 #define PCDATEPACKETSIZE									40
 
-typedef struct _PCTransmitComandPackage
+typedef struct _PCTransmitPackage
 {
     uint16_t    start;
     uint8_t     command;
     uint8_t    	size;
 		uint8_t			data[PCDATEPACKETSIZE];
-}PCTransmitComandPackage;
+}PCTransmitPackage;
 
 struct EcgDataTxPackage
 {

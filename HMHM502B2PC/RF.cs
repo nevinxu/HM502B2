@@ -241,7 +241,6 @@ namespace MotionSensor
             textBox3.Text = chartYMin.ToString();
             textBox4.Text = chartYMax.ToString();
 
-            this.reportViewer1.RefreshReport();
         }
         #endregion
 
