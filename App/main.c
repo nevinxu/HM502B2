@@ -70,7 +70,7 @@ int main(void)
 runBootloaderAddress = **(uint32_t **)(0x1c00001c);
 runBootloader = (void (*)(void * arg))runBootloaderAddress;
 // Start the bootloader.
-//runBootloader(NULL);
+runBootloader(NULL);
 	
 //	smc_power_mode_protection_config_t smc_power_prot_cfg =
 //	{

@@ -357,7 +357,8 @@ namespace MotionSensor
             }
             else
             {
-                //SendDisConnectSerialCommand();
+                checkBox1.Checked = false;
+
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "串口已断开！\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -372,6 +373,7 @@ namespace MotionSensor
                 if (SerialPort.IsOpen)
                 {
                     SerialPort.Close();
+                    System.Threading.Thread.Sleep(500);
                 }
                 DataStoreButton.Enabled = false;
                 ScanButton.Enabled = false;
@@ -383,6 +385,8 @@ namespace MotionSensor
             }
             chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
             this.toolStripStatusLabel2.Text = "";
+
+            
         }
 
 
@@ -737,7 +741,8 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 System.Threading.Thread.Sleep(100);
-
+                                DisAutoConnectBLESerialCommand();
+                                System.Threading.Thread.Sleep(100);
                                 AutoConnectBLEStatusSerialCommand();
                             }
                             if (SerialReceiveData[1] == 0x0E)
@@ -837,7 +842,6 @@ namespace MotionSensor
                                     ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
 
                                 System.Threading.Thread.Sleep(500);
-                                //ReceiveECGPatchIDSerialCommand();
                                  ReceiveECGDataSerialCommand();
 
                             }
@@ -941,6 +945,7 @@ namespace MotionSensor
                                     string DisplayString = "自动连接配置完成！\r\n";
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
+                                    checkBox1.Checked = true;
                                 }
                                 else if (SerialReceiveData[4] == 0x00)
                                 {
@@ -948,6 +953,7 @@ namespace MotionSensor
                                     string DisplayString = "停止自动连接！\r\n";
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
+                                    checkBox1.Checked = false;
                                 }
 
                             }
@@ -977,6 +983,7 @@ namespace MotionSensor
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
                                 }
+                                AutoConnectBLESerialCommand();
                                 
                             }
                             if (SerialReceiveData[1] == 0x17)
@@ -1704,17 +1711,17 @@ namespace MotionSensor
                 {
                     return;
                 }
-                if (BLEConnectFlag == 0)
-                {
-                    if (checkBox1.Checked == true)
-                    {
-                        AutoConnectBLESerialCommand();
-                    }
-                    else
-                    {
-                        DisAutoConnectBLESerialCommand();
-                    }
-                }
+                //if (BLEConnectFlag == 0)
+                //{
+                //    if (checkBox1.Checked == true)
+                //    {
+                //        AutoConnectBLESerialCommand();
+                //    }
+                //    else
+                //    {
+                //        DisAutoConnectBLESerialCommand();
+                //    }
+                //}
             }
         }
 
