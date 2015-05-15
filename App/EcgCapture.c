@@ -27,6 +27,11 @@ extern uint8_t     ECGDataSendFlag;    //心电数据发送时能标志
 
 extern msg_queue_handler_t hBTMsgQueue;  //
 extern msg_queue_handler_t hPCMsgQueue;  //
+
+BTTransmitPackage 	m_bttransmitpackage;
+uint8_t BT_Status = 0;
+uint8_t BT_StatusNum = 0;
+EcgDataPackage ecgdatapackage;   //
 	
 int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 {
@@ -57,19 +62,15 @@ static void ecg_adc_isr_callback(void)
 		static uint8_t i,j;
 		static uint16_t batterybuffer[16];
 		uint16_t buffer = 0;
-		BTTransmitPackage 	m_bttransmitpackage;
-		static uint8_t BT_Status = 0;
-		static uint8_t BT_StatusNum = 0;
-		EcgDataPackage ecgdatapackage;   //
 		adc_chn_config_t adcChnConfig;
 	
     if(i % 2)
     {
-			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
-			{
-				ecgdatapackage.ecgdata[i/2] = 500;
-			}
-			else
+//			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
+//			{
+//				ecgdatapackage.ecgdata[i/2] = 500;
+//			}
+//			else
 			{
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}
