@@ -534,7 +534,7 @@
             this.chart1.Location = new System.Drawing.Point(0, 6);
             this.chart1.Name = "chart1";
             this.chart1.Palette = Dundas.Charting.WinControl.ChartColorPalette.Kindergarten;
-            this.chart1.Size = new System.Drawing.Size(594, 551);
+            this.chart1.Size = new System.Drawing.Size(313, 435);
             this.chart1.TabIndex = 4;
             this.chart1.Text = "chart1";
             title1.Name = "Title1";
