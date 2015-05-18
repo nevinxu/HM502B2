@@ -99,7 +99,7 @@ void task_bluetooth_tx(task_param_t param)
 	uint8_t i;
 	if(BLEConnectedFlag == 0)
 	{
-		InitBlueTooth();
+		//InitBlueTooth();
 	}
     
 	while(1)
