@@ -795,6 +795,8 @@ namespace MotionSensor
 
                                     ConnectBLEButton.Enabled = true;
                                     ConnectBLEButton.Text = "设备已断开";
+
+
                                    // button6.Enabled = false;   //定标按键
                                     //for(int j = 0;j<6;j++)
                                     //{
@@ -822,6 +824,11 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 BLEConnectFlag = 1;
+
+                                DataStoreButton.Enabled = true;
+
+                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
+                                File.Delete(filePath);
 
                                // System.Threading.Thread.Sleep(500);
                               //  ReceiveECGPatchIDSerialCommand();
@@ -871,6 +878,7 @@ namespace MotionSensor
                                 ConnectBLEButton.Enabled = true;
                              //   button6.Enabled = false;   //定标按键
                                 ScanButton.Enabled = true;
+                                DataStoreButton.Enabled = false;
 
                                 if (DisConnectBLEEnableFlag == 0)
                                 {
@@ -924,8 +932,6 @@ namespace MotionSensor
                                 ConnectBLEButton.Enabled = true;
                                 button6.Enabled = true;   //定标按键
 
-                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
-                                File.Delete(filePath);
                             }
                             else if (SerialReceiveData[1] == 0x15)
                             {
@@ -1112,18 +1118,43 @@ namespace MotionSensor
                                     fs.Position = fs.Length;
                                     for (int i = 0; i < 8; i++)
                                     {
-                                        //byte[] bytes = new byte[10];
-                                        //int j = (int)XdataV[EcgDataTimer * M + i];
-                                        //if (j < 0)
-                                        //{ 
-                                        //    bytes[0] = 
-                                        //}
-                                        
-                                        //fs.Write(bytes, 0, 4);
-                                        //byte[] bytes2 = new byte[2];
-                                        //bytes2[0] = 0x0d;
-                                        //bytes2[1] = 0x0a;
-                                        //fs.Write(bytes, 0, 2);
+                                        int j = 0;
+                                        byte[] bytes = new byte[10];
+                                        int m_ecgdata = (int)XdataV[EcgDataTimer * M + i];
+                                        if (m_ecgdata < 0)
+                                        {
+                                            bytes[j++] = 0x2D;
+                                            m_ecgdata = Math.Abs(m_ecgdata);
+                                        }
+                                        if (m_ecgdata >= 1000)
+                                        {
+                                            byte m1 = (byte)(m_ecgdata / 1000);
+                                            bytes[j++] =(byte) (0x30 + m1);
+                                        }
+                                        if (m_ecgdata >= 100)
+                                        {
+                                            byte m2 = (byte)(m_ecgdata / 100);
+                                            m2 = (byte)(m2 % 10);
+                                            bytes[j++] = (byte)(0x30 + m2);
+                                        }
+                                        if (m_ecgdata >= 10)
+                                        {
+                                            byte m3 = (byte)(m_ecgdata / 10);
+                                            m3 = (byte)(m3 % 10);
+                                            bytes[j++] = (byte)(0x30 + m3);
+                                        }
+                                        if (m_ecgdata >= 0)
+                                        {
+                                            byte m4 = (byte)(m_ecgdata % 10);
+                                            bytes[j++] = (byte)(0x30 + m4);
+                                        }
+                                        if (m_ecgdata == 0)
+                                        {
+                                            m_ecgdata = 0;
+                                        }
+                                        bytes[j++] = 0x0d;
+                                        bytes[j] = 0x0a;
+                                        fs.Write(bytes, 0, j+1);
                                         
                                     }
 
@@ -1136,7 +1167,7 @@ namespace MotionSensor
                                 {
                                     fs.Close();
                                 }
-
+                                DataStoreButton.Enabled = true;
 
                                 if(ScalingFlag == 1)
                                 {
@@ -1383,7 +1414,7 @@ namespace MotionSensor
             saveFileDialog1.Title = "保存心电数据";
             saveFileDialog1.FilterIndex = 1;
             saveFileDialog1.RestoreDirectory = true;
-            string FileName = "ecg_data"+"  " + StartStoreDataTime +"--"+ DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + ".bin"; // 
+            string FileName = "ecg_data"+"  " + StartStoreDataTime +"--"+ DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + ".txt"; // 
             saveFileDialog1.FileName = FileName;
             saveFileDialog1.AddExtension = true;
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
@@ -1398,7 +1429,7 @@ namespace MotionSensor
                 //    swt.WriteLine(adrbuf);
                 //}
                 //fst.Close();
-                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
+                string filePath = System.IO.Directory.GetCurrentDirectory() + "\\ecg_data.txt";
                 string localFilePath = saveFileDialog1.FileName.ToString(); //获得文件路径 
 
                 try
