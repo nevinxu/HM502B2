@@ -578,23 +578,39 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
     { 
       if(simpleBLEProcedureInProgress == FALSE )
         {
-          if(pMsg->msg.handleValueNoti.value[0] == 0x77)
+          if(pMsg->msg.handleValueNoti.value[0] == SERIAL_IDENTIFIER)
           {
             if(pMsg->msg.handleValueNoti.value[2] == 0)
             {
-              if(pMsg->msg.handleValueNoti.value[1] == 0x19)
+              if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_ECGPATCHIDACK)
               {
                
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
               }
-              else if(pMsg->msg.handleValueNoti.value[1] == 0x09)
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_DATASEND)
               {
-                if(pMsg->msg.handleValueNoti.len == 0x12)
+                if(pMsg->msg.handleValueNoti.len == 0x12)     // 数据完整性
                 {
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
                 }
               }
-              else if(pMsg->msg.handleValueNoti.value[1] == 0x15)
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_RECEIVEECGDATAACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_SET1MVVALUEACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_SET0MVVALUEACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_GET0MVVALUEACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_GET1MVVALUEACK)
               {
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
               }

@@ -78,23 +78,13 @@ int32_t WriteData2Flash()
 	g_FlashLaunchCommand = (pFLASHCOMMANDSEQUENCE)RelocateFunction((uint32_t)__ram_func , LAUNCH_CMD_SIZE ,(uint32_t)FlashCommandSequence);   
 	destination = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 6*FTFx_PSECTOR_SIZE);  //最后第六个块
 	size = FTFx_PSECTOR_SIZE;
-	ret = FlashEraseSector(&flashSSDConfig, destination, size, g_FlashLaunchCommand);        
-	if (FTFx_OK != ret)
-	{
-		ErrorTrap(ret);
-	}
-	
+	FlashEraseSector(&flashSSDConfig, destination, size, g_FlashLaunchCommand); 
 	destination = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 6*FTFx_PSECTOR_SIZE);
-
 	size = sizeof(flashdatapackage);
 	memcpy(&program_buffer,&flashdatapackage,size);
 	
 	ret = FlashProgram(&flashSSDConfig, destination, size, \
                                        program_buffer, g_FlashLaunchCommand);
-	if (FTFx_OK != ret)
-	{
-		ErrorTrap(ret);
-	}
 }
 
 int32_t ReadData4Flash()
@@ -144,7 +134,7 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
 	FlashInit(&flashSSDConfig);
 	/* Configure the power mode protection */
 //	SMC_HAL_SetProtection(SMC_BASE, &smc_power_prot_cfg);	
-ReadData4Flash();
+	ReadData4Flash();
 	
 	OSA_Init();   //直接返回 OSA_Success   实时操作系统的初始化     freertos没有函数体  直接返回   
 	

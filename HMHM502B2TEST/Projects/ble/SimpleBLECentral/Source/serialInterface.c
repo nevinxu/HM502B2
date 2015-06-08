@@ -159,6 +159,10 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_PairingStatus:
           case APP_CMD_SETRUMMODE:
           case APP_CMD_PairingSTART:
+          case APP_CMD_SET1MVVALUE:
+          case APP_CMD_SET0MVVALUE:
+          case APP_CMD_GET1MVVALUE:
+          case APP_CMD_GET0MVVALUE:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -315,7 +319,7 @@ void parseCmd(void){
       {
         SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);
       }
-      else
+      else   //心电补丁未连接   
       {
         txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
         txSerialPkt.header.opCode = APP_CMD_RECEIVEECGDATAACK;
@@ -426,6 +430,76 @@ void parseCmd(void){
       sendSerialEvt();
     }
     break;
+    case APP_CMD_SET1MVVALUE:
+    {
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_SET1MVVALUE,rxSerialPkt.data,2);
+      }
+      else   //心电补丁未连接
+      {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_SET1MVVALUEACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 1; 
+      txSerialPkt.data[0] = 0;
+      sendSerialEvt();
+      }
+    }
+    break;
+    case APP_CMD_SET0MVVALUE:
+    {
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_SET0MVVALUE,rxSerialPkt.data,2);
+      }
+      else   //心电补丁未连接
+      {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_SET0MVVALUEACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 1; 
+      txSerialPkt.data[0] = 0;
+      sendSerialEvt();
+      }
+    }
+    break;
+    case APP_CMD_GET0MVVALUE:
+    {
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_GET0MVVALUE,0,0);
+      }
+      else   //心电补丁未连接
+      {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_GET0MVVALUEACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 2; 
+      txSerialPkt.data[0] = 0;
+      txSerialPkt.data[1] = 0;
+      sendSerialEvt();
+      }
+    }
+    break;
+    case APP_CMD_GET1MVVALUE:
+    {
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_GET1MVVALUE,0,0);
+      }
+      else   //心电补丁未连接
+      {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_GET1MVVALUEACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 2; 
+      txSerialPkt.data[0] = 0;
+      txSerialPkt.data[1] = 0;
+      sendSerialEvt();
+      }
+    }
+    break;
     } 
 }
 
@@ -456,6 +530,10 @@ void sendSerialEvt(void){
   case APP_CMD_ECGPATCHIDACK:
   case  APP_CMD_SETRUMMODEACK:
   case APP_CMD_PairingSTARTACK:
+  case APP_CMD_SET1MVVALUEACK:
+  case APP_CMD_SET0MVVALUEACK:
+  case  APP_CMD_GET0MVVALUEACK:
+  case  APP_CMD_GET1MVVALUEACK:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     

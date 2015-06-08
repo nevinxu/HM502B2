@@ -73,8 +73,11 @@ namespace MotionSensor
         private int PairingFlag = 1;
         byte[] ECGPairMAC = new byte[6];
         private int EcgDataTimer = 0;
-        private double amplification = 16.7;
-        private double difference_Value = 516;
+        private Int16 amplification = 1;
+        private Int16 difference_Value = 0;
+
+        private Int16 amplification_Back = 1;
+        private Int16 difference_Value_Back = 0;
 
         private int ScalingFlag = 0;
         private int calibration_Num = 0;
@@ -834,39 +837,6 @@ namespace MotionSensor
                               //  ReceiveECGPatchIDSerialCommand();
 
                             }
-                            else if (SerialReceiveData[1] == 0x19)
-                            {
-
-                                //if (SerialReceiveData[4] == 0)
-                                //{
-                                //    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                //    string DisplayString = "蓝牙心电补丁未连接，无法获取ID\r\n";
-                                //    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                //    OutMsg(MonitorText, DisplayString, Color.Red);
-                                //}
-                                //else
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "心电补丁ID获取成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    for (int i = 0; i < 15; i++)
-                                    {
-                                        ECGPatchID[i] = SerialReceiveData[4 + i];
-                                    }
-                                }
-
-                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
-                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
-
-                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
-                                    ":"+ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
-                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
-
-                                System.Threading.Thread.Sleep(100);
-                                ReceiveECGDataSerialCommand();
-
-                            }
                             else if (SerialReceiveData[1] == 0x0B)
                             {
                                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
@@ -932,25 +902,6 @@ namespace MotionSensor
                                 ConnectBLEButton.Enabled = true;
                                 button6.Enabled = true;   //定标按键
 
-                            }
-                            else if (SerialReceiveData[1] == 0x15)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                if (SerialReceiveData[4] == 0)
-                                {
-                                    string DisplayString = "设备未连接,无法设置成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    System.Threading.Thread.Sleep(100);
-                                    AutoConnectBLESerialCommand();
-                                }
-                                else
-                                {
-                                    string DisplayString = "设置接收心电数据成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                                
                             }
                             else if (SerialReceiveData[1] == 0x17)
                             {
@@ -1046,6 +997,107 @@ namespace MotionSensor
                                // System.Threading.Thread.Sleep(100);
                                 ReceiveECGPatchIDSerialCommand();
                             }
+                            else if (SerialReceiveData[1] == 0x19)
+                            {
+
+                                //if (SerialReceiveData[4] == 0)
+                                //{
+                                //    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                //    string DisplayString = "蓝牙心电补丁未连接，无法获取ID\r\n";
+                                //    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                //    OutMsg(MonitorText, DisplayString, Color.Red);
+                                //}
+                                //else
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "心电补丁ID获取成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                    for (int i = 0; i < 15; i++)
+                                    {
+                                        ECGPatchID[i] = SerialReceiveData[4 + i];
+                                    }
+                                }
+
+                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
+                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
+
+                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
+                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
+                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
+
+                               // System.Threading.Thread.Sleep(100);
+                                ReceiveECGDataSerialCommand();
+
+                            }
+                            else if (SerialReceiveData[1] == 0x15)
+                            {
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                if (SerialReceiveData[4] == 0)
+                                {
+                                    string DisplayString = "设备未连接,无法设置成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                    System.Threading.Thread.Sleep(100);
+                                    AutoConnectBLESerialCommand();
+                                }
+                                else if (SerialReceiveData[4] == 1)
+                                {
+                                    string DisplayString = "设置接收心电数据成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                    calibration0mvSerialCommand();
+                                }
+
+
+                            }
+                            else if (SerialReceiveData[1] == 0x2B)
+                            {
+                                string DisplayString = "获取0mv校准值成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                calibration1mvSerialCommand();
+                            }
+                            else if (SerialReceiveData[1] == 0x27)
+                            {
+                                string DisplayString = "获取1mv定标值成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                GetHardWareVersionSerialCommand();
+                            }
+                            else if (SerialReceiveData[1] == 0x31)
+                            {
+                                string DisplayString = "获取硬件版本成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                GetSoftWareVersionSerialCommand();
+                            }
+                            else if (SerialReceiveData[1] == 0x33)
+                            {
+                                string DisplayString = "获取软件版本成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                            }
+                            else if (SerialReceiveData[1] == 0x2D)
+                            {
+                                if (SerialReceiveData[4] == 1)
+                                {
+                                    string DisplayString = "设置0mv校准值成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                    calibration1mvSerialCommand();
+                                }
+                            }
+                            else if (SerialReceiveData[1] == 0x29)
+                            {
+                                if (SerialReceiveData[4] == 1)
+                                {
+                                    string DisplayString = "设置1mv定标值成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                            }
+
                             else if (SerialReceiveData[1] == 0x21)
                             {
                                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
@@ -1078,7 +1130,26 @@ namespace MotionSensor
                                     string DisplayString = "正在接收心电数据！\r\n";
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
+                                    if (ScalingFlag == 1)
+                                    {
+                                        System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
+                                        string DisplayString2 = "正在1mv定标...\r\n";
+                                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
+                                        OutMsg(MonitorText, DisplayString, Color.Red);
+                                    }
+                                    else if (ScalingFlag == 11)
+                                    {
+                                        System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
+                                        string DisplayString3 = "正在0mv校准...\r\n";
+                                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+                                        OutMsg(MonitorText, DisplayString, Color.Red);
+                                    }
+                                    AmplificationValue.Text = Convert.ToString(amplification);
+                                    differenceValue.Text = Convert.ToString(difference_Value);
                                 }
+
+                                Rectangle rect = new Rectangle();
+                                rect = Screen.GetWorkingArea(this);
 
                                 XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2) - difference_Value) * amplification;
                                 XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4) - difference_Value) * amplification;
@@ -1088,7 +1159,7 @@ namespace MotionSensor
                                 XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4) - difference_Value) * amplification;
                                 XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6) - difference_Value) * amplification;
                                 XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8) - difference_Value) * amplification;
-                                
+
                                 //XdataV[EcgDataTimer * M + 8] = 0;
                                 //XdataV[EcgDataTimer * M + 9] = 0;
                                 //XdataV[EcgDataTimer * M + 10] = 0;
@@ -1129,7 +1200,7 @@ namespace MotionSensor
                                         if (m_ecgdata >= 1000)
                                         {
                                             byte m1 = (byte)(m_ecgdata / 1000);
-                                            bytes[j++] =(byte) (0x30 + m1);
+                                            bytes[j++] = (byte)(0x30 + m1);
                                         }
                                         if (m_ecgdata >= 100)
                                         {
@@ -1154,8 +1225,8 @@ namespace MotionSensor
                                         }
                                         bytes[j++] = 0x0d;
                                         bytes[j] = 0x0a;
-                                        fs.Write(bytes, 0, j+1);
-                                        
+                                        fs.Write(bytes, 0, j + 1);
+
                                     }
 
                                 }
@@ -1169,7 +1240,7 @@ namespace MotionSensor
                                 }
                                 DataStoreButton.Enabled = true;
 
-                                if(ScalingFlag == 1)
+                                if ((ScalingFlag == 1) || (ScalingFlag == 11))   //校准或定标
                                 {
                                     calibration_Value.Add(XdataV[EcgDataTimer * M + 0]);
                                     calibration_Value.Add(XdataV[EcgDataTimer * M + 1]);
@@ -1182,59 +1253,78 @@ namespace MotionSensor
                                     calibration_Num += 8;
                                     if (calibration_Num >= 1024)
                                     {
-                                        for (int i = 0; i < 8; i++)
+                                        if (ScalingFlag == 1)
                                         {
-                                            ScalingEcgMin[i] = 5000; 
-                                        }
-                                        for (int i = 0; i < 8; i++)
-                                        {
-                                            ScalingEcgMax[i] = -5000;
-                                        }
-                                        for (int j = 0; j < 8;j++ )
-                                        {
-                                            for (int i = 200; i < 1024; i++)
+                                            for (int i = 0; i < 8; i++)
                                             {
-                                                if (ScalingEcgMin[j] > calibration_Value[i])
+                                                ScalingEcgMin[i] = 5000;
+                                            }
+                                            for (int i = 0; i < 8; i++)
+                                            {
+                                                ScalingEcgMax[i] = -5000;
+                                            }
+                                            for (int j = 0; j < 8; j++)
+                                            {
+                                                for (int i = 200; i < 1024; i++)
                                                 {
-                                                    if (j > 0)
+                                                    if (ScalingEcgMin[j] > calibration_Value[i])
                                                     {
-                                                        if (ScalingEcgMin[j - 1] < calibration_Value[i])
+                                                        if (j > 0)
+                                                        {
+                                                            if (ScalingEcgMin[j - 1] < calibration_Value[i])
+                                                            {
+                                                                ScalingEcgMin[j] = calibration_Value[i];
+                                                            }
+                                                        }
+                                                        else
                                                         {
                                                             ScalingEcgMin[j] = calibration_Value[i];
                                                         }
                                                     }
-                                                    else
+                                                    if (ScalingEcgMax[j] < calibration_Value[i])
                                                     {
-                                                        ScalingEcgMin[j] = calibration_Value[i];
-                                                    }
-                                                }
-                                                if (ScalingEcgMax[j] < calibration_Value[i])
-                                                {
-                                                    if (j > 0)
-                                                    {
-                                                        if (ScalingEcgMax[j - 1] > calibration_Value[i])
+                                                        if (j > 0)
+                                                        {
+                                                            if (ScalingEcgMax[j - 1] > calibration_Value[i])
+                                                            {
+                                                                ScalingEcgMax[j] = calibration_Value[i];
+                                                            }
+                                                        }
+                                                        else
                                                         {
                                                             ScalingEcgMax[j] = calibration_Value[i];
                                                         }
+
                                                     }
-                                                    else
-                                                    {
-                                                        ScalingEcgMax[j] = calibration_Value[i];
-                                                    }
-                                                   
                                                 }
                                             }
+                                            for (int i = 1; i < 4; i++)
+                                            {
+                                                ScalingEcgMax[0] += ScalingEcgMax[i];
+                                                ScalingEcgMin[0] += ScalingEcgMin[i];
+                                            }
+                                            amplification = (Int16)((ScalingEcgMax[0] - ScalingEcgMin[0]) / 4);
+                                            difference_Value = difference_Value_Back;
+
+                                            calibration_Value.RemoveRange(0, 1024);
+                                            Setcalibration1mvSerialCommand();
+                                            ScalingFlag = 2;   //完成1mv定标
+                                            calibration_Num = 0;
                                         }
-                                        for (int i = 1; i < 4; i++)
+                                        else if (ScalingFlag == 11)
                                         {
-                                            ScalingEcgMax[0] += ScalingEcgMax[i];
-                                            ScalingEcgMin[0] += ScalingEcgMin[i];
+                                            double m_value = 0;
+                                            for (int i = 0; i < 1024; i++)
+                                            {
+                                                m_value += calibration_Value[i];
+                                            }
+                                            difference_Value =(Int16)( m_value / 1024);
+                                            amplification = amplification_Back;
+                                            calibration_Value.RemoveRange(0, 1024);
+                                            Setcalibration0mvSerialCommand();
+                                            ScalingFlag = 12;   //完成0mv校准
+                                            calibration_Num = 0;
                                         }
-                                        amplification = 1000.00 / ((ScalingEcgMax[0] - ScalingEcgMin[0])/4);
-                                        difference_Value = ScalingEcgMin[1];
-                                        calibration_Value.RemoveRange(0, 1024);
-                                        ScalingFlag = 2;
-                                        calibration_Num = 0;
                                     }
                                 }
 
@@ -1320,15 +1410,23 @@ namespace MotionSensor
                         string str2;
                         if (ScalingFlag == 0)
                         { 
-                            str2 = "未定标    " ;
+                            str2 = "1mv未定标    " ;
                         }
                         else if (ScalingFlag == 1)
                         {
-                            str2 = "正在定标...";
+                            str2 = "正在1mv定标...";
                         }
                         else if (ScalingFlag == 2)
                         {
-                            str2 = "已定标！";
+                            str2 = "1mv已定标！";
+                        }
+                        else if (ScalingFlag == 11)
+                        {
+                            str2 = "正在0mv校准...";
+                        }
+                        else if (ScalingFlag == 12)
+                        {
+                            str2 = "0mv已校准！";
                         }
                         else
                         {
@@ -1878,7 +1976,113 @@ namespace MotionSensor
             }
 
         }
+        private void calibration0mvSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x2A, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求获取0mv校准值...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+        }
+        private void calibration1mvSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x26, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求获取1mv定标值...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+        }
 
+        private void Setcalibration0mvSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x2C, 0x00, 0x02,0x00,0x00 };
+                int m_buffer = difference_Value%256;
+                ssss[4] = (byte)m_buffer;
+                m_buffer = difference_Value / 256;
+                ssss[5] = (byte)m_buffer;
+                SerialPort.Write(ssss, 0, 6);
+
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "保存0mv校准值...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+        }
+        private void Setcalibration1mvSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x28, 0x00, 0x02,0x00,0x00 };
+                int m_buffer = amplification % 256;
+                ssss[4] = (byte)m_buffer;
+                m_buffer = amplification / 256;
+                ssss[5] = (byte)m_buffer;
+                SerialPort.Write(ssss, 0, 6);
+
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "保存1mv定标值...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+        }
+        private void GetHardWareVersionSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x30, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求获取硬件版本...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+        }
+        private void GetSoftWareVersionSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x32, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求获取软件版本...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+        }
         private void PauseButton_Click(object sender, EventArgs e)
         {
             if (PauseFlag == 1)
@@ -2112,10 +2316,12 @@ namespace MotionSensor
 
         private void button5_Click(object sender, EventArgs e)
         {
-            ScalingFlag = 1;
+            ScalingFlag = 1;    //开始1mv定标
+            amplification_Back = amplification;
+            difference_Value_Back = difference_Value;
             difference_Value = 0;
             amplification = 1;
-            System.Threading.Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(100);
         }
 
         private void textBox5_TextChanged(object sender, EventArgs e)
@@ -2175,6 +2381,17 @@ namespace MotionSensor
         private void axMSComm1_OnComm(object sender, EventArgs e)
         {
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ScalingFlag = 11;    //开始0mv校准
+
+            amplification_Back = amplification;
+            difference_Value_Back = difference_Value;
+            difference_Value = 0;
+            amplification = 1;
+            System.Threading.Thread.Sleep(100);
         }
     }
 }

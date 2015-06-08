@@ -79,7 +79,6 @@
             this.BLENUMlabel = new System.Windows.Forms.Label();
             this.PauseButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             this.textBoxScan = new System.Windows.Forms.TextBox();
             this.IDValuebutton = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
@@ -95,6 +94,9 @@
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.button1 = new System.Windows.Forms.Button();
+            this.AmplificationValue = new System.Windows.Forms.Label();
+            this.differenceValue = new System.Windows.Forms.Label();
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -582,31 +584,21 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "设置";
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(965, 491);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(93, 23);
-            this.button1.TabIndex = 25;
-            this.button1.Text = "单设备测试";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_2);
-            // 
             // textBoxScan
             // 
             this.textBoxScan.Location = new System.Drawing.Point(792, 464);
             this.textBoxScan.MaxLength = 15;
             this.textBoxScan.Name = "textBoxScan";
-            this.textBoxScan.Size = new System.Drawing.Size(167, 21);
+            this.textBoxScan.Size = new System.Drawing.Size(86, 21);
             this.textBoxScan.TabIndex = 26;
             this.textBoxScan.Text = "123456789ABCDEF";
             this.textBoxScan.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxScan_KeyPress);
             // 
             // IDValuebutton
             // 
-            this.IDValuebutton.Location = new System.Drawing.Point(829, 496);
+            this.IDValuebutton.Location = new System.Drawing.Point(801, 496);
             this.IDValuebutton.Name = "IDValuebutton";
-            this.IDValuebutton.Size = new System.Drawing.Size(75, 23);
+            this.IDValuebutton.Size = new System.Drawing.Size(61, 23);
             this.IDValuebutton.TabIndex = 29;
             this.IDValuebutton.Text = "ID值设置";
             this.IDValuebutton.UseVisualStyleBackColor = true;
@@ -657,7 +649,7 @@
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(93, 23);
             this.button5.TabIndex = 36;
-            this.button5.Text = "定标";
+            this.button5.Text = "1mv定标";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
@@ -731,8 +723,8 @@
             chartArea1.AxisX.Title = "时间/ms";
             chartArea1.AxisY.Interval = 1000D;
             chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisY.Maximum = 5000D;
-            chartArea1.AxisY.Minimum = -5000D;
+            chartArea1.AxisY.Maximum = 6000D;
+            chartArea1.AxisY.Minimum = -6000D;
             chartArea1.AxisY.MinorGrid.Enabled = true;
             chartArea1.AxisY.MinorGrid.Interval = 200D;
             chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
@@ -742,7 +734,7 @@
             chartArea1.BackColor = System.Drawing.Color.Black;
             chartArea1.Name = "ChartArea_Ecg";
             this.chart1.ChartAreas.Add(chartArea1);
-            this.chart1.Location = new System.Drawing.Point(12, 12);
+            this.chart1.Location = new System.Drawing.Point(0, 12);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea_Ecg";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
@@ -751,9 +743,39 @@
             series1.Points.Add(dataPoint1);
             series1.YValuesPerPoint = 2;
             this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(582, 556);
+            this.chart1.Size = new System.Drawing.Size(594, 556);
             this.chart1.TabIndex = 41;
             this.chart1.Text = "chart1";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(965, 491);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(93, 23);
+            this.button1.TabIndex = 42;
+            this.button1.Text = "0Mv校准";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // AmplificationValue
+            // 
+            this.AmplificationValue.AutoSize = true;
+            this.AmplificationValue.Location = new System.Drawing.Point(937, 467);
+            this.AmplificationValue.Name = "AmplificationValue";
+            this.AmplificationValue.Size = new System.Drawing.Size(11, 12);
+            this.AmplificationValue.TabIndex = 43;
+            this.AmplificationValue.Text = "0";
+            this.AmplificationValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // differenceValue
+            // 
+            this.differenceValue.AutoSize = true;
+            this.differenceValue.Location = new System.Drawing.Point(937, 497);
+            this.differenceValue.Name = "differenceValue";
+            this.differenceValue.Size = new System.Drawing.Size(11, 12);
+            this.differenceValue.TabIndex = 44;
+            this.differenceValue.Text = "0";
+            this.differenceValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // RF
             // 
@@ -761,6 +783,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(1063, 615);
+            this.Controls.Add(this.differenceValue);
+            this.Controls.Add(this.AmplificationValue);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.chart1);
             this.Controls.Add(this.statusStrip2);
             this.Controls.Add(this.label13);
@@ -773,7 +798,6 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.IDValuebutton);
             this.Controls.Add(this.textBoxScan);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.PauseButton);
             this.Controls.Add(this.BLENUMlabel);
             this.Controls.Add(this.label11);
@@ -859,7 +883,6 @@
         private System.Windows.Forms.RadioButton radioButton4;
         private System.Windows.Forms.RadioButton radioButton3;
         private System.Windows.Forms.TrackBar trackBar2;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button IDValuebutton;
         private System.Windows.Forms.TextBox textBoxScan;
         private System.Windows.Forms.Label label12;
@@ -877,6 +900,9 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label differenceValue;
+        private System.Windows.Forms.Label AmplificationValue;
     }
 }
 

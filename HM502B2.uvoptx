@@ -145,40 +145,7 @@
           <Name>-UV0VVV123 -O206 -S8 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(0BC11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO31 -FD1FFFF000 -FC800 -FN1 -FF0MK_P128_48MHZ_KL43.FLM -FS00 -FL020000 -FP0($$Device:MKL17Z128xxx4$Flash\MK_P128_48MHZ_KL43.FLM)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>139</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>2160</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>&lt;1&gt;.\App\EcgCapture.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\HM502B2\App/EcgCapture.c\139</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>122</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>&lt;1&gt;.\platform\drivers\flash\C90TFS\drvsrc\source\FlashReadResource.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow2>
         <Ww>
           <count>0</count>
@@ -188,10 +155,15 @@
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>DataArray</ItemText>
+          <ItemText>bluerxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>DataArray</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
           <WinNumber>2</WinNumber>
           <ItemText>flashdatapackage</ItemText>
         </Ww>

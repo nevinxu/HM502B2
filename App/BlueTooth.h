@@ -18,6 +18,10 @@
 #define SENDECGPATCHIDCODE								0x03			//发送心电补丁ID
 #define SENDHARDVERSIONCODE								0x05			//硬件版本
 #define SENDSOFTVERSIONCODE								0x06			//软件版本
+#define SENDSET1MVCODE										0x07			//设置1mv定标
+#define SENDSET0MVCODE										0x08			//设置0mv校准
+#define SENDGET1MVCODE										0x09			//获取1mv定标
+#define SENDGET0MVCODE										0x0A			//获取0mv校准
 
 
 #define SERIAL_IDENTIFIER       									0x77
@@ -26,6 +30,7 @@
 
 #define SERIAL_DATASIZE_NONE       								0x00
 #define SERIAL_DATASIZE_ONE       								0x01
+#define SERIAL_DATASIZE_TWO       								0x02
 
 #define SERIAL_DATAADDR_NONE       								0x00
 
@@ -41,13 +46,21 @@
 #define APP_CMD_STOPRECEIVEECGDATAREQ           	0x17
 #define APP_CMD_ECGPATCHIDACK                    	0x18
 #define APP_CMD_ECGPATCHIDREQ                			0x19
-#define APP_CMD_ECGPATCHHARDVERSIONACK          	0x26
-#define APP_CMD_ECGPATCHHARDVERSIONREQ        		0x27
-#define APP_CMD_ECGPATCHSOFTVERSIONACK          	0x28
-#define APP_CMD_ECGPATCHSOFTVERSIONREQ        		0x29
 
+#define APP_CMD_ECGPATCHHARDVERSIONACK          	0x30
+#define APP_CMD_ECGPATCHHARDVERSIONREQ        		0x31
+#define APP_CMD_ECGPATCHSOFTVERSIONACK          	0x32
+#define APP_CMD_ECGPATCHSOFTVERSIONREQ        		0x33
 
+#define APP_CMD_SET1MVVALUE               				0x28
+#define APP_CMD_SET1MVVALUEACK               			0x29
+#define APP_CMD_SET0MVVALUE               				0x2C
+#define APP_CMD_SET0MVVALUEACK               			0x2D
 
+#define APP_CMD_GET1MVVALUE               				0x26
+#define APP_CMD_GET1MVVALUEACK               			0x27
+#define APP_CMD_GET0MVVALUE               				0x2A
+#define APP_CMD_GET0MVVALUEACK               			0x2B
 
 
 #define     AT                          "AT"
@@ -165,7 +178,7 @@ typedef struct _BTTransmitPackage
     
 extern void task_bluetooth_tx(task_param_t param);
 extern void task_bluetooth_rx(task_param_t param);
-extern void BlueToothSendCommand(uint8_t command,uint8_t DataSize,uint8_t *Data);
+extern void BlueToothSendCommand(uint8_t code,uint8_t command,uint8_t DataSize,uint8_t *Data);
 
 extern lpuart_status_t lpuart_Init(
         uint32_t uartInstance, uint32_t baudRate);

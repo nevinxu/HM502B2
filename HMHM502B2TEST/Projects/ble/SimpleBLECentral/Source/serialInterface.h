@@ -50,6 +50,14 @@
 #define APP_CMD_PairingStatusACK               0x23
 #define APP_CMD_SETRUMMODE               0x24
 #define APP_CMD_SETRUMMODEACK               0x25
+#define APP_CMD_SET1MVVALUE               0x28
+#define APP_CMD_SET1MVVALUEACK               0x29
+#define APP_CMD_SET0MVVALUE               0x2C
+#define APP_CMD_SET0MVVALUEACK               0x2D
+#define APP_CMD_GET1MVVALUE               0x26
+#define APP_CMD_GET1MVVALUEACK               0x27
+#define APP_CMD_GET0MVVALUE               0x2A
+#define APP_CMD_GET0MVVALUEACK               0x2B
 
 // Serial Event Mnemonic        Opcode
 #define	APP_EVT_CMD_RESPONSE	0x81
