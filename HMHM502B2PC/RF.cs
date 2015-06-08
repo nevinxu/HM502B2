@@ -923,6 +923,9 @@ namespace MotionSensor
                                 ConnectBLEButton.Text = "设备已连接";
                                 ConnectBLEButton.Enabled = true;
                                 button6.Enabled = true;   //定标按键
+
+                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
+                                File.Delete(filePath);
                             }
                             else if (SerialReceiveData[1] == 0x15)
                             {
@@ -1079,6 +1082,7 @@ namespace MotionSensor
                                 XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4) - difference_Value) * amplification;
                                 XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6) - difference_Value) * amplification;
                                 XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8) - difference_Value) * amplification;
+                                
                                 //XdataV[EcgDataTimer * M + 8] = 0;
                                 //XdataV[EcgDataTimer * M + 9] = 0;
                                 //XdataV[EcgDataTimer * M + 10] = 0;
@@ -1098,6 +1102,40 @@ namespace MotionSensor
                                 SerialEcgData.Add(XdataV[5]);
                                 SerialEcgData.Add(XdataV[6]);
                                 SerialEcgData.Add(XdataV[7]);
+
+
+                                FileStream fs = null;
+                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
+                                try
+                                {
+                                    fs = File.OpenWrite(filePath);
+                                    fs.Position = fs.Length;
+                                    for (int i = 0; i < 8; i++)
+                                    {
+                                        //byte[] bytes = new byte[10];
+                                        //int j = (int)XdataV[EcgDataTimer * M + i];
+                                        //if (j < 0)
+                                        //{ 
+                                        //    bytes[0] = 
+                                        //}
+                                        
+                                        //fs.Write(bytes, 0, 4);
+                                        //byte[] bytes2 = new byte[2];
+                                        //bytes2[0] = 0x0d;
+                                        //bytes2[1] = 0x0a;
+                                        //fs.Write(bytes, 0, 2);
+                                        
+                                    }
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("鏂囦欢鎵撳紑澶辫触{0}", ex.ToString());
+                                }
+                                finally
+                                {
+                                    fs.Close();
+                                }
 
 
                                 if(ScalingFlag == 1)

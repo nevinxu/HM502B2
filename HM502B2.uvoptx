@@ -149,18 +149,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>192</LineNumber>
+          <LineNumber>139</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>3378</Address>
+          <Address>2160</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>&lt;1&gt;.\App\BlueTooth.c</Filename>
+          <Filename>&lt;1&gt;.\App\EcgCapture.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\HM502B2\App/EcgCapture.c\139</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
@@ -179,21 +179,19 @@
           <Expression></Expression>
         </Bp>
       </Breakpoint>
-      <WatchWindow1>
-        <Ww>
-          <count>0</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>bluerxbuffer</ItemText>
-        </Ww>
-      </WatchWindow1>
       <WatchWindow2>
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>DataArray</ItemText>
+          <ItemText>bluerxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>DataArray</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
           <WinNumber>2</WinNumber>
           <ItemText>flashdatapackage</ItemText>
         </Ww>
