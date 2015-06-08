@@ -163,6 +163,8 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_SET0MVVALUE:
           case APP_CMD_GET1MVVALUE:
           case APP_CMD_GET0MVVALUE:
+          case APP_CMD_ECGPATCHHARDVERSIONACK:
+          case APP_CMD_ECGPATCHSOFTVERSIONACK:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -341,7 +343,8 @@ void parseCmd(void){
         txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
         txSerialPkt.header.opCode = APP_CMD_STOPRECEIVEECGDATAACK;
         txSerialPkt.header.status = 0x00;
-        txSerialPkt.length = 0; 
+        txSerialPkt.length = 1; 
+        txSerialPkt.data[0] = 0;
         sendSerialEvt();
       }
     }
@@ -500,6 +503,47 @@ void parseCmd(void){
       }
     }
     break;
+    case APP_CMD_ECGPATCHHARDVERSIONACK:
+    {
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_ECGPATCHHARDVERSIONACK,0,0);
+      }
+      else   //心电补丁未连接
+      {
+        txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+        txSerialPkt.header.opCode = APP_CMD_ECGPATCHHARDVERSIONREQ;
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 4; 
+        txSerialPkt.data[0] = 0;
+        txSerialPkt.data[1] = 0;
+        txSerialPkt.data[2] = 0;
+        txSerialPkt.data[3] = 0;
+        sendSerialEvt();
+      }
+    }
+    break;
+    case APP_CMD_ECGPATCHSOFTVERSIONACK:
+    {
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_ECGPATCHSOFTVERSIONACK,0,0);
+      }
+      else   //心电补丁未连接
+      {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_ECGPATCHSOFTVERSIONREQ;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 4; 
+      txSerialPkt.data[0] = 0;
+      txSerialPkt.data[1] = 0;
+      txSerialPkt.data[2] = 0;
+      txSerialPkt.data[3] = 0;
+      sendSerialEvt();
+      }
+    }
+    break;
+    
     } 
 }
 
@@ -522,18 +566,20 @@ void sendSerialEvt(void){
   case APP_CMD_AUTOCONNECTACK:
   case APP_CMD_RSSIVALUE:
   case APP_CMD_RECEIVEECGDATAACK:
-  case  APP_CMD_STOPRECEIVEECGDATAACK:
-  case  APP_CMD_AUTOCONNECTSTATUSACK:
-  case   APP_CMD_CentralMACACK:
+  case APP_CMD_STOPRECEIVEECGDATAACK:
+  case APP_CMD_AUTOCONNECTSTATUSACK:
+  case APP_CMD_CentralMACACK:
   case APP_CMD_ECGPatchMACACK:
   case APP_CMD_PairingStatusACK:
   case APP_CMD_ECGPATCHIDACK:
-  case  APP_CMD_SETRUMMODEACK:
+  case APP_CMD_SETRUMMODEACK:
   case APP_CMD_PairingSTARTACK:
   case APP_CMD_SET1MVVALUEACK:
   case APP_CMD_SET0MVVALUEACK:
-  case  APP_CMD_GET0MVVALUEACK:
-  case  APP_CMD_GET1MVVALUEACK:
+  case APP_CMD_GET0MVVALUEACK:
+  case APP_CMD_GET1MVVALUEACK:
+  case APP_CMD_ECGPATCHHARDVERSIONREQ:
+  case APP_CMD_ECGPATCHSOFTVERSIONREQ:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     

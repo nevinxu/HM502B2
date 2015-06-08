@@ -178,6 +178,14 @@ void task_bluetooth_tx(task_param_t param)
 					{
 						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
 					}
+					else if(m_btdatapackage.code == SENDHARDVERSIONCODE)
+					{
+						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
+					}
+					else if(m_btdatapackage.code == SENDSOFTVERSIONCODE)
+					{
+						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
+					}
 			}
 			
 	}

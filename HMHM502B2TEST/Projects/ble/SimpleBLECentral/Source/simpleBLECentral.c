@@ -463,6 +463,14 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
     }
   }
+  if ( events & START_GET0MVVALUE_EVT )  //
+  {
+    if ( simpleBLEState == BLE_STATE_CONNECTED )
+    { 
+      SendCommand2Peripheral(APP_CMD_GET0MVVALUE,0,0);
+      osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,500);
+    }
+  }       
   // Discard unknown events
   return 0;
 }
@@ -611,6 +619,26 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
               }
               else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_GET1MVVALUEACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_GET0MVVALUEACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_GET1MVVALUEACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_ECGPATCHHARDVERSIONREQ)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_ECGPATCHSOFTVERSIONREQ)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_STOPRECEIVEECGDATAACK)
               {
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
               }
@@ -768,7 +796,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_OFF );
           simpleBLEProcedureInProgress = FALSE;
           
-          osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,500);
+          osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
        //   SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
           
         }

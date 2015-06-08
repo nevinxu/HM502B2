@@ -762,9 +762,9 @@
             this.AmplificationValue.AutoSize = true;
             this.AmplificationValue.Location = new System.Drawing.Point(937, 467);
             this.AmplificationValue.Name = "AmplificationValue";
-            this.AmplificationValue.Size = new System.Drawing.Size(11, 12);
+            this.AmplificationValue.Size = new System.Drawing.Size(17, 12);
             this.AmplificationValue.TabIndex = 43;
-            this.AmplificationValue.Text = "0";
+            this.AmplificationValue.Text = "-1";
             this.AmplificationValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // differenceValue
@@ -772,9 +772,9 @@
             this.differenceValue.AutoSize = true;
             this.differenceValue.Location = new System.Drawing.Point(937, 497);
             this.differenceValue.Name = "differenceValue";
-            this.differenceValue.Size = new System.Drawing.Size(11, 12);
+            this.differenceValue.Size = new System.Drawing.Size(17, 12);
             this.differenceValue.TabIndex = 44;
-            this.differenceValue.Text = "0";
+            this.differenceValue.Text = "-1";
             this.differenceValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // RF

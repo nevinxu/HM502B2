@@ -85,6 +85,8 @@ namespace MotionSensor
         private double[] ScalingEcgMin = new double[8];
         private double[] ScalingEcgMax = new double[8];
 
+        private int ZeroValue = -6001;
+
         public RF()
         {
             InitializeComponent();
@@ -397,7 +399,7 @@ namespace MotionSensor
             }
             for (int i = 0; i < N * M; i++)
             {
-                XdataV[i] = -5001;
+                XdataV[i] = ZeroValue;
             }
             chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
             this.toolStripStatusLabel2.Text = "";
@@ -586,7 +588,7 @@ namespace MotionSensor
 
                                 for (int i = 0; i < N * M; i++)
                                 {
-                                    XdataV[i] = -5001;
+                                    XdataV[i] = ZeroValue;
                                 }
                                 chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
@@ -758,6 +760,7 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
+                                StopReceiveECGDataSerialCommand();
                                 System.Threading.Thread.Sleep(100);
                                 DisAutoConnectBLESerialCommand();
                                 System.Threading.Thread.Sleep(100);
@@ -860,7 +863,7 @@ namespace MotionSensor
 
                                 for (int i = 0; i < N * M; i++)
                                 {
-                                    XdataV[i] = -5001;
+                                    XdataV[i] = ZeroValue;
                                 }
                                 chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
@@ -870,6 +873,11 @@ namespace MotionSensor
                                     + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
 
                                     + "  连接状态：心电补丁未连接";
+                                amplification = -1;
+                                difference_Value = -1;
+                                AmplificationValue.Text = Convert.ToString(amplification);
+                                differenceValue.Text = Convert.ToString(difference_Value); 
+
                             }
                             else if (SerialReceiveData[1] == 0x12)
                             {
@@ -911,7 +919,7 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
                                 for (int i = 0; i < N * M; i++)
                                 {
-                                    XdataV[i] = -5001;
+                                    XdataV[i] = ZeroValue;
                                 }
                                 chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
                             }
@@ -1027,8 +1035,7 @@ namespace MotionSensor
                                     ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
 
                                // System.Threading.Thread.Sleep(100);
-                                ReceiveECGDataSerialCommand();
-
+                                calibration0mvSerialCommand();
                             }
                             else if (SerialReceiveData[1] == 0x15)
                             {
@@ -1046,7 +1053,7 @@ namespace MotionSensor
                                     string DisplayString = "设置接收心电数据成功！\r\n";
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
-                                    calibration0mvSerialCommand();
+                                    
                                 }
 
 
@@ -1056,6 +1063,8 @@ namespace MotionSensor
                                 string DisplayString = "获取0mv校准值成功！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
+                                
+                                difference_Value =(Int16)( SerialReceiveData[4] + (SerialReceiveData[5]<<8));
                                 calibration1mvSerialCommand();
                             }
                             else if (SerialReceiveData[1] == 0x27)
@@ -1063,6 +1072,8 @@ namespace MotionSensor
                                 string DisplayString = "获取1mv定标值成功！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                amplification = (Int16)(SerialReceiveData[4] + (SerialReceiveData[5] << 8)); 
                                 GetHardWareVersionSerialCommand();
                             }
                             else if (SerialReceiveData[1] == 0x31)
@@ -1077,6 +1088,7 @@ namespace MotionSensor
                                 string DisplayString = "获取软件版本成功！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
+                                ReceiveECGDataSerialCommand();
                             }
                             else if (SerialReceiveData[1] == 0x2D)
                             {
@@ -1151,14 +1163,14 @@ namespace MotionSensor
                                 Rectangle rect = new Rectangle();
                                 rect = Screen.GetWorkingArea(this);
 
-                                XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2) - difference_Value) * amplification;
-                                XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4) - difference_Value) * amplification;
-                                XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[10]) + Convert.ToDouble((SerialReceiveData[12] & 0x0c) << 6) - difference_Value) * amplification;
-                                XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[12] & 0x03) << 8) - difference_Value) * amplification;
-                                XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[17] & 0xc0) << 2) - difference_Value) * amplification;
-                                XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4) - difference_Value) * amplification;
-                                XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6) - difference_Value) * amplification;
-                                XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8) - difference_Value) * amplification;
+                                XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2) - difference_Value) * 1000/amplification;
+                                XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4) - difference_Value) * 1000/amplification;
+                                XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[10]) + Convert.ToDouble((SerialReceiveData[12] & 0x0c) << 6) - difference_Value) *1000/amplification;
+                                XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[12] & 0x03) << 8) - difference_Value) *1000/amplification;
+                                XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[17] & 0xc0) << 2) - difference_Value) *1000/amplification;
+                                XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4) - difference_Value) *1000/amplification;
+                                XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6) - difference_Value) *1000/amplification;
+                                XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8) - difference_Value) *1000/amplification;
 
                                 //XdataV[EcgDataTimer * M + 8] = 0;
                                 //XdataV[EcgDataTimer * M + 9] = 0;
@@ -2097,7 +2109,7 @@ namespace MotionSensor
 
                 for (int i = 0; i < N * M; i++)
                 {
-                    XdataV[i] = -5001;
+                    XdataV[i] = ZeroValue;
                 }
                 chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
             }
@@ -2320,7 +2332,7 @@ namespace MotionSensor
             amplification_Back = amplification;
             difference_Value_Back = difference_Value;
             difference_Value = 0;
-            amplification = 1;
+            amplification = 1000;
             System.Threading.Thread.Sleep(100);
         }
 
@@ -2390,7 +2402,7 @@ namespace MotionSensor
             amplification_Back = amplification;
             difference_Value_Back = difference_Value;
             difference_Value = 0;
-            amplification = 1;
+            amplification = 1000;
             System.Threading.Thread.Sleep(100);
         }
     }
