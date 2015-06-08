@@ -21,6 +21,8 @@
 
 #define ECGPACKAGEDEEP											5   //心电数据队列保存深度   
 
+#define BATTERYLOW							256
+
 typedef struct _EcgDataPackage
 {
 	uint8_t	start;
@@ -32,6 +34,13 @@ typedef struct _EcgDataPackage
 	uint16_t battery;
 	uint16_t ecgdata[ECGNUMPACKAGE];
 }EcgDataPackage;
+
+typedef struct _FlashDataPackage
+{
+	double amplification;
+	double difference_Value;
+	uint8_t ScalingFlag;
+}FlashDataPackage;
 
 void ecgcaptureenable(uint32_t instance);
 extern int32_t init_ecg(uint32_t instance);

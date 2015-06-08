@@ -1,0 +1,259 @@
+
+**** 05/28/15 17:58:07 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-DF"  [ F:\111\t5ttty-PSpiceFiles\SCHEMATIC1\DF.sim ] 
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "DF.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+* From [PSPICE NETLIST] section of C:\ProgRam\Cadence\SPB_16.6\SPB_Data\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "F:\2015_NEW\5_spice-modle\AD623\ad623.lib" 
+.lib "nom.lib" 
+
+*Analysis directives: 
+.TRAN  0 1.2s 1 
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source T5TTTY
+V_V1         N00060 N00453  
++SIN 0v 10mV 10Hz 0 0 0
+V_V2         N00453 0 1.8Vdc
+V_V3         N00308 0 3.3Vdc
+X_U1         N00060 N00453 N01802 N01809 N00308 0 N01838 0 AD623 
+R_R1         N01809 N01802  100k TC=0,0 
+
+**** RESUMING DF.cir ****
+.END
+
+**** 05/28/15 17:58:07 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-DF"  [ F:\111\t5ttty-PSpiceFiles\SCHEMATIC1\DF.sim ] 
+
+
+ ****     Diode MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               X_U1.DX         X_U1.DNOI1      X_U1.DNOI2      
+          IS  100.000000E-18   10.000000E-15   10.000000E-15 
+          KF                  600.000000E-12   10.000000E-09 
+          AF                    1.5                          
+
+
+**** 05/28/15 17:58:07 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-DF"  [ F:\111\t5ttty-PSpiceFiles\SCHEMATIC1\DF.sim ] 
+
+
+ ****     BJT MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               X_U1.QPI        X_U1.QNOX       X_U1.QPOX       X_U1.QPI1       
+               PNP             NPN             PNP             PNP             
+       LEVEL    1               1               1               1            
+          IS  100.000000E-18    6.000000E-15    6.000000E-15  100.000000E-18 
+          BF  100             100             112             100            
+          NF    1               1               1               1            
+         VAF  100             120             120             100            
+          BR    1               1               1               1            
+          NR    1               1               1               1            
+         ISS    0               0               0               0            
+          RE    0               0               0               0            
+          RC    0              50              50               0            
+         CJE    0               0               0               0            
+         VJE     .75             .75             .75             .75         
+         CJC    0               0               0               0            
+         VJC     .75             .75             .75             .75         
+         MJC     .33             .33             .33             .33         
+        XCJC    1               1               1               1            
+         CJS    0               0               0               0            
+         VJS     .75             .75             .75             .75         
+          KF    0               0               0               0            
+          AF    1               1               1               1            
+          CN    2.2             2.42            2.2             2.2          
+           D     .52             .87             .52             .52         
+
+
+               X_U1.QPI2       
+               PNP             
+       LEVEL    1            
+          IS  100.000000E-18 
+          BF  100            
+          NF    1            
+         VAF   99.3          
+          BR    1            
+          NR    1            
+         ISS    0            
+          RE    0            
+          RC    0            
+         CJE    0            
+         VJE     .75         
+         CJC    0            
+         VJC     .75         
+         MJC     .33         
+        XCJC    1            
+         CJS    0            
+         VJS     .75         
+          KF    0            
+          AF    1            
+          CN    2.2          
+           D     .52         
+
+
+**** 05/28/15 17:58:07 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-DF"  [ F:\111\t5ttty-PSpiceFiles\SCHEMATIC1\DF.sim ] 
+
+
+ ****     INITIAL TRANSIENT SOLUTION       TEMPERATURE =   27.000 DEG C
+
+
+******************************************************************************
+
+
+
+ NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE
+
+
+(N00060)    1.8000 (N00308)    3.3000 (N00453)    1.8000 (N01802)    2.4138     
+
+(N01809)    2.4138 (N01838)   17.3560 (X_U1.97)    0.0000                       
+
+(X_U1.98)    1.6500                   (X_U1.A3)    2.4134                       
+
+(X_U1.A4)    2.4134                   (X_U1.B3)    1.2088                       
+
+(X_U1.B4)     .0842                   (X_U1.B5)    1.8633                       
+
+(X_U1.B6) 101.7E-09                   (X_U1.b7)    1.8963                       
+
+(X_U1.B8)    1.8963                   (X_U1.C3)    1.6500                       
+
+(X_U1.C4)     .0420                   (X_U1.C5)    2.4139                       
+
+(X_U1.C6)     .0422                   (X_U1.C8)    3.0502                       
+
+(X_U1.D3)    1.6500                   (X_U1.D4)     .0420                       
+
+(X_U1.D5)    2.4139                   (X_U1.D6)     .0422                       
+
+(X_U1.D8)    3.0502                   (X_U1.103)    2.4114                      
+
+(X_U1.104)    2.4114                  (X_U1.201)    1.2082                      
+
+(X_U1.202)    9.8839                  (X_U1.B20)    1.6963                      
+
+(X_U1.B21)    1.6921                  (X_U1.B30)    3.4099                      
+
+(X_U1.B31)    4.0099                  (X_U1.B32)    2.8099                      
+
+(X_U1.B41)    2.7035                  (X_U1.B42)   20.3030                      
+
+(X_U1.B43)    3.3000                  (X_U1.B44)   18.1960                      
+
+(X_U1.B46)   17.3450                  (X_U1.B47)     .5965                      
+
+(X_U1.B51)    2.2900                  (X_U1.B52)    1.6500                      
+
+(X_U1.B53)    1.6494                  (X_U1.C20)    1.6492                      
+
+(X_U1.C30)    1.4408                  (X_U1.C31)    2.0408                      
+
+(X_U1.C32)     .8408                  (X_U1.C41)    2.7035                      
+
+(X_U1.C42)    1.6577                  (X_U1.C43)    2.4306                      
+
+(X_U1.C44)    -.4493                  (X_U1.C46) 73.93E-12                      
+
+(X_U1.C47)     .5965                  (X_U1.C51)    2.2900                      
+
+(X_U1.C52)    1.6500                  (X_U1.C53)    1.6494                      
+
+(X_U1.D20)    1.6492                  (X_U1.D30)    1.4390                      
+
+(X_U1.D31)    2.0390                  (X_U1.D32)     .8390                      
+
+(X_U1.D41)    2.7035                  (X_U1.D42)    1.6486                      
+
+(X_U1.D43)    2.4219                  (X_U1.D44)    -.4584                      
+
+(X_U1.D46) 73.93E-12                  (X_U1.D47)     .5965                      
+
+(X_U1.D51)    2.2900                  (X_U1.D52)    1.6500                      
+
+(X_U1.D53)    1.6494                  
+
+
+
+
+    VOLTAGE SOURCE CURRENTS
+    NAME         CURRENT
+
+    V_V1         1.992E-08
+    V_V2         3.984E-08
+    V_V3         4.969E-05
+    X_U1.VN1B   -5.578E-04
+    X_U1.VMEASB   5.578E-04
+    X_U1.V1B    -8.321E-05
+    X_U1.V2B     2.810E-12
+    X_U1.VBI01B   3.105E-12
+    X_U1.VBIO2B  -5.783E-01
+    X_U1.VN1C   -5.578E-04
+    X_U1.VMEASC   5.578E-04
+    X_U1.V1C     1.259E-12
+    X_U1.V2C     8.409E-13
+    X_U1.VBI01C  -2.896E-02
+    X_U1.VBIO2C   2.871E-12
+    X_U1.VN1D   -5.578E-04
+    X_U1.VMEASD   5.578E-04
+    X_U1.V1D     1.261E-12
+    X_U1.V2D     8.391E-13
+    X_U1.VBI01D  -2.942E-02
+    X_U1.VBIO2D   2.880E-12
+
+    TOTAL POWER DISSIPATION   3.81E-01  WATTS
+
+
+
+          JOB CONCLUDED
+
+**** 05/28/15 17:58:07 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-DF"  [ F:\111\t5ttty-PSpiceFiles\SCHEMATIC1\DF.sim ] 
+
+
+ ****     JOB STATISTICS SUMMARY
+
+
+******************************************************************************
+
+
+
+  Total job time (using Solver 1)   =         .03
+

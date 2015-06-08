@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            Dundas.Charting.WinControl.ChartArea chartArea1 = new Dundas.Charting.WinControl.ChartArea();
-            Dundas.Charting.WinControl.Legend legend1 = new Dundas.Charting.WinControl.Legend();
-            Dundas.Charting.WinControl.Title title1 = new Dundas.Charting.WinControl.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, "0,0");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RF));
             this.Lea = new System.Windows.Forms.Panel();
             this.label12 = new System.Windows.Forms.Label();
@@ -71,7 +71,6 @@
             this.Timer = new System.Timers.Timer();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.skinEngine1 = new Sunisoft.IrisSkin.SkinEngine(((System.ComponentModel.Component)(this)));
-            this.chart1 = new Dundas.Charting.WinControl.Chart();
             this.MonitorText = new System.Windows.Forms.RichTextBox();
             this.ScanButton = new System.Windows.Forms.Button();
             this.MACComboBox = new System.Windows.Forms.ComboBox();
@@ -85,7 +84,6 @@
             this.IDValuebutton = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.button3 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
@@ -96,6 +94,7 @@
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -103,8 +102,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.statusStrip2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.SuspendLayout();
             // 
             // Lea
@@ -498,51 +497,6 @@
             this.skinEngine1.SerialNumber = "";
             this.skinEngine1.SkinFile = null;
             // 
-            // chart1
-            // 
-            this.chart1.AlwaysRecreateHotregions = true;
-            this.chart1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.chart1.BackGradientEndColor = System.Drawing.Color.Lavender;
-            this.chart1.BorderLineColor = System.Drawing.Color.LightSlateGray;
-            this.chart1.BorderLineStyle = Dundas.Charting.WinControl.ChartDashStyle.Solid;
-            this.chart1.BorderSkin.FrameBackColor = System.Drawing.Color.SteelBlue;
-            this.chart1.BorderSkin.FrameBackGradientEndColor = System.Drawing.Color.LightBlue;
-            this.chart1.BorderSkin.FrameBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.chart1.BorderSkin.FrameBorderWidth = 2;
-            this.chart1.BorderSkin.PageColor = System.Drawing.Color.Transparent;
-            this.chart1.BorderSkin.SkinStyle = Dundas.Charting.WinControl.BorderSkinStyle.Raised;
-            chartArea1.Area3DStyle.WallWidth = 0;
-            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            chartArea1.AxisX.MinorGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            chartArea1.AxisX.MinorTickMark.Size = 2F;
-            chartArea1.AxisY.LabelStyle.Format = "G4";
-            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(65)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            chartArea1.AxisY.MinorTickMark.Size = 2F;
-            chartArea1.BackColor = System.Drawing.Color.White;
-            chartArea1.BackGradientEndColor = System.Drawing.Color.White;
-            chartArea1.BorderColor = System.Drawing.Color.LightSlateGray;
-            chartArea1.BorderStyle = Dundas.Charting.WinControl.ChartDashStyle.Solid;
-            chartArea1.Name = "Default";
-            this.chart1.ChartAreas.Add(chartArea1);
-            legend1.Alignment = System.Drawing.StringAlignment.Center;
-            legend1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            legend1.BorderColor = System.Drawing.Color.LightSlateGray;
-            legend1.Docking = Dundas.Charting.WinControl.LegendDocking.Bottom;
-            legend1.Name = "Default";
-            this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(0, 6);
-            this.chart1.Name = "chart1";
-            this.chart1.Palette = Dundas.Charting.WinControl.ChartColorPalette.Kindergarten;
-            this.chart1.Size = new System.Drawing.Size(594, 562);
-            this.chart1.TabIndex = 4;
-            this.chart1.Text = "chart1";
-            title1.Name = "Title1";
-            this.chart1.Titles.Add(title1);
-            this.chart1.Click += new System.EventHandler(this.chart1_Click);
-            this.chart1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseClick);
-            this.chart1.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseWheel);
-            // 
             // MonitorText
             // 
             this.MonitorText.Location = new System.Drawing.Point(787, 12);
@@ -676,11 +630,6 @@
             this.label10.TabIndex = 31;
             this.label10.Text = "请输入ID值并回车或扫描";
             // 
-            // timer1
-            // 
-            this.timer1.Enabled = true;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
@@ -768,12 +717,51 @@
             this.toolStripStatusLabel5.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel5.Text = "toolStripStatusLabel5";
             // 
+            // chart1
+            // 
+            chartArea1.AxisX.Interval = 128D;
+            chartArea1.AxisX.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
+            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea1.AxisX.Maximum = 512D;
+            chartArea1.AxisX.Minimum = 0D;
+            chartArea1.AxisX.MinorGrid.Enabled = true;
+            chartArea1.AxisX.MinorGrid.Interval = 16D;
+            chartArea1.AxisX.MinorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea1.AxisX.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
+            chartArea1.AxisX.Title = "时间/ms";
+            chartArea1.AxisY.Interval = 1000D;
+            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea1.AxisY.Maximum = 5000D;
+            chartArea1.AxisY.Minimum = -5000D;
+            chartArea1.AxisY.MinorGrid.Enabled = true;
+            chartArea1.AxisY.MinorGrid.Interval = 200D;
+            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea1.AxisY.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.DashDotDot;
+            chartArea1.AxisY.MinorTickMark.LineColor = System.Drawing.Color.White;
+            chartArea1.AxisY.Title = "心电数据/1uv";
+            chartArea1.BackColor = System.Drawing.Color.Black;
+            chartArea1.Name = "ChartArea_Ecg";
+            this.chart1.ChartAreas.Add(chartArea1);
+            this.chart1.Location = new System.Drawing.Point(12, 12);
+            this.chart1.Name = "chart1";
+            series1.ChartArea = "ChartArea_Ecg";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            series1.Name = "Series_Ecg";
+            series1.Points.Add(dataPoint1);
+            series1.YValuesPerPoint = 2;
+            this.chart1.Series.Add(series1);
+            this.chart1.Size = new System.Drawing.Size(582, 556);
+            this.chart1.TabIndex = 41;
+            this.chart1.Text = "chart1";
+            // 
             // RF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(1063, 615);
+            this.Controls.Add(this.chart1);
             this.Controls.Add(this.statusStrip2);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.textBox5);
@@ -795,7 +783,6 @@
             this.Controls.Add(this.MonitorText);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.panel3);
-            this.Controls.Add(this.chart1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.statusStrip1);
@@ -805,7 +792,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RF";
-            this.Text = "HM502B2心电数据显示软件V1.3(20150508)";
+            this.Text = "HM502B2心电数据显示软件V1.4(20150602)";
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();
@@ -818,9 +805,9 @@
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.statusStrip2.ResumeLayout(false);
             this.statusStrip2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -854,7 +841,6 @@
         private System.Windows.Forms.TextBox HeartRate;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label3;
-        private Dundas.Charting.WinControl.Chart chart1;
         private System.Windows.Forms.TextBox BloodPressure;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ComboBox MACComboBox;
@@ -880,7 +866,6 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
-        private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button5;
@@ -891,6 +876,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
     }
 }
 

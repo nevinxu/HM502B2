@@ -1,0 +1,227 @@
+
+**** 05/11/15 16:55:19 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-PP"  [ F:\111\747-PSpiceFiles\SCHEMATIC1\PP.sim ] 
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "PP.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+.LIB "F:/2015_new/5_spice-modle/op747/op747.lib" 
+* From [PSPICE NETLIST] section of C:\ProgRam\Cadence\SPB_16.6\SPB_Data\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "nom.lib" 
+
+*Analysis directives: 
+.AC DEC 10 0.1 100
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source 747
+C_C4         NET2 N00291  17n  TC=0,0 
+R_R10         VREF N02062  20k TC=0,0 
+C_C5         N40105 NET1  1u  TC=0,0 
+R_R5         N00801 N00847  200k TC=0,0 
+R_R4         VREF NET1  2MEG TC=0,0 
+R_R8         VREF N01666  340k TC=0,0 
+C_C1         VREF N00261  17n  TC=0,0 
+V_V1         N00145 0 3.3Vdc
+R_R9         N02062 V3  1000K TC=0,0 
+R_R1         N00291 N00261  300k TC=0,0 
+R_R7         N01666 NET2  200k TC=0,0 
+V_V2         N00847 0 3.3Vdc
+R_R6         0 N00801  100k TC=0,0 
+V_V18         N27228 0 10Vdc
+R_R3         NET1 N00291  300k TC=0,0 
+V_V19         N37351 0  
++PULSE 1020mV 1v 0 10n 10n 0.05s 0.1s
+R_R11         0 N37351  1k TC=0,0 
+V_V20         N40105 0 DC 1.5Vdc AC 10m 
+V_V21         V11 0 DC 1.5Vdc AC 10m 
+C_C6         0 V12  5.3n  TC=0,0 
+R_R12         V11 V12  1MEG TC=0,0 
+R_R14         NET2 N41762  20k TC=0,0 
+C_C9         V3 N02062  5.3n  TC=0,0 
+R_R15         0 N39326  1MEG TC=0,0 
+V_V22         N39326 0  
++PULSE 1020mV 1v 0 10n 10n 0.05s 0.1s
+X_U1A         N00261 N01666 N00145 0 NET2 TLC2254/101/TI
+X_U2B         N41762 N02062 N27228 0 V3 TLC2254/101/TI
+X_U2C         N00801 VREF N27228 0 VREF TLC2254/101/TI
+
+**** RESUMING PP.cir ****
+.END
+
+**** 05/11/15 16:55:19 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-PP"  [ F:\111\747-PSpiceFiles\SCHEMATIC1\PP.sim ] 
+
+
+ ****     Diode MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               X_U1A.DX        X_U2B.DX        X_U2C.DX        
+          IS  800.000000E-18  800.000000E-18  800.000000E-18 
+
+
+**** 05/11/15 16:55:19 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-PP"  [ F:\111\747-PSpiceFiles\SCHEMATIC1\PP.sim ] 
+
+
+ ****     Junction FET MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               X_U1A.JX        X_U2B.JX        X_U2C.JX        
+               PJF             PJF             PJF             
+         VTO    -.023           -.023           -.023        
+        BETA  220.000000E-06  220.000000E-06  220.000000E-06 
+          IS  500.000000E-15  500.000000E-15  500.000000E-15 
+
+
+**** 05/11/15 16:55:19 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-PP"  [ F:\111\747-PSpiceFiles\SCHEMATIC1\PP.sim ] 
+
+
+ ****     SMALL SIGNAL BIAS SOLUTION       TEMPERATURE =   27.000 DEG C
+
+
+******************************************************************************
+
+
+
+ NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE
+
+
+(   V3)    1.1117  (  V11)    1.5000  (  V12)    1.5000  ( NET1)    1.1002      
+
+( NET2)    1.1002  ( VREF)    1.1002  (N00145)    3.3000 (N00261)    1.1002     
+
+(N00291)    1.1002 (N00801)    1.1000 (N00847)    3.3000 (N01666)    1.1002     
+
+(N02062)    1.1004 (N27228)   10.0000 (N37351)    1.0200 (N39326)    1.0200     
+
+(N40105)    1.5000 (N41762)    1.1002 (X_U1A.6) 13.29E-06                       
+
+(X_U1A.7)    1.1002                   (X_U1A.8)    1.1002                       
+
+(X_U1A.9)    0.0000                   (X_U2B.6) 101.5E-06                       
+
+(X_U2B.7)    1.1117                   (X_U2B.8)    1.1117                       
+
+(X_U2B.9)    0.0000                   (X_U2C.6) 101.8E-06                       
+
+(X_U2C.7)    1.1002                   (X_U2C.8)    1.1002                       
+
+(X_U2C.9)    0.0000                   (X_U1A.10)    1.1678                      
+
+(X_U1A.11)    -.4317                  (X_U1A.12)    -.4316                      
+
+(X_U1A.53)    2.6440                  (X_U1A.54)     .6560                      
+
+(X_U1A.60)    -.5000                  (X_U1A.90) 71.94E-09                      
+
+(X_U1A.91)    -.2350                  (X_U1A.92)   -7.5000                      
+
+(X_U1A.99)    1.6500                  (X_U2B.10)    1.1686                      
+
+(X_U2B.11)    -.4306                  (X_U2B.12)    -.4304                      
+
+(X_U2B.53)    9.3440                  (X_U2B.54)     .6560                      
+
+(X_U2B.60)    -.5000                  (X_U2B.90) 11.25E-06                      
+
+(X_U2B.91)    -.2350                  (X_U2B.92)   -7.5000                      
+
+(X_U2B.99)    5.0000                  (X_U2C.10)    1.1684                      
+
+(X_U2C.11)    -.4306                  (X_U2C.12)    -.4304                      
+
+(X_U2C.53)    9.3440                  (X_U2C.54)     .6560                      
+
+(X_U2C.60)    -.5000                  (X_U2C.90)-11.38E-06                      
+
+(X_U2C.91)    -.2350                  (X_U2C.92)   -7.5000                      
+
+(X_U2C.99)    5.0000                  
+
+
+
+
+    VOLTAGE SOURCE CURRENTS
+    NAME         CURRENT
+
+    V_V1        -1.564E-05
+    V_V2        -1.100E-05
+    V_V18       -8.019E-05
+    V_V19       -1.020E-03
+    V_V20        0.000E+00
+    V_V21        0.000E+00
+    V_V22       -1.020E-06
+    X_U1A.VAD    3.609E-06
+    X_U1A.VB     1.329E-10
+    X_U1A.VC     4.883E-12
+    X_U1A.VE     1.406E-12
+    X_U1A.VLIM   7.194E-11
+    X_U1A.VLP    7.806E-12
+    X_U1A.VLN   -2.372E-11
+    X_U2B.VAD    3.669E-06
+    X_U2B.VB     1.015E-09
+    X_U2B.VC     2.603E-11
+    X_U2B.VE     1.442E-12
+    X_U2B.VLIM   1.125E-08
+    X_U2B.VLP    7.810E-12
+    X_U2B.VLN   -2.372E-11
+    X_U2C.VAD    3.669E-06
+    X_U2C.VB     1.018E-09
+    X_U2C.VC     2.607E-11
+    X_U2C.VE     1.405E-12
+    X_U2C.VLIM  -1.138E-08
+    X_U2C.VLP    7.803E-12
+    X_U2C.VLN   -2.372E-11
+
+    TOTAL POWER DISSIPATION   1.94E-03  WATTS
+
+
+
+          JOB CONCLUDED
+
+**** 05/11/15 16:55:19 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-PP"  [ F:\111\747-PSpiceFiles\SCHEMATIC1\PP.sim ] 
+
+
+ ****     JOB STATISTICS SUMMARY
+
+
+******************************************************************************
+
+
+
+  Total job time (using Solver 1)   =         .02
+

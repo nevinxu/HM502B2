@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "string.h"
 
 #include "fsl_device_registers.h"
 #include "fsl_clock_manager.h"
@@ -34,8 +35,9 @@ PCTransmitPackage 						pctransmitpackage;
 uint32_t runBootloaderAddress;    //在线升级相关
 void (*runBootloader)(void * arg);
 
+extern FlashDataPackage flashdatapackage;
+
 /********************************************************************************/
-uint8_t program_buffer[BUFFER_SIZE_BYTE];
 pFLASHCOMMANDSEQUENCE g_FlashLaunchCommand = (pFLASHCOMMANDSEQUENCE)0xFFFFFFFF;
 /* array to copy __Launch_Command func to RAM */
 uint16_t __ram_func[LAUNCH_CMD_SIZE/2];
@@ -64,14 +66,62 @@ void ErrorTrap(uint32_t ret)
 void callback(void)
 {
 }
-/********************************************************************************/
 
-int main(void)
-{	
+int32_t WriteData2Flash()
+{
+	uint8_t program_buffer[100];
 	int32_t ret;          /* Return code from each SSD function */
 	uint32_t destination;         /* Address of the target location */
 	uint32_t size;
 	uint32_t end;  
+	flashSSDConfig.CallBack = (PCALLBACK)RelocateFunction((uint32_t)__ram_for_callback , CALLBACK_SIZE , (uint32_t)callback);     
+	g_FlashLaunchCommand = (pFLASHCOMMANDSEQUENCE)RelocateFunction((uint32_t)__ram_func , LAUNCH_CMD_SIZE ,(uint32_t)FlashCommandSequence);   
+	destination = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 6*FTFx_PSECTOR_SIZE);  //最后第六个块
+	size = FTFx_PSECTOR_SIZE;
+	ret = FlashEraseSector(&flashSSDConfig, destination, size, g_FlashLaunchCommand);        
+	if (FTFx_OK != ret)
+	{
+		ErrorTrap(ret);
+	}
+	
+	destination = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 6*FTFx_PSECTOR_SIZE);
+
+	size = sizeof(flashdatapackage);
+	memcpy(&program_buffer,&flashdatapackage,size);
+	
+	ret = FlashProgram(&flashSSDConfig, destination, size, \
+                                       program_buffer, g_FlashLaunchCommand);
+	if (FTFx_OK != ret)
+	{
+		ErrorTrap(ret);
+	}
+}
+
+int32_t ReadData4Flash()
+{
+	uint8_t DataArray[100];
+	int32_t ret;
+	uint32_t destination; 
+	//WriteData2Flash();
+	flashSSDConfig.CallBack = (PCALLBACK)RelocateFunction((uint32_t)__ram_for_callback , CALLBACK_SIZE , (uint32_t)callback);     
+	g_FlashLaunchCommand = (pFLASHCOMMANDSEQUENCE)RelocateFunction((uint32_t)__ram_func , LAUNCH_CMD_SIZE ,(uint32_t)FlashCommandSequence);         
+ 
+	destination = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 6*FTFx_PSECTOR_SIZE); /* Start address of Program Once Field */
+ // FlashReadResource(&flashSSDConfig, destination, DataArray, 0x0, g_FlashLaunchCommand);
+	for(uint16_t i = 0;i<(sizeof(flashdatapackage));i++)
+	{
+		DataArray[i] = REG_READ(destination + i);
+	}
+	memcpy(&flashdatapackage,&DataArray,sizeof(flashdatapackage));
+}
+
+/********************************************************************************/
+
+int main(void)
+{	
+
+	uint32_t destination; 
+	uint8_t DataArray[1024];
 	
 	// Read the function address from the ROM API tree.
 runBootloaderAddress = **(uint32_t **)(0x1c00001c);
@@ -91,40 +141,10 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
 	hardware_init();  //硬件管教的初始化    主要是 gpio   tpm   lpuart
 	
 
-	ret = FlashInit(&flashSSDConfig);
-	if (FTFx_OK != ret)
-	{
-		ErrorTrap(ret);
-	} 
-
-	flashSSDConfig.CallBack = (PCALLBACK)RelocateFunction((uint32_t)__ram_for_callback , CALLBACK_SIZE , (uint32_t)callback);     
-	g_FlashLaunchCommand = (pFLASHCOMMANDSEQUENCE)RelocateFunction((uint32_t)__ram_func , LAUNCH_CMD_SIZE ,(uint32_t)FlashCommandSequence);   
-	destination = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 6*FTFx_PSECTOR_SIZE);
-	size = FTFx_PSECTOR_SIZE;
-	ret = FlashEraseSector(&flashSSDConfig, destination, size, g_FlashLaunchCommand);        
-	if (FTFx_OK != ret)
-	{
-		ErrorTrap(ret);
-	}
-	
-	destination = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 6*FTFx_PSECTOR_SIZE);
-	end = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 4*FTFx_PSECTOR_SIZE);
-	for (uint16_t i = 0; i < BUFFER_SIZE_BYTE; i++)
-	{
-        /* Set source buffer */
-		program_buffer[i] = i;
-	}
-	size = BUFFER_SIZE_BYTE;
-	
-	ret = FlashProgram(&flashSSDConfig, destination, size, \
-                                       program_buffer, g_FlashLaunchCommand);
-	if (FTFx_OK != ret)
-	{
-		ErrorTrap(ret);
-	}
-	
+	FlashInit(&flashSSDConfig);
 	/* Configure the power mode protection */
 //	SMC_HAL_SetProtection(SMC_BASE, &smc_power_prot_cfg);	
+ReadData4Flash();
 	
 	OSA_Init();   //直接返回 OSA_Success   实时操作系统的初始化     freertos没有函数体  直接返回   
 	

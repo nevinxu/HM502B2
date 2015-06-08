@@ -6,16 +6,16 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Dundas.Charting.WinControl;
+//using Dundas.Charting.WinControl;
 using System.IO;
 using System.IO.Ports;
 using Microsoft.Win32;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace MotionSensor
 {
     public partial class RF : Form
     {
-
         const int N = 64;
         const int M = 8; //每次接收到包心电采样点
         string[] Xdata = new string[M * N];
@@ -69,10 +69,19 @@ namespace MotionSensor
         byte[] ECGPatchID = new byte[15];
         byte[] ECGPatchMAC = new byte[6];
         byte[] BLECentralMAC = new byte[6];
-        private int ScalingFlag = 0;
+        
         private int PairingFlag = 1;
         byte[] ECGPairMAC = new byte[6];
         private int EcgDataTimer = 0;
+        private double amplification = 16.7;
+        private double difference_Value = 516;
+
+        private int ScalingFlag = 0;
+        private int calibration_Num = 0;
+        private List<double> calibration_Value = new List<double>(1024);
+        private double[] ScalingEcgMin = new double[8];
+        private double[] ScalingEcgMax = new double[8];
+
         public RF()
         {
             InitializeComponent();
@@ -116,7 +125,7 @@ namespace MotionSensor
         private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             int length;
-          //  System.Threading.Thread.Sleep(5);
+            System.Threading.Thread.Sleep(20);
             if (!SerialPort.IsOpen)   //检测串口是否关闭
             {
                 return;
@@ -193,48 +202,51 @@ namespace MotionSensor
             MACComboBox.SelectedIndex = 0;
             radioButton1.Select();
 
-            chart1.Titles[0].Text = "原始心电输出信号";
-            chart1.Titles[0].Alignment = ContentAlignment.TopCenter;
-            chart1.Titles[0].Font = new Font("黑体", 10, FontStyle.Bold);
-            chart1.Titles[0].Color = Color.FromArgb(128, 72, 72);
-            chart1.ChartAreas.Clear();
-            chart1.ChartAreas.Add("DX");
+            //chart1.Titles[0].Text = "原始心电输出信号";
+            //chart1.Titles[0].Alignment = ContentAlignment.TopCenter;
+            //chart1.Titles[0].Font = new Font("黑体", 10, FontStyle.Bold);
+            //chart1.Titles[0].ForeColor = Color.FromArgb(128, 72, 72);
+          //  chart1.ChartAreas.Clear();
+          //  chart1.ChartAreas.Add("DX");
 
-            chart1.ChartAreas["DX"].AxisX.Arrows = ArrowsType.Lines;
-            chart1.ChartAreas["DX"].AxisY.Title = "心电电压值";
+          //  chart1.ChartAreas["DX"].AxisX.ArrowStyle = AxisArrowStyle.Lines;
+          //  chart1.ChartAreas["DX"].AxisY.Title = "心电电压值/mV";
 
-            chart1.ChartAreas["DX"].AxisY.Arrows = ArrowsType.Lines;
+          //  chart1.ChartAreas["DX"].AxisY.ArrowStyle = AxisArrowStyle.Lines;
 
-            chart1.ChartAreas["DX"].AxisY.Maximum = chartYMax;
-            chart1.ChartAreas["DX"].AxisY.Minimum = chartYMin;
-            chart1.ChartAreas["DX"].AxisY.Interval = 50;
+          //  chart1.ChartAreas["DX"].AxisY.Maximum = 1024;
+          //  chart1.ChartAreas["DX"].AxisY.Minimum = 0;
+          ////  chart1.ChartAreas["DX"].AxisY.Interval = 1000;
 
-            chart1.ChartAreas["DX"].AxisX.Title = "时间";
+          //  chart1.ChartAreas["DX"].AxisX.Title = "时间/mS";
 
-            chart1.ChartAreas["DX"].AxisX.Maximum = chartlenMax;  //4s
-            chart1.ChartAreas["DX"].AxisX.Minimum = chartlenMin;
-           // chart1.ChartAreas["DX"].AxisX.Interval = 50;
-            chart1.ChartAreas["DX"].AxisX.Interval = (chart1.ChartAreas["DX"].AxisX.Maximum - chart1.ChartAreas["DX"].AxisX.Minimum) / 20;
+          //  chart1.ChartAreas["DX"].AxisX.Maximum = 4000;  //4s
+          //  chart1.ChartAreas["DX"].AxisX.Minimum = 0;
+          //  chart1.ChartAreas["DX"].AxisX.Interval = 1000;
+          //  // chart1.ChartAreas["DX"].AxisX.Interval = (chart1.ChartAreas["DX"].AxisX.Maximum - chart1.ChartAreas["DX"].AxisX.Minimum) / 20;
 
-            Color c1 = Color.FromArgb(50, 50, 50);
-            chart1.ChartAreas["DX"].AxisX.MajorGrid.LineColor = c1;
-            chart1.ChartAreas["DX"].AxisY.MajorGrid.LineColor = c1;
-            chart1.ChartAreas["DX"].ShadowColor = Color.White;
-            chart1.ChartAreas["DX"].BackColor = Color.Black;
+            //Color c1 = Color.FromArgb(50, 50, 50);
+            //chart1.ChartAreas["DX"].AxisX.MajorGrid.LineColor = c1;
+            //chart1.ChartAreas["DX"].AxisY.MajorGrid.LineColor = c1;
+          //  chart1.ChartAreas["DX"].ShadowColor = Color.White;
+          //  chart1.ChartAreas["DX"].BackColor = Color.Black;
 
-            chart1.Series.Clear();
-            chart1.Series.Add("数据个数");
-            chart1.Legends[0].Enabled = false;
-            chart1.Series["数据个数"].Color = Color.Green;
-            chart1.Series["数据个数"].Type = SeriesChartType.Line;
-            chart1.Series["数据个数"].ChartArea = "DX";
+          //  chart1.Series.Clear();
+          //  chart1.Series.Add("数据个数");
+          //  chart1.Legends[0].Enabled = false;
+          //  chart1.Series["数据个数"].Color = Color.Green;
+          //  chart1.Series["数据个数"].ChartType = SeriesChartType.Line;
+          //  chart1.Series["数据个数"].ChartArea = "DX";
 
 
             for (int i = 0; i < (N * M); i++)
             {
-                Xdata[i] = i.ToString();
+                Xdata[i] = (i*8).ToString();
+                //  XdataV[i] = i;
             }
-            chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+           // chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+            //chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+
 
             textBox1.Text = chartlenMin.ToString();
             textBox2.Text = chartlenMax.ToString();
@@ -285,7 +297,7 @@ namespace MotionSensor
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            chart1.ChartAreas["DX"].AxisX.Interval = (chartlenMax - chartlenMin)/ 16;
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisX.Interval = (chartlenMax - chartlenMin) / 16;
             if (radioButton2.Checked)
             {
                 if (chartlenMax >= chartlenMin)
@@ -310,8 +322,8 @@ namespace MotionSensor
             }
             textBox1.Text = chartlenMin.ToString();
             textBox2.Text = chartlenMax.ToString();
-            chart1.ChartAreas["DX"].AxisX.Maximum = chartlenMax;
-            chart1.ChartAreas["DX"].AxisX.Minimum = chartlenMin;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Maximum = chartlenMax;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Minimum = chartlenMin;
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
@@ -382,9 +394,9 @@ namespace MotionSensor
             }
             for (int i = 0; i < N * M; i++)
             {
-                XdataV[i] = 0;
+                XdataV[i] = -5001;
             }
-            chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+            chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
             this.toolStripStatusLabel2.Text = "";
 
             
@@ -433,7 +445,7 @@ namespace MotionSensor
     unsafe private void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             int EcgMaxValue, EcgMinValue;
-            while (SerialReceiveData.Count >= 4)
+            while (SerialReceiveData.Count >= 4 && ((SerialReceiveData[3]+4) <= SerialReceiveData.Count))
             {
                 BLEConnectFlagTimerOut = 0;
                 #region
@@ -571,9 +583,9 @@ namespace MotionSensor
 
                                 for (int i = 0; i < N * M; i++)
                                 {
-                                    XdataV[i] = 0;
+                                    XdataV[i] = -5001;
                                 }
-                                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+                                chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
                                 BLEConnectFlag = 0;
                             }
@@ -731,6 +743,7 @@ namespace MotionSensor
                 #endregion
                 else if (DebugMode == 2)
                 {
+                    
                     if (SerialReceiveData[0] == 0x77)   //type (command)
                     {
                         if (SerialReceiveData[2] == 0x00)  //状态正常
@@ -807,23 +820,24 @@ namespace MotionSensor
                                 string DisplayString = "心电补丁连接成功！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
+
                                 BLEConnectFlag = 1;
 
-                                System.Threading.Thread.Sleep(500);
-                                ReceiveECGPatchIDSerialCommand();
+                               // System.Threading.Thread.Sleep(500);
+                              //  ReceiveECGPatchIDSerialCommand();
 
                             }
                             else if (SerialReceiveData[1] == 0x19)
                             {
 
-                                if (SerialReceiveData[4] == 0)
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "蓝牙心电补丁未连接，无法获取ID\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                                else
+                                //if (SerialReceiveData[4] == 0)
+                                //{
+                                //    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                //    string DisplayString = "蓝牙心电补丁未连接，无法获取ID\r\n";
+                                //    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                //    OutMsg(MonitorText, DisplayString, Color.Red);
+                                //}
+                                //else
                                 {
                                     System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                                     string DisplayString = "心电补丁ID获取成功！\r\n";
@@ -842,8 +856,8 @@ namespace MotionSensor
                                     ":"+ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
                                     ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
 
-                                System.Threading.Thread.Sleep(500);
-                                 ReceiveECGDataSerialCommand();
+                                System.Threading.Thread.Sleep(100);
+                                ReceiveECGDataSerialCommand();
 
                             }
                             else if (SerialReceiveData[1] == 0x0B)
@@ -868,9 +882,9 @@ namespace MotionSensor
 
                                 for (int i = 0; i < N * M; i++)
                                 {
-                                    XdataV[i] = 0;
+                                    XdataV[i] = -5001;
                                 }
-                                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+                                chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
                                 BLEConnectFlag = 0;
 
@@ -918,6 +932,8 @@ namespace MotionSensor
                                     string DisplayString = "设备未连接,无法设置成功！\r\n";
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
+                                    System.Threading.Thread.Sleep(100);
+                                    AutoConnectBLESerialCommand();
                                 }
                                 else
                                 {
@@ -925,7 +941,6 @@ namespace MotionSensor
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
                                 }
-                                AutoConnectBLESerialCommand();
                                 
                             }
                             else if (SerialReceiveData[1] == 0x17)
@@ -936,9 +951,9 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
                                 for (int i = 0; i < N * M; i++)
                                 {
-                                    XdataV[i] = 0;
+                                    XdataV[i] = -5001;
                                 }
-                                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+                                chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
                             }
                             else if (SerialReceiveData[1] == 0x1B)
                             {
@@ -954,8 +969,7 @@ namespace MotionSensor
                                 {
                                     checkBox1.Checked = false;
                                 }
-                                System.Threading.Thread.Sleep(200);
-
+                               // System.Threading.Thread.Sleep(100);
                                 SetTestModeCommand();
                                 
                             }
@@ -966,7 +980,7 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                System.Threading.Thread.Sleep(200);
+                               // System.Threading.Thread.Sleep(100);
                                 ReceiveCentralMACCommand();
                             }
                             else if (SerialReceiveData[1] == 0x1D)
@@ -980,6 +994,7 @@ namespace MotionSensor
                                     BLECentralMAC[i] = SerialReceiveData[4 + i];
                                 }
 
+                              //  System.Threading.Thread.Sleep(100);
                                 ReceiveECGPatchMACCommand();
                             }
                             else if (SerialReceiveData[1] == 0x1F)
@@ -1002,6 +1017,7 @@ namespace MotionSensor
                                 {
                                     ECGPatchMAC[i] = SerialReceiveData[4 + i];
                                 }
+                              //  System.Threading.Thread.Sleep(100);
                                 ReceivePairingStatusCCommand();
                             }
                             else if (SerialReceiveData[1] == 0x23)
@@ -1018,6 +1034,7 @@ namespace MotionSensor
                                     ECGPairMAC[i] = SerialReceiveData[4 + i];
                                 }
 
+                               // System.Threading.Thread.Sleep(100);
                                 ReceiveECGPatchIDSerialCommand();
                             }
                             else if (SerialReceiveData[1] == 0x21)
@@ -1054,27 +1071,24 @@ namespace MotionSensor
                                     OutMsg(MonitorText, DisplayString, Color.Red);
                                 }
 
-                                //for (int j = (M - 8); j < M; j++)   //
-                                //{
-                                //    for (int k = 0; k < N - 1; k++)
-                                //    {
-                                //        XdataV[k * M + j] = XdataV[(k + 1) * M + j];
-                                //    }
-                                //}
+                                XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2) - difference_Value) * amplification;
+                                XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4) - difference_Value) * amplification;
+                                XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[10]) + Convert.ToDouble((SerialReceiveData[12] & 0x0c) << 6) - difference_Value) * amplification;
+                                XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[12] & 0x03) << 8) - difference_Value) * amplification;
+                                XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[17] & 0xc0) << 2) - difference_Value) * amplification;
+                                XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4) - difference_Value) * amplification;
+                                XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6) - difference_Value) * amplification;
+                                XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8) - difference_Value) * amplification;
+                                //XdataV[EcgDataTimer * M + 8] = 0;
+                                //XdataV[EcgDataTimer * M + 9] = 0;
+                                //XdataV[EcgDataTimer * M + 10] = 0;
+                                //XdataV[EcgDataTimer * M + 11] = 0;
+                                //XdataV[EcgDataTimer * M + 12] = 0;
+                                //XdataV[EcgDataTimer * M + 13] = 0;
+                                //XdataV[EcgDataTimer * M + 14] = 0;
+                                //XdataV[EcgDataTimer * M + 15] = 0;
+                                //XdataV[EcgDataTimer * M +16] = 0;
 
-                                XdataV[EcgDataTimer * M + 0] = Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2);
-                                XdataV[EcgDataTimer * M + 1] = Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4);
-                                XdataV[EcgDataTimer * M + 2] = Convert.ToDouble(SerialReceiveData[10]) + Convert.ToDouble((SerialReceiveData[12] & 0x0c) << 6);
-                                XdataV[EcgDataTimer * M + 3] = Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[12] & 0x03) << 8);
-                                XdataV[EcgDataTimer * M + 4] = Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[17] & 0xc0) << 2);
-                                XdataV[EcgDataTimer * M + 5] = Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4);
-                                XdataV[EcgDataTimer * M + 6] = Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6);
-                                XdataV[EcgDataTimer * M + 7] = Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8);
-                                EcgDataTimer++;
-                                if (EcgDataTimer >= (chartlenMax / M))
-                                {
-                                    EcgDataTimer = (chartlenMin / 8);
-                                }
 
                                 SerialEcgData.Add(XdataV[0]);
                                 SerialEcgData.Add(XdataV[1]);
@@ -1085,16 +1099,91 @@ namespace MotionSensor
                                 SerialEcgData.Add(XdataV[6]);
                                 SerialEcgData.Add(XdataV[7]);
 
-                                if (SerialEcgData.Count > 512)
+
+                                if(ScalingFlag == 1)
                                 {
-                                    SerialEcgData.RemoveRange(0, SerialEcgData.Count - 512);//从接收列表中删除包
-                                    double* ecgbuffer = stackalloc double[512];            //求导数数据区
-                                    for (int i = 0; i < 512; i++)
+                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 0]);
+                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 1]);
+                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 2]);
+                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 3]);
+                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 4]);
+                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 5]);
+                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 6]);
+                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 7]);
+                                    calibration_Num += 8;
+                                    if (calibration_Num >= 1024)
                                     {
-                                        ecgbuffer[i] = SerialEcgData[i];
+                                        for (int i = 0; i < 8; i++)
+                                        {
+                                            ScalingEcgMin[i] = 5000; 
+                                        }
+                                        for (int i = 0; i < 8; i++)
+                                        {
+                                            ScalingEcgMax[i] = -5000;
+                                        }
+                                        for (int j = 0; j < 8;j++ )
+                                        {
+                                            for (int i = 200; i < 1024; i++)
+                                            {
+                                                if (ScalingEcgMin[j] > calibration_Value[i])
+                                                {
+                                                    if (j > 0)
+                                                    {
+                                                        if (ScalingEcgMin[j - 1] < calibration_Value[i])
+                                                        {
+                                                            ScalingEcgMin[j] = calibration_Value[i];
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        ScalingEcgMin[j] = calibration_Value[i];
+                                                    }
+                                                }
+                                                if (ScalingEcgMax[j] < calibration_Value[i])
+                                                {
+                                                    if (j > 0)
+                                                    {
+                                                        if (ScalingEcgMax[j - 1] > calibration_Value[i])
+                                                        {
+                                                            ScalingEcgMax[j] = calibration_Value[i];
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        ScalingEcgMax[j] = calibration_Value[i];
+                                                    }
+                                                   
+                                                }
+                                            }
+                                        }
+                                        for (int i = 1; i < 4; i++)
+                                        {
+                                            ScalingEcgMax[0] += ScalingEcgMax[i];
+                                            ScalingEcgMin[0] += ScalingEcgMin[i];
+                                        }
+                                        amplification = 1000.00 / ((ScalingEcgMax[0] - ScalingEcgMin[0])/4);
+                                        difference_Value = ScalingEcgMin[1];
+                                        calibration_Value.RemoveRange(0, 1024);
+                                        ScalingFlag = 2;
+                                        calibration_Num = 0;
                                     }
-                                    int t = rhythmcount(ecgbuffer);
                                 }
+
+                                EcgDataTimer++;
+                                if (EcgDataTimer >= (chartlenMax / M))
+                                {
+                                    EcgDataTimer = (chartlenMin / 8);
+                                }
+                                //if (SerialEcgData.Count > 512)
+                                //{
+                                //    SerialEcgData.RemoveRange(0, SerialEcgData.Count - 512);//从接收列表中删除包
+                                //    double* ecgbuffer = stackalloc double[512];            //求导数数据区
+                                //    for (int i = 0; i < 512; i++)
+                                //    {
+                                //        ecgbuffer[i] = SerialEcgData[i];
+                                //    }
+                                //    int t = rhythmcount(ecgbuffer);
+                                //}
 
                                 DataTransmissionFlag = 1;
                                 BLEConnectFlagTimerOut = 0;
@@ -1144,9 +1233,13 @@ namespace MotionSensor
                         }
                     }
 
-                    chart1.ChartAreas["DX"].AxisY.Maximum = (EcgMaxValue + EcgMinValue) / 2 + 550;
-                    chart1.ChartAreas["DX"].AxisY.Minimum = (EcgMaxValue + EcgMinValue) / 2 - 550;
-                    chart1.ChartAreas["DX"].AxisY.Interval = 110;
+                    //chart1.ChartAreas["DX"].AxisY.Maximum = chartYMax;
+                    //chart1.ChartAreas["DX"].AxisY.Minimum = chartYMin;
+                    //chart1.ChartAreas["DX"].AxisY.Interval = 50;
+
+                    //chart1.ChartAreas["DX"].AxisY.Maximum = (EcgMaxValue + EcgMinValue) / 2 + 210;
+                    //chart1.ChartAreas["DX"].AxisY.Minimum = (EcgMaxValue + EcgMinValue) / 2 - 210;
+                    //chart1.ChartAreas["DX"].AxisY.Interval = 70;
 
                     //chart1.ChartAreas["DX"].AxisY.Maximum = 128;
                     //chart1.ChartAreas["DX"].AxisY.Minimum = -127;
@@ -1163,6 +1256,10 @@ namespace MotionSensor
                         else if (ScalingFlag == 1)
                         {
                             str2 = "正在定标...";
+                        }
+                        else if (ScalingFlag == 2)
+                        {
+                            str2 = "已定标！";
                         }
                         else
                         {
@@ -1187,7 +1284,9 @@ namespace MotionSensor
                             ":" + ECGPatchMAC[3].ToString("X2") + ":" + ECGPatchMAC[2].ToString("X2")
                             + ":" + ECGPatchMAC[1].ToString("X2") + ":" + ECGPatchMAC[0].ToString("X2")
                             + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  " + str2 + str3;
-                        chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+
+                       // chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+                        chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
                     }
                 }
             }
@@ -1242,7 +1341,7 @@ namespace MotionSensor
 
 
             // SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog1.Filter = "bin文件(*.bin)|*.bin|文本文件(*.txt)|*.txt";
+            saveFileDialog1.Filter = "文本文件(*.txt)|*.txt|bin文件(*.bin)|*.bin";
             saveFileDialog1.Title = "保存心电数据";
             saveFileDialog1.FilterIndex = 1;
             saveFileDialog1.RestoreDirectory = true;
@@ -1339,7 +1438,6 @@ namespace MotionSensor
         {
 
         }
-
         private void SendConnectSerialCommand()
         {
             if (DebugMode == 1)
@@ -1456,9 +1554,9 @@ namespace MotionSensor
 
                     for (int i = 0; i < N * M; i++)
                     {
-                        XdataV[i] = 0;
+                        XdataV[i] = -50001;
                     }
-                    chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
+                    chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
                     BLEConnectFlag = 0;
                     return;
@@ -1503,284 +1601,6 @@ namespace MotionSensor
             DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
             OutMsg(MonitorText, DisplayString, Color.Red);
         }
-
-        private void PauseButton_Click(object sender, EventArgs e)
-        {
-            if (PauseFlag == 1)
-            {
-                PauseFlag = 0;
-                PauseButton.Text = "运行中";
-
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "心电采集中...\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                for (int i = 0; i < N * M; i++)
-                {
-                    XdataV[i] = 0;
-                }
-                chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
-            }
-            else
-            {
-                PauseFlag = 1;
-                PauseButton.Text = "暂停";
-
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "心电采集暂停!!!\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-            }
-        }
-
-
-        private void radioButton3_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton3.Checked)
-            {
-                trackBar2.Value = chartYMin;
-            }
-            trackBar2.Focus();
-        }
-
-        private void radioButton4_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton4.Checked)
-            {
-                trackBar2.Value = chartYMax;
-            }
-            trackBar2.Focus();
-        }
-
-        private void trackBar2_Scroll(object sender, EventArgs e)
-        {
-            chart1.ChartAreas["DX"].AxisY.Interval = (chartYMax - chartYMin) / 16;
-            if (radioButton4.Checked)
-            {
-                if (chartYMax > chartYMin)
-                {
-                    chartYMax = trackBar2.Value;
-                }
-                else
-                {
-                    chartYMax = chartYMin+10;
-                    trackBar2.Value = chartYMax;
-                }
-            }
-            else if(radioButton3.Checked)
-            {
-                if (chartYMin < chartYMax)
-                {
-                    chartYMin = trackBar2.Value;
-                }
-                else
-                {
-                    chartYMin = chartYMax-10;
-                    trackBar2.Value = chartYMin;
-                }
-            }
-            textBox3.Text = chartYMin.ToString();
-            textBox4.Text = chartYMax.ToString();
-
-            chart1.ChartAreas["DX"].AxisY.Maximum = chartYMax;
-            chart1.ChartAreas["DX"].AxisY.Minimum = chartYMin;
-        }
-
-        private void button1_Click_2(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBoxScan_KeyPress(object sender, KeyPressEventArgs e)
-        {
-             if (e.KeyChar.Equals('\r'))
-            {
-                try
-                {
-                    if ((textBoxScan.Text.Length == 15)/* && (textBoxScan.Text.Length >=9)*/)
-                    {
-                      //  textBoxID.Text = textBoxScan.Text.Substring(textBoxScan.Text.Length - 9, 9);
-                        textBoxScan.SelectAll();
-                        textBoxScan.Focus();
-                        string DisplayString = DateTime.Now.ToLongTimeString() + ": "+"条码扫描：" + textBoxScan.Text.ToString() + "\r\n";
-                        OutMsg(MonitorText, DisplayString, Color.Red);
-                    }
-                    else
-                    {
-                        MessageBox.Show("条码长度大于15位或者小于9位，可能导致数据截取错误！", "条码扫描异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    MessageBox.Show("条码长度大于15位或者小于9位，可能导致数据截取错误！", "条码扫描异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
-            }
-        }
-
-        private void IDValuebutton_Click(object sender, EventArgs e)
-        {
-            if (ConnectBLEButton.Text == "设备已连接")
-            {
-                byte[] ssss = new byte[13];
-                ssss[0] = 0x77;   //
-                ssss[1] = 0x10;   //ID发送命令
-                ssss[2] = 0x00;
-                ssss[3] = 0x09;
-               // char[] charIDValue = textBoxID.Text.ToCharArray();
-                try
-                {
-               //     if (textBoxID.Text.Length == 9)
-                    {
-                        for (int i = 0; i < 9; i++)
-                        {
-                           // ssss[4 + i] = (byte)charIDValue[i];
-                        }
-                        if (SerialPort.IsOpen)
-                        {
-                            SerialPort.Write(ssss, 0, 13);
-                        }
-                        else
-                        {
-                            string DisplayString = "串口未打开！\r\n";
-                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                            OutMsg(MonitorText, DisplayString, Color.Red);
-                        }
-                    }
-                   // else
-                    {
-                        string DisplayString = "ID数据错误！\r\n";
-                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                        OutMsg(MonitorText, DisplayString, Color.Red);
-                    }
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    MessageBox.Show("数据出错！");
-                }
-            }
-            else
-            {
-                string DisplayString = "未连接心电补丁！\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-            }
-
-
-
-        }
-
-        private void chart1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            BLEConnectFlagTimerOut++;
-            if (BLEConnectFlagTimerOut >= 50)
-            {
-                BLEConnectFlagTimerOut = 0;
-                if (ConnectBLEButton.Text == "设备已连接")
-                {
-                    DisconnectBLESerialCommand();
-                    ConnectBLEButton.Enabled = false;
-                    ConnectBLEButton.Text = "设备正在断开";
-                }
-                if (!SerialPort.IsOpen)   //检测串口是否关闭
-                {
-                    return;
-                }
-                //if (BLEConnectFlag == 0)
-                //{
-                //    if (checkBox1.Checked == true)
-                //    {
-                //        AutoConnectBLESerialCommand();
-                //    }
-                //    else
-                //    {
-                //        DisAutoConnectBLESerialCommand();
-                //    }
-                //}
-            }
-        }
-
-        private void button4_Click_1(object sender, EventArgs e)
-        {
-            ConnectBLESerialCommand();
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            DisconnectBLESerialCommand();
-        }
-
-        private void label12_Click(object sender, EventArgs e)
-        {
-
-        }
-        private void AutoConnectBLESerialCommand()
-        {
-            if(DebugMode == 1)
-            {
-                ;
-            }
-            else if (DebugMode == 2)
-            {
-                byte[] ssss = { 0x77, 0x11, 0x00, 0x01,0x01 };
-                SerialPort.Write(ssss, 0, 5);
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "请求自动连接配置...\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-            }
-
-        }
-        private void DisAutoConnectBLESerialCommand()
-        {
-            if (DebugMode == 1)
-            {
-                ;
-            }
-            else if (DebugMode == 2)
-            {
-                byte[] ssss = { 0x77, 0x11, 0x00, 0x01, 0x00 };
-                SerialPort.Write(ssss, 0, 5);
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "请求关闭自动连接配置...\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-            }
-
-        }
-        private void AutoConnectBLEStatusSerialCommand()
-        {
-            if (DebugMode == 1)
-            {
-                ;
-            }
-            else if (DebugMode == 2)
-            {
-                byte[] ssss = { 0x77, 0x1A, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "获取自动连接配置状态...\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-            }
-        }
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBox1.Checked == true)
-            {
-                AutoConnectBLESerialCommand();
-            }
-            else
-            {
-                DisAutoConnectBLESerialCommand();
-            }
-        }
         private void ReceiveECGDataSerialCommand()
         {
             if (DebugMode == 1)
@@ -1815,7 +1635,6 @@ namespace MotionSensor
             }
 
         }
-
         private void ReceiveECGPatchIDSerialCommand()
         {
             if (DebugMode == 1)
@@ -1867,7 +1686,6 @@ namespace MotionSensor
             }
 
         }
-
         private void ReceivePairingStatusCCommand()
         {
             if (DebugMode == 1)
@@ -1877,7 +1695,7 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x22, 0x00, 0x00 };
-             //   ECGPairMAC
+                //   ECGPairMAC
                 SerialPort.Write(ssss, 0, 4);
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取配对状态\r\n";
@@ -1894,7 +1712,7 @@ namespace MotionSensor
             }
             else if (DebugMode == 2)
             {
-                byte[] ssss = { 0x77, 0x24, 0x00, 0x01,0x01 };
+                byte[] ssss = { 0x77, 0x24, 0x00, 0x01, 0x01 };
                 SerialPort.Write(ssss, 0, 5);
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "设置为测试模式\r\n";
@@ -1903,6 +1721,316 @@ namespace MotionSensor
             }
 
         }
+        private void AutoConnectBLESerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x11, 0x00, 0x01, 0x01 };
+                SerialPort.Write(ssss, 0, 5);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求自动连接配置...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+        private void DisAutoConnectBLESerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x11, 0x00, 0x01, 0x00 };
+                SerialPort.Write(ssss, 0, 5);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求关闭自动连接配置...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+        private void AutoConnectBLEStatusSerialCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x1A, 0x00, 0x00 };
+                SerialPort.Write(ssss, 0, 4);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "获取自动连接配置状态...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+        }
+        private void PairingCommand()
+        {
+            if (DebugMode == 1)
+            {
+                ;
+            }
+            else if (DebugMode == 2)
+            {
+                byte[] ssss = { 0x77, 0x20, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+                string InputChar = textBox5.Text;
+                char[] cc = InputChar.ToCharArray();
+                for (int i = 0; i < 0x11; i++)
+                {
+                    if (cc[i] >= '0' && (cc[i] <= '9'))
+                    {
+                        cc[i] = (char)(cc[i] - 0x30);
+                    }
+                    else if (cc[i] >= 'A' && (cc[i] <= 'F'))
+                    {
+                        cc[i] = (char)(cc[i] - 'A' + 10);
+                    }
+                }
+                for (int i = 0; i < 6; i++)
+                {
+                    ssss[4 + i] = (byte)((cc[(5 - i) * 3] << 4) + (cc[(5 - i) * 3 + 1]));
+                }
+
+
+                //   ECGPairMAC
+                SerialPort.Write(ssss, 0, 10);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "请求设置配对心电补丁的MAC\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+        }
+
+        private void PauseButton_Click(object sender, EventArgs e)
+        {
+            if (PauseFlag == 1)
+            {
+                PauseFlag = 0;
+                PauseButton.Text = "运行中";
+
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "心电采集中...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+
+                for (int i = 0; i < N * M; i++)
+                {
+                    XdataV[i] = -5001;
+                }
+                chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+            }
+            else
+            {
+                PauseFlag = 1;
+                PauseButton.Text = "暂停";
+
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "心电采集暂停!!!\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+        }
+        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton3.Checked)
+            {
+                trackBar2.Value = chartYMin;
+            }
+            trackBar2.Focus();
+        }
+        private void radioButton4_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton4.Checked)
+            {
+                trackBar2.Value = chartYMax;
+            }
+            trackBar2.Focus();
+        }
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            chart1.ChartAreas["DX"].AxisY.Interval = (chartYMax - chartYMin) / 16;
+            if (radioButton4.Checked)
+            {
+                if (chartYMax > chartYMin)
+                {
+                    chartYMax = trackBar2.Value;
+                }
+                else
+                {
+                    chartYMax = chartYMin+10;
+                    trackBar2.Value = chartYMax;
+                }
+            }
+            else if(radioButton3.Checked)
+            {
+                if (chartYMin < chartYMax)
+                {
+                    chartYMin = trackBar2.Value;
+                }
+                else
+                {
+                    chartYMin = chartYMax-10;
+                    trackBar2.Value = chartYMin;
+                }
+            }
+            textBox3.Text = chartYMin.ToString();
+            textBox4.Text = chartYMax.ToString();
+
+            chart1.ChartAreas["DX"].AxisY.Maximum = chartYMax;
+            chart1.ChartAreas["DX"].AxisY.Minimum = chartYMin;
+        }
+        private void button1_Click_2(object sender, EventArgs e)
+        {
+
+        }
+        private void textBoxScan_KeyPress(object sender, KeyPressEventArgs e)
+        {
+             if (e.KeyChar.Equals('\r'))
+            {
+                try
+                {
+                    if ((textBoxScan.Text.Length == 15)/* && (textBoxScan.Text.Length >=9)*/)
+                    {
+                      //  textBoxID.Text = textBoxScan.Text.Substring(textBoxScan.Text.Length - 9, 9);
+                        textBoxScan.SelectAll();
+                        textBoxScan.Focus();
+                        string DisplayString = DateTime.Now.ToLongTimeString() + ": "+"条码扫描：" + textBoxScan.Text.ToString() + "\r\n";
+                        OutMsg(MonitorText, DisplayString, Color.Red);
+                    }
+                    else
+                    {
+                        MessageBox.Show("条码长度大于15位或者小于9位，可能导致数据截取错误！", "条码扫描异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    MessageBox.Show("条码长度大于15位或者小于9位，可能导致数据截取错误！", "条码扫描异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+            }
+        }
+        private void IDValuebutton_Click(object sender, EventArgs e)
+        {
+            if (ConnectBLEButton.Text == "设备已连接")
+            {
+                byte[] ssss = new byte[13];
+                ssss[0] = 0x77;   //
+                ssss[1] = 0x10;   //ID发送命令
+                ssss[2] = 0x00;
+                ssss[3] = 0x09;
+               // char[] charIDValue = textBoxID.Text.ToCharArray();
+                try
+                {
+               //     if (textBoxID.Text.Length == 9)
+                    {
+                        for (int i = 0; i < 9; i++)
+                        {
+                           // ssss[4 + i] = (byte)charIDValue[i];
+                        }
+                        if (SerialPort.IsOpen)
+                        {
+                            SerialPort.Write(ssss, 0, 13);
+                        }
+                        else
+                        {
+                            string DisplayString = "串口未打开！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+                        }
+                    }
+                   // else
+                    {
+                        string DisplayString = "ID数据错误！\r\n";
+                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                        OutMsg(MonitorText, DisplayString, Color.Red);
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    MessageBox.Show("数据出错！");
+                }
+            }
+            else
+            {
+                string DisplayString = "未连接心电补丁！\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+
+
+
+        }
+        private void chart1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            //BLEConnectFlagTimerOut++;
+            //if (BLEConnectFlagTimerOut >= 50)
+            //{
+            //    BLEConnectFlagTimerOut = 0;
+            //    if (ConnectBLEButton.Text == "设备已连接")
+            //    {
+            //        DisconnectBLESerialCommand();
+            //        ConnectBLEButton.Enabled = false;
+            //        ConnectBLEButton.Text = "设备正在断开";
+            //    }
+            //    if (!SerialPort.IsOpen)   //检测串口是否关闭
+            //    {
+            //        return;
+            //    }
+                //if (BLEConnectFlag == 0)
+                //{
+                //    if (checkBox1.Checked == true)
+                //    {
+                //        AutoConnectBLESerialCommand();
+                //    }
+                //    else
+                //    {
+                //        DisAutoConnectBLESerialCommand();
+                //    }
+                //}
+            //}
+        }
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            ConnectBLESerialCommand();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            DisconnectBLESerialCommand();
+        }
+
+        private void label12_Click(object sender, EventArgs e)
+        {
+
+        }
+ 
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked == true)
+            {
+                AutoConnectBLESerialCommand();
+            }
+            else
+            {
+                DisAutoConnectBLESerialCommand();
+            }
+        }
+
         private void button3_Click_1(object sender, EventArgs e)
         {
             ReceiveECGDataSerialCommand();
@@ -1916,6 +2044,9 @@ namespace MotionSensor
         private void button5_Click(object sender, EventArgs e)
         {
             ScalingFlag = 1;
+            difference_Value = 0;
+            amplification = 1;
+            System.Threading.Thread.Sleep(1000);
         }
 
         private void textBox5_TextChanged(object sender, EventArgs e)
@@ -1967,47 +2098,14 @@ namespace MotionSensor
                 }
 
         }
-        private void PairingCommand()
-        {
-            if (DebugMode == 1)
-            {
-                ;
-            }
-            else if (DebugMode == 2)
-            {
-                byte[] ssss = { 0x77, 0x20, 0x00, 0x06,0x00,0x00,0x00,0x00,0x00 ,0x00};
-
-                string InputChar = textBox5.Text;
-                char[] cc = InputChar.ToCharArray();
-                for (int i = 0; i < 0x11; i++)
-                {
-                    if (cc[i] >= '0' && (cc[i] <= '9'))
-                    {
-                        cc[i] = (char)(cc[i] - 0x30);
-                    }
-                    else if (cc[i] >= 'A' && (cc[i] <= 'E'))
-                    {
-                        cc[i] = (char)(cc[i] - 'A'+10);
-                    }
-                }
-                for (int i = 0; i < 6; i++)
-                {
-                    ssss[4 + i] = (byte)((cc[(5-i) * 3] << 4) + (cc[(5-i) * 3+1]));
-                }
-
-
-                    //   ECGPairMAC
-                    SerialPort.Write(ssss, 0, 10);
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "请求设置配对心电补丁的MAC\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-            }
-
-        }
         private void button6_Click(object sender, EventArgs e)
         {
             PairingCommand();
+        }
+
+        private void axMSComm1_OnComm(object sender, EventArgs e)
+        {
+
         }
     }
 }

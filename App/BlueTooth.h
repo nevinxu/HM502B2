@@ -25,6 +25,7 @@
 #define SERIAL_STATUS_OK       										0x00
 
 #define SERIAL_DATASIZE_NONE       								0x00
+#define SERIAL_DATASIZE_ONE       								0x01
 
 #define SERIAL_DATAADDR_NONE       								0x00
 
@@ -44,6 +45,9 @@
 #define APP_CMD_ECGPATCHHARDVERSIONREQ        		0x27
 #define APP_CMD_ECGPATCHSOFTVERSIONACK          	0x28
 #define APP_CMD_ECGPATCHSOFTVERSIONREQ        		0x29
+
+
+
 
 
 #define     AT                          "AT"
@@ -110,6 +114,8 @@
 
 #define     GETNAME                     "AT+NAME?"                           //查询、设置 EDR 设备名称
 #define     GETNAMB                     "AT+NAMB?"                           //查询、设置 BLE 设备名称
+//#define     SETNAME                     "AT+NAMELJS_EDR"
+//#define     SETNAMB                     "AT+NAMBLJS_BLE"
 #define     SETNAME                     "AT+NAMEHM502B2_EDR"
 #define     SETNAMB                     "AT+NAMBHM502B2_BLE"
 
@@ -164,4 +170,6 @@ extern void BlueToothSendCommand(uint8_t command,uint8_t DataSize,uint8_t *Data)
 extern lpuart_status_t lpuart_Init(
         uint32_t uartInstance, uint32_t baudRate);
 extern lpuart_status_t lpuart_DeInit(uint32_t uartInstance);
+
+extern void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime);
 #endif

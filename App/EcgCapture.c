@@ -32,6 +32,8 @@ BTTransmitPackage 	m_bttransmitpackage;
 uint8_t BT_Status = 0;
 uint8_t BT_StatusNum = 0;
 EcgDataPackage ecgdatapackage;   //
+
+FlashDataPackage flashdatapackage;
 	
 int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 {
@@ -66,17 +68,17 @@ static void ecg_adc_isr_callback(void)
 	
     if(i % 2)
     {
-//			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
-//			{
-//				ecgdatapackage.ecgdata[i/2] = 500;
-//			}
-//			else
+			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
+			{
+				ecgdatapackage.ecgdata[i/2] = 500;
+			}
+			else
 			{
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}
 
 		//		ecgdatapackage.ecgdata[i/2] = sinTab[j++];
-			//ecgdatapackage.ecgdata[i/2] = 512;
+		//	ecgdatapackage.ecgdata[i/2] = 511;
         adcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
         adcChnConfig.diffEnable = false;
         adcChnConfig.intEnable = true;
@@ -117,8 +119,6 @@ static void ecg_adc_isr_callback(void)
 					BLEConnectedFlag = 1;
 				}
 			}
-			if(ECGDataSendFlag  == 1)
-			{
 				ecgdatapackage.leadoffstatus = GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK);
 				ecgdatapackage.sequence++;
 				ecgdatapackage.battery = 0;
@@ -134,7 +134,13 @@ static void ecg_adc_isr_callback(void)
 				{
 					ecgdatapackage.battery = batterybuffer[0];
 				}
-				
+				if(ecgdatapackage.battery <= BATTERYLOW)
+				{
+					ECGDataSendFlag = 0;
+					LedSet(2,2,25);
+				}
+			if(ECGDataSendFlag  == 1)
+			{
 				m_bttransmitpackage.code = ECGDATACODE;
 				m_bttransmitpackage.size = sizeof(ecgdatapackage);
 				ecgdatapackage.start = SERIAL_IDENTIFIER;
@@ -143,6 +149,7 @@ static void ecg_adc_isr_callback(void)
 				ecgdatapackage.length = ECGDATASIZE;
 				memcpy(m_bttransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
 
+				
 		//Ñ¹Ëõ		
 				EncodeData4WTo5B(ecgdatapackage.ecgdata,&m_bttransmitpackage.data[8],8);
 				m_bttransmitpackage.size = m_bttransmitpackage.size-6;

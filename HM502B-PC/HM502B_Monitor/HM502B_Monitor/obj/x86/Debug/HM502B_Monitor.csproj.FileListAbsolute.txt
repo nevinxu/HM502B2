@@ -1,0 +1,9 @@
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\bin\Debug\HM502B_Monitor.exe
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\bin\Debug\HM502B_Monitor.pdb
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\obj\x86\Debug\HM502B_Monitor.Monitor_UI.resources
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\obj\x86\Debug\HM502B_Monitor.Properties.Resources.resources
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\obj\x86\Debug\HM502B_Monitor.exe
+D:\HM502B2\HM502B-PC\HM502B_Monitor\HM502B_Monitor\obj\x86\Debug\HM502B_Monitor.pdb

@@ -53,14 +53,14 @@ void InitBlueTooth()
     
     while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
     while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-		if(!memcmp(&rxbuffer[7],NameBLE,sizeof(NameBLE)))
+		if(memcmp(&rxbuffer[7],NameBLE,sizeof(NameBLE)))
 		{
 			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,strlen(SETNAMB), portMAX_DELAY));
 			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 		}
 		while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
     while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-		if(!memcmp(rxbuffer,NameEDR,sizeof(NameEDR)))
+		if(memcmp(rxbuffer,NameEDR,sizeof(NameEDR)))
 		{
 			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,strlen(SETNAME), portMAX_DELAY));
 			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
@@ -90,16 +90,41 @@ void InitBlueTooth()
     {
         while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,SETNOTI1,strlen(SETNOTI1))); //连接后通知上位机
         while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-	} 
+		} 
+}
+
+void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
+{
+	static uint16_t time = 0;
+	for(uint8_t i = 0;i<HighNum;i++)
+	{
+		if(time == (HighTime*i))
+		{
+			LED1_ON;
+		}
+		else if(time == (HighTime*i)+(HighTime/2))
+		{
+			LED1_OFF;
+		}
+//		else if(time == PeriodTime)
+//		{
+//			
+//		}
+		
+	}
+	time++;
+	if(time >= PeriodTime)	
+	{
+		time = 0;
+	}			
 }
 
 
 void task_bluetooth_tx(task_param_t param)
 {
-	uint8_t i;
 	if(BLEConnectedFlag == 0)
 	{
-		//InitBlueTooth();
+		InitBlueTooth();
 	}
     
 	while(1)
@@ -109,18 +134,17 @@ void task_bluetooth_tx(task_param_t param)
 
 					if(m_btdatapackage.code == ECGDATACODE)
 					{
-						i++;
 						if(ECGDataSendFlag == 1)
 						{
 							while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-							if(i%2)
+							if(m_btdatapackage.data[5] == 1)
 							{
-								LED1_ON;    
+								LedSet(2,1,25);
 							}
 							else
 							{
-								LED1_OFF;
-							} 
+								LedSet(2,3,25);
+							}
 						}
 					}
 					else if(m_btdatapackage.code == SENDECGPATCHIDCODE)
@@ -136,6 +160,7 @@ void task_bluetooth_tx(task_param_t param)
 						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
 					}
 			}
+			
 	}
 }
 
@@ -161,14 +186,19 @@ void task_bluetooth_rx(task_param_t param)
                     LED1_OFF;
                 }
            }
-/************************************************************************************************/					 
+/************************************************************************************************/	
+						if(bluerxbuffer[0] == 	0x01)
+						{
+							bluerxbuffer[0] = 0;
+						}							
 					 if(bluerxbuffer[0] == SERIAL_IDENTIFIER)
 					 {
 						 if(bluerxbuffer[2] == SERIAL_STATUS_OK)
 						 {
 								if(bluerxbuffer[1] == APP_CMD_RECEIVEECGDATAACK)    //开始发送心电数据
 								{
-									BlueToothSendCommand(APP_CMD_RECEIVEECGDATAREQ,SERIAL_DATASIZE_NONE,SERIAL_DATAADDR_NONE);
+									uint8_t data[1] = {0x01};
+									BlueToothSendCommand(APP_CMD_RECEIVEECGDATAREQ,SERIAL_DATASIZE_ONE,data);
 									ECGDataSendFlag  = 1;									
 								}
 								else if(bluerxbuffer[1] == APP_CMD_STOPRECEIVEECGDATAACK)				//停止发送心电数据

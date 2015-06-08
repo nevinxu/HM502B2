@@ -1,0 +1,21 @@
+** Profile: "SCHEMATIC1-d1d"  [ F:\111\747-pspicefiles\schematic1\d1d.sim ] 
+
+** Creating circuit file "d1d.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+.LIB "F:/2015_new/5_spice-modle/op747/op747.lib" 
+* From [PSPICE NETLIST] section of C:\ProgRam\Cadence\SPB_16.6\SPB_Data\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "F:\2015_NEW\5_spice-modle\AD623\ad623.lib" 
+.lib "nom.lib" 
+
+*Analysis directives: 
+.AC DEC 10 0.01 1000
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+.END

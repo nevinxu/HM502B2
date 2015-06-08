@@ -65,6 +65,7 @@ extern "C"
 #define START_IDVALUEMODIFY_EVT                       0x0080
 #define START_UARTECGSEND_EVT                       0x0100
 #define simpleBLE_PERIODIC_EVT                        0x0200
+#define START_RECEIVEECGDATA_EVT                      0x0400
 /*********************************************************************
  * MACROS
  */

@@ -102,3 +102,8 @@ D:\HM502B2\HMHM502B2PC\obj\Debug\ResGen.write.8.tlog
 D:\HM502B2\HMHM502B2PC\obj\Debug\RFtest.exe.licenses
 D:\HM502B2\HMHM502B2PC\obj\Debug\ResGen.read.5.tlog
 D:\HM502B2\HMHM502B2PC\obj\Debug\ResGen.write.5.tlog
+D:\HM502B2\HMHM502B2PC\obj\Debug\Interop.MSCommLib.dll
+D:\HM502B2\HMHM502B2PC\obj\Debug\AxInterop.MSCommLib.dll
+D:\HM502B2\HMHM502B2PC\obj\Debug\RFtest.csproj.ResolveComReference.cache
+D:\HM502B2\HMHM502B2PC\bin\Debug\Interop.MSCommLib.dll
+D:\HM502B2\HMHM502B2PC\bin\Debug\AxInterop.MSCommLib.dll

@@ -1,0 +1,20 @@
+** Profile: "SCHEMATIC1-DF"  [ F:\111\t5ttty-PSpiceFiles\SCHEMATIC1\DF.sim ] 
+
+** Creating circuit file "DF.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+* From [PSPICE NETLIST] section of C:\ProgRam\Cadence\SPB_16.6\SPB_Data\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "F:\2015_NEW\5_spice-modle\AD623\ad623.lib" 
+.lib "nom.lib" 
+
+*Analysis directives: 
+.TRAN  0 1.2s 1 
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+.END

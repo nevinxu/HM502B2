@@ -1,0 +1,75 @@
+
+**** 05/11/15 10:18:01 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-dd"  [ F:\111\747-pspicefiles\schematic1\dd.sim ] 
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "dd.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+.LIB "F:/2015_new/5_spice-modle/op747/op747.lib" 
+* From [PSPICE NETLIST] section of C:\ProgRam\Cadence\SPB_16.6\SPB_Data\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "nom.lib" 
+
+*Analysis directives: 
+.AC DEC 10 0.1 1000
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source 747
+C_C4         N01294 N00291  20n  TC=0,0 
+C_C2         V3 N02062  2.7n  TC=0,0 
+X_U11         N00261 N01279 N00145 0 N01294 OP747 
+R_R10         VREF N02062  20k TC=0,0 
+C_C5         N39253 V1  1u  TC=0,0 
+R_R5         VREF N00847  200k TC=0,0 
+R_R4         VREF V1  2MEG TC=0,0 
+R_R8         VREF N01279  300k TC=0,0 
+C_C1         VREF N00261  10n  TC=0,0 
+V_V1         N00145 0 3.3Vdc
+X_U12         V2 N02062 N27228 0 V3 OP747 
+R_R2         N01294 V2  20k TC=0,0 
+R_R9         N02062 V3  1000K TC=0,0 
+R_R1         N00291 N00261  510k TC=0,0 
+R_R7         N01279 N01294  200k TC=0,0 
+C_C3         N01294 N01279  2.7n  TC=0,0 
+V_V2         N00847 0 3.3Vdc
+R_R6         0 VREF  100k TC=0,0 
+V_V18         N27228 0 3.3Vdc
+R_R3         V1 N00291  300k TC=0,0 
+V_V19         N37351 0  
++PULSE 1020mV 1v 0 10n 10n 0.05s 0.1s
+R_R11         0 N37351  1k TC=0,0 
+V_V20         N39253 0 DC 1.5Vdc AC 10m 
+V_V21         V11 N39331 DC 1.5Vdc AC 10m 
+C_C6         N39331 V12  1u  TC=0,0 
+C_C7         N39331 V13  1u  TC=0,0 
+R_R12         V11 V12  1k TC=0,0 
+R_R13         V12 V13  1k TC=0,0 
+
+**** RESUMING dd.cir ****
+.END
+
+ERROR(ORPSIM-15142): Node V11 is floating
+
+ERROR(ORPSIM-15142): Node N39331 is floating
+
+ERROR(ORPSIM-15142): Node V12 is floating
+
+ERROR(ORPSIM-15142): Node V13 is floating
+

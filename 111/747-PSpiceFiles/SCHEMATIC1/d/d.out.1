@@ -1,0 +1,64 @@
+
+**** 05/11/15 15:07:53 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-d"  [ F:\111\747-PSpiceFiles\SCHEMATIC1\d.sim ] 
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "d.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+.LIB "F:/2015_new/5_spice-modle/op747/op747.lib" 
+* From [PSPICE NETLIST] section of C:\ProgRam\Cadence\SPB_16.6\SPB_Data\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "nom.lib" 
+
+*Analysis directives: 
+.TRAN  0 1s 0 
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source 747
+C_C4         N01678 N00291  20n  TC=0,0 
+X_U11         N00261 N01666 N00145 0 N01678 OP747 
+C_C5         N38499 V1  1u  TC=0,0 
+R_R5         VREF N00847  200k TC=0,0 
+R_R4         VREF V1  2MEG TC=0,0 
+R_R8         VREF N01666  340k TC=0,0 
+C_C1         VREF N00261  20n  TC=0,0 
+V_V1         N00145 0 3.3Vdc
+R_R2         N01678 V2  20k TC=0,0 
+R_R1         N00291 N00261  300k TC=0,0 
+R_R7         N01666 N01678  200k TC=0,0 
+V_V2         N00847 0 3.3Vdc
+R_R6         0 VREF  100k TC=0,0 
+R_R3         V1 N00291  300k TC=0,0 
+V_V19         N38499 0  
++PULSE 1020mV 1v 0 10n 10n 0.05s 0.1s
+R_R11         0 N37351  1k TC=0,0 
+V_V20         N37351 0 DC 1.5Vdc AC 10m 
+V_V21         V11 0 DC 1.5Vdc AC 10m 
+C_C6         0 V12  1u  TC=0,0 
+C_C7         0 V13  1u  TC=0,0 
+R_R12         V11 V12  1k TC=0,0 
+R_R13         V12 V13  1k TC=0,0 
+C_C8         N01678 N01666  20p  TC=0,0 
+
+**** RESUMING d.cir ****
+.END
+
+ERROR(ORPSIM-15141): Less than 2 connections at node V2.
+

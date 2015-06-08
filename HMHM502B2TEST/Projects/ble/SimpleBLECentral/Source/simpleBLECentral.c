@@ -57,10 +57,10 @@
 #define DEFAULT_ENABLE_UPDATE_REQUEST         TRUE
 
 // Minimum connection interval (units of 1.25ms) if automatic parameter update request is enabled
-#define DEFAULT_UPDATE_MIN_CONN_INTERVAL      20
+#define DEFAULT_UPDATE_MIN_CONN_INTERVAL      80
 
 // Maximum connection interval (units of 1.25ms) if automatic parameter update request is enabled
-#define DEFAULT_UPDATE_MAX_CONN_INTERVAL      80
+#define DEFAULT_UPDATE_MAX_CONN_INTERVAL      100
 
 // Slave latency to use if automatic parameter update request is enabled
 #define DEFAULT_UPDATE_SLAVE_LATENCY          0
@@ -88,14 +88,14 @@
 #define DEFAULT_SCAN_DELAY                      3000
 #define DEFAULT_CONNECT_DELAY                   500
 #define DEFAULT_NOTIFY_DELAY                    300
-#define DEFAULT_PERIOD_DELAY                   3000
+#define DEFAULT_PERIOD_DELAY                   6000
 
 // TRUE to filter discovery results on desired service UUID
 #define DEFAULT_DEV_DISC_BY_SVC_UUID          FALSE
 
-
-#define PairMACAddr                     PairMACPage*512
 #define PairMACPage                     250
+#define PairMACAddr                     PairMACPage*512
+
 
 // Application states
 enum
@@ -180,7 +180,7 @@ static bool simpleBLEProcedureInProgress = FALSE;
 extern BLEPacket_t  rxSerialPkt;
 extern BLEPacket_t  txSerialPkt;
 
-uint8 AutoConnectFlag = 0;   //自动连接初始化时能
+uint8 AutoConnectFlag = 1;   //自动连接初始化时能
 uint8 DeviceMode = 0;     //303模式
 //uint8 DeviceMode = 1;     //测试模式
 
@@ -189,7 +189,8 @@ uint8 CentralMAC[6];
 uint8 ECGPatchMAC[6];    //连接心电补丁MAC地址
 
 //uint8 PairMAC[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
-uint8 PairMAC[6] = {0xE5,0x39,0x00,0x0B,0x0E,0x00};
+//uint8 PairMAC[6] = {0xE5,0x39,0x00,0x0B,0x0E,0x00};
+uint8 PairMAC[6] = {0xE6,0x39,0x00,0x0B,0x0E,0x00};
 uint8 PairFlag = 1;   //配对功能使能
 
 
@@ -249,12 +250,12 @@ static const gapBondCBs_t simpleBLEBondCB =
  */
 void SimpleBLECentral_Init( uint8 task_id )
 {
-  uint8 buffer[5] = {0x01,0x02,0x03};
-  uint8 buffer2[5];
   simpleBLETaskId = task_id;
+  
   HalFlashErase(PairMACPage);
-  HalFlashWrite(PairMACAddr, buffer, 5);
-  HalFlashRead(PairMACPage, 0, buffer2, 5);
+  HalFlashWrite(PairMACAddr, PairMAC, 6);
+  
+  HalFlashRead(PairMACPage, 0, PairMAC, 6);
 
   // Setup Central Profile
   {
@@ -455,6 +456,13 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
 
     return ( events ^ START_DISCONNECT_EVT );
   }
+  if ( events & START_RECEIVEECGDATA_EVT )  //
+  {
+    if ( simpleBLEState == BLE_STATE_CONNECTED )
+    { 
+      SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
+    }
+  }
   // Discard unknown events
   return 0;
 }
@@ -555,18 +563,20 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
           rxpacketnum++;
           if(rxpacketnum >= 8)
           {
+            uint16 batteryvalue;
             rxpacketnum = 0;
             serial_txbuffer[0] = '[';
             serial_txbuffer[83] = ']';
             serial_txbuffer[1] = 84;
-            serial_txbuffer[2] = ((pMsg->msg.handleValueNoti.value[2]&0x01)<<7)+ (pMsg->msg.handleValueNoti.value[3]&0x7f);
+            batteryvalue = pMsg->msg.handleValueNoti.value[7] + (pMsg->msg.handleValueNoti.value[6]<<8);
+            serial_txbuffer[2] = ((pMsg->msg.handleValueNoti.value[5]&0x01)<<7)+ (pMsg->msg.handleValueNoti.value[6]&0x7f);
             NPI_WriteTransport(serial_txbuffer,84);
           }
         }
     }
     else if(DeviceMode == 1) //测试上位机接收数据格式
-    {
-        if(simpleBLEProcedureInProgress == FALSE )
+    { 
+      if(simpleBLEProcedureInProgress == FALSE )
         {
           if(pMsg->msg.handleValueNoti.value[0] == 0x77)
           {
@@ -712,7 +722,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           {
             if(AutoConnectFlag == 1)  //自动搜索连接
             {
-              osal_start_timerEx( simpleBLETaskId, START_CONNECT_EVT,100);
+              
             }
           }
         }
@@ -742,7 +752,8 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_OFF );
           simpleBLEProcedureInProgress = FALSE;
           
-          SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
+          osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,500);
+       //   SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
           
         }
         else    //连接失败   

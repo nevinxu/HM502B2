@@ -1,0 +1,64 @@
+
+**** 05/29/15 11:47:41 ***** PSpice 16.6.0 (October 2012) ***** ID# 0 ********
+
+ ** Profile: "SCHEMATIC1-d1d"  [ F:\111\747-pspicefiles\schematic1\d1d.sim ] 
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "d1d.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+.LIB "F:/2015_new/5_spice-modle/op747/op747.lib" 
+* From [PSPICE NETLIST] section of C:\ProgRam\Cadence\SPB_16.6\SPB_Data\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "F:\2015_NEW\5_spice-modle\AD623\ad623.lib" 
+.lib "nom.lib" 
+
+*Analysis directives: 
+.TRAN  0 1.2s 1s 
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source 747
+X_U4         N62468 N62436 N62625 N62636 N62187 0 N62157 N62328 AD623 
+R_R16         N62625 N62636  60k TC=0,0 
+V_V29         N62468 N62436  AC 0
++SIN 0 10mv 10 0 0 0
+V_V30         N62436 0 1.5Vdc
+V_V31         N62187 0 3.3Vdc
+R_R17         N62187 N62328  200k TC=0,0 
+R_R18         N62328 0  100k TC=0,0 
+X_U5A         N73790 N74333 N62187 0 N74321 TLC2252/5_2/TI
+R_R19         N73798 N62328  2000k TC=0,0 
+R_R20         N73798 N73776  100k TC=0,0 
+R_R21         N73776 N73790  100k TC=0,0 
+R_R22         N62625 N62636  82k TC=0,0 
+C_C1         N62157 N73798  1u  TC=0,0 
+R_R23         N74333 N74321  200k TC=0,0 
+R_R24         N62328 N74333  300k TC=0,0 
+X_U5B         N74907 N75081 N62187 0 N75165 TLC2252/5_2/TI
+R_R25         N74321 N74907  20k TC=0,0 
+R_R26         N62328 N75081  20k TC=0,0 
+R_R27         N75081 N75165  510k TC=0,0 
+C_C2         N75270 N62328  1u  TC=0,0 
+
+**** RESUMING d1d.cir ****
+.END
+
+ERROR(ORPSIM-15141): Less than 2 connections at node N75270.
+
+ERROR(ORPSIM-15142): Node N75270 is floating
+

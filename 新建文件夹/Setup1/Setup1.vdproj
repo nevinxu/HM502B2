@@ -15,50 +15,20 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_10689B61CAABE055F68B9E20DE25F0C2"
-        "OwnerKey" = "8:_64AEAD7A5DDB4B12B12068FED1ECB13E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_44B33941F855425B9AF114B468601418"
+        "MsmKey" = "8:_159146D809E8488B9E47632AD5611120"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_64AEAD7A5DDB4B12B12068FED1ECB13E"
+        "MsmKey" = "8:_38A46A51E4464FCB8D60EF041AD28435"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_65614AD8960C2D7BEBD40576BD5082BB"
-        "OwnerKey" = "8:_44B33941F855425B9AF114B468601418"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6B358F9316FB4DFD8C9DC6EFCD84FAAA"
+        "MsmKey" = "8:_6F079D8FEBE842B886C023E8CE698914"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_71CDC67F910C46BB81AE0F10ADF706C6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7F767CD3C4E74BF1AEDF324957348A9D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_95FAE4CEFF4F55689F3F1F88AD868A83"
-        "OwnerKey" = "8:_44B33941F855425B9AF114B468601418"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -69,50 +39,26 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CD2722B83E484C41936932BA8B47BFD7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D66EBACD8DA9446A8445F2399815CAD1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FF87120E2B06447D9D20C5D3905B9592"
+        "MsmKey" = "8:_AA5F986ACF0041C8A427BB0E8721CF66"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_64AEAD7A5DDB4B12B12068FED1ECB13E"
+        "OwnerKey" = "8:_159146D809E8488B9E47632AD5611120"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_10689B61CAABE055F68B9E20DE25F0C2"
+        "OwnerKey" = "8:_6F079D8FEBE842B886C023E8CE698914"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_44B33941F855425B9AF114B468601418"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_65614AD8960C2D7BEBD40576BD5082BB"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_95FAE4CEFF4F55689F3F1F88AD868A83"
+        "OwnerKey" = "8:_38A46A51E4464FCB8D60EF041AD28435"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -220,204 +166,20 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_10689B61CAABE055F68B9E20DE25F0C2"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:TRUE"
-            "AssemblyAsmDisplayName" = "8:Microsoft.VisualStudio.HostingProcess.Utilities.Sync, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_10689B61CAABE055F68B9E20DE25F0C2"
-                    {
-                    "Name" = "8:Microsoft.VisualStudio.HostingProcess.Utilities.Sync.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Microsoft.VisualStudio.HostingProcess.Utilities.Sync.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_44B33941F855425B9AF114B468601418"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:RFtest, Version=0.1.5.4, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_44B33941F855425B9AF114B468601418"
-                    {
-                    "Name" = "8:RFtest.exe"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\RFtest.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_64AEAD7A5DDB4B12B12068FED1ECB13E"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:vshost-clr2, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_64AEAD7A5DDB4B12B12068FED1ECB13E"
-                    {
-                    "Name" = "8:RFtest.vshost.exe"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\RFtest.vshost.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_65614AD8960C2D7BEBD40576BD5082BB"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:IrisSkin2, Version=2006.3.22.45, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_65614AD8960C2D7BEBD40576BD5082BB"
-                    {
-                    "Name" = "8:IrisSkin2.DLL"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:IrisSkin2.DLL"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B358F9316FB4DFD8C9DC6EFCD84FAAA"
-            {
-            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\MotionSensor.vshost.exe.manifest"
-            "TargetName" = "8:MotionSensor.vshost.exe.manifest"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_71CDC67F910C46BB81AE0F10ADF706C6"
-            {
-            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\RFtest.exe.config"
-            "TargetName" = "8:RFtest.exe.config"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7F767CD3C4E74BF1AEDF324957348A9D"
-            {
-            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\RFtest.vshost.exe.config"
-            "TargetName" = "8:RFtest.vshost.exe.config"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_95FAE4CEFF4F55689F3F1F88AD868A83"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_159146D809E8488B9E47632AD5611120"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:DundasWinChart, Version=6.2.0.1740, Culture=neutral, PublicKeyToken=a4c03dce5db22406, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_95FAE4CEFF4F55689F3F1F88AD868A83"
+                    "_159146D809E8488B9E47632AD5611120"
                     {
-                    "Name" = "8:DundasWinChart.DLL"
+                    "Name" = "8:DundasWinChart.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:DundasWinChart.DLL"
+            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\DundasWinChart.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
@@ -432,7 +194,69 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_38A46A51E4464FCB8D60EF041AD28435"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:DundasWinChart, Version=6.2.0.1740, Culture=neutral, PublicKeyToken=a4c03dce5db22406, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_38A46A51E4464FCB8D60EF041AD28435"
+                    {
+                    "Name" = "8:DundasWinChart.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\DundasWinChart.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_6F079D8FEBE842B886C023E8CE698914"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:IrisSkin2, Version=2006.3.22.45, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_6F079D8FEBE842B886C023E8CE698914"
+                    {
+                    "Name" = "8:IrisSkin2.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\IrisSkin2.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A24910D3F3A40D3BD142E15DF180622"
@@ -455,50 +279,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD2722B83E484C41936932BA8B47BFD7"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AA5F986ACF0041C8A427BB0E8721CF66"
             {
-            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\RFtest.pdb"
-            "TargetName" = "8:RFtest.pdb"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D66EBACD8DA9446A8445F2399815CAD1"
-            {
-            "SourcePath" = "8:..\\..\\HMHM502B2PC\\temp.ico"
-            "TargetName" = "8:temp.ico"
-            "Tag" = "8:"
-            "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FF87120E2B06447D9D20C5D3905B9592"
-            {
-            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\RFtest.vshost.exe.manifest"
-            "TargetName" = "8:RFtest.vshost.exe.manifest"
+            "SourcePath" = "8:..\\..\\HMHM502B2PC\\bin\\Debug\\MotionSensor.vshost.exe.manifest"
+            "TargetName" = "8:MotionSensor.vshost.exe.manifest"
             "Tag" = "8:"
             "Folder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
             "Condition" = "8:"
@@ -691,48 +475,6 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_3BC5EC24F3CB47BD8613E080A7F41420"
-            {
-            "Name" = "8:HM502B2测试程序"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_44B33941F855425B9AF114B468601418"
-            "Folder" = "8:_3BA3DB4792314F8EAF4B0D21247B9C69"
-            "WorkingFolder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Icon" = "8:_D66EBACD8DA9446A8445F2399815CAD1"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_95F4572FFAB74710BA35CA02E21DA9F7"
-            {
-            "Name" = "8:卸载"
-            "Arguments" = "8:/x {87774F4E-53F3-4F9F-BC70-8C9EF42D4B32}"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_9A24910D3F3A40D3BD142E15DF180622"
-            "Folder" = "8:_3BA3DB4792314F8EAF4B0D21247B9C69"
-            "WorkingFolder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_F95C243AA0014E979AB25BFE3B0731BF"
-            {
-            "Name" = "8:HM502B2测试程序"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_44B33941F855425B9AF114B468601418"
-            "Folder" = "8:_38324C491E3C4B4A9B5B3948548245FB"
-            "WorkingFolder" = "8:_5AC57FDFC6EC47D6B9CCC5D118A4CE29"
-            "Icon" = "8:_D66EBACD8DA9446A8445F2399815CAD1"
-            "Feature" = "8:"
-            }
         }
         "UserInterface"
         {

@@ -13,6 +13,9 @@ enum
   BLE_STATE_DISCONNECTING
 };
 
+#define PairMACPage                     250
+#define PairMACAddr                     PairMACPage*512
+
 extern uint8 simpleBLEState;
 extern uint8 simpleBLEScanIdx;
 extern uint8 simpleBLETaskId;
@@ -310,7 +313,7 @@ void parseCmd(void){
     {
       if( simpleBLEState == BLE_STATE_CONNECTED )
       {
-      SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);
+        SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);
       }
       else
       {
@@ -341,19 +344,20 @@ void parseCmd(void){
     break;
     case APP_CMD_ECGPATCHID:
     {
+#if 0
       if( simpleBLEState == BLE_STATE_CONNECTED )
       {
         SendCommand2Peripheral(APP_CMD_ECGPATCHID,0,0);
       }
       else
+#endif
       {
-
-      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
-      txSerialPkt.header.opCode = APP_CMD_ECGPATCHIDACK;
-      txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 15; 
-      osal_memset(txSerialPkt.data,0,15);    
-      sendSerialEvt();
+        txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+        txSerialPkt.header.opCode = APP_CMD_ECGPATCHIDACK;
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 15; 
+        osal_memset(txSerialPkt.data,0,15);    
+        sendSerialEvt();
       }
     }
     break;
@@ -415,6 +419,9 @@ void parseCmd(void){
       txSerialPkt.header.opCode = APP_CMD_PairingSTARTACK;
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = 6; 
+      osal_memcpy(PairMAC,rxSerialPkt.data,6);
+      HalFlashErase(PairMACPage);
+      HalFlashWrite(PairMACAddr, PairMAC, 6);
       osal_memcpy(txSerialPkt.data,rxSerialPkt.data,6);
       sendSerialEvt();
     }
