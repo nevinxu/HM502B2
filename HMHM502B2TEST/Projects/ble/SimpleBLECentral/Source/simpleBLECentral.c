@@ -715,6 +715,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
 /***********************************************************************************************/       
     case GAP_DEVICE_DISCOVERY_EVENT:   //搜索结果回调函数   
       {
+#if 0
         // if not filtering device discovery results based on service UUID
         if ( DEFAULT_DEV_DISC_BY_SVC_UUID == FALSE )
         {
@@ -770,6 +771,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
             }
           }
         }
+#endif
 
       }
       break;
@@ -846,6 +848,25 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
     default:
       break;
   }
+  if(pEvent->deviceInfo.eventType == GAP_ADRPT_ADV_IND )//判断是否是广播包
+
+  {
+    osal_memset(ECGPatchMAC,0,6); 
+
+  }
+
+  else if(pEvent->deviceInfo.eventType == GAP_ADRPT_SCAN_RSP)//判断是否是扫描Rsp
+
+  {
+    txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+    txSerialPkt.header.opCode = APP_CMD_ADVERTISEACK;
+    txSerialPkt.header.status = 0x00;
+    txSerialPkt.length = pEvent->deviceInfo.dataLen + 8;
+    osal_memcpy(txSerialPkt.data,pEvent->deviceInfo.addr,txSerialPkt.length);
+    sendSerialEvt();
+  }
+  
+  
 }
 
 /*********************************************************************

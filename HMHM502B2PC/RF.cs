@@ -777,26 +777,23 @@ namespace MotionSensor
                             else if (SerialReceiveData[1] == 0x04)
                             {
                                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "搜索设备完成！\r\n";
+                                string DisplayString = "搜索到一个心电设备！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                MACComboBox.Items.Clear();
+                               // MACComboBox.Items.Clear();
 
-                                if (SerialReceiveData[3] > 0)
-                                {
+                                
                                     int[] macbuffer = new int[6];
-                                    ScanBLENum = 0;
-                                    for (int i = 0; i < (SerialReceiveData[3] / 6); i++)
+                                   // ScanBLENum = 0;
+                                    for(int j = 0;j<6;j++)
                                     {
-                                        for(int j = 0;j<6;j++)
-                                        {
-                                            macbuffer[j] = SerialReceiveData[4+j + 6 * i];
-                                            ScanBLEMAC[ScanBLENum, j] = SerialReceiveData[4 + j + 6 * i];
-                                        }
-                                        ScanBLENum++;
-                                        MACComboBox.Items.Add(macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2"));
+                                        macbuffer[j] = SerialReceiveData[4+j];
+                                        ScanBLEMAC[ScanBLENum, j] = SerialReceiveData[4 + j];
                                     }
+                                    ScanBLENum++;
+                                    MACComboBox.Items.Add(macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2"));
+
 
 
 
@@ -810,14 +807,8 @@ namespace MotionSensor
                                     //    ECGPatchMAC[j] = ScanBLEMAC[0, j];
                                     //}
 
-                                    textBox5.Text = ScanBLEMAC[0, 5].ToString("X2") + ":" + ScanBLEMAC[0, 4].ToString("X2") + ":" + ScanBLEMAC[0, 3].ToString("X2")
-                                       + ":" + ScanBLEMAC[0, 2].ToString("X2") + ":" + ScanBLEMAC[0, 1].ToString("X2") + ":" + ScanBLEMAC[0, 0].ToString("X2"); 
-                                }
-                                else
-                                {
-                                    MACComboBox.Items.Add("无设备");
-                                    textBox5.Text = "00:00:00:00:00:00";
-                                }
+                                    //textBox5.Text = ScanBLEMAC[0, 5].ToString("X2") + ":" + ScanBLEMAC[0, 4].ToString("X2") + ":" + ScanBLEMAC[0, 3].ToString("X2")
+                                    //   + ":" + ScanBLEMAC[0, 2].ToString("X2") + ":" + ScanBLEMAC[0, 1].ToString("X2") + ":" + ScanBLEMAC[0, 0].ToString("X2"); 
                                 MACComboBox.SelectedIndex = 0;
 
                                 ScanButton.Enabled = true;

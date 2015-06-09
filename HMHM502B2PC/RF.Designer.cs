@@ -503,7 +503,7 @@
             // 
             this.MonitorText.Location = new System.Drawing.Point(787, 12);
             this.MonitorText.Name = "MonitorText";
-            this.MonitorText.Size = new System.Drawing.Size(271, 319);
+            this.MonitorText.Size = new System.Drawing.Size(271, 248);
             this.MonitorText.TabIndex = 8;
             this.MonitorText.Text = "";
             this.MonitorText.TextChanged += new System.EventHandler(this.richTextBox3_TextChanged_1);
