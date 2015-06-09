@@ -281,7 +281,7 @@
             // trackBar2
             // 
             this.trackBar2.AccessibleRole = System.Windows.Forms.AccessibleRole.Window;
-            this.trackBar2.Location = new System.Drawing.Point(-1, 175);
+            this.trackBar2.Location = new System.Drawing.Point(-1, 176);
             this.trackBar2.Maximum = 65535;
             this.trackBar2.Name = "trackBar2";
             this.trackBar2.Size = new System.Drawing.Size(171, 45);
@@ -721,12 +721,12 @@
             chartArea1.AxisX.MinorGrid.LineColor = System.Drawing.Color.Gray;
             chartArea1.AxisX.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
             chartArea1.AxisX.Title = "时间/ms";
-            chartArea1.AxisY.Interval = 1000D;
+            chartArea1.AxisY.Interval = 100D;
             chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisY.Maximum = 6000D;
-            chartArea1.AxisY.Minimum = -6000D;
+            chartArea1.AxisY.Maximum = 1200D;
+            chartArea1.AxisY.Minimum = 0D;
             chartArea1.AxisY.MinorGrid.Enabled = true;
-            chartArea1.AxisY.MinorGrid.Interval = 200D;
+            chartArea1.AxisY.MinorGrid.Interval = 20D;
             chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
             chartArea1.AxisY.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.DashDotDot;
             chartArea1.AxisY.MinorTickMark.LineColor = System.Drawing.Color.White;

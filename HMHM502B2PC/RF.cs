@@ -86,6 +86,7 @@ namespace MotionSensor
         private double[] ScalingEcgMax = new double[8];
 
         private int ZeroValue = -6001;
+        private int BaseLine = 500;
 
         public RF()
         {
@@ -833,7 +834,7 @@ namespace MotionSensor
 
                                 DataStoreButton.Enabled = true;
 
-                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
+                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.hex";
                                 File.Delete(filePath);
 
                                // System.Threading.Thread.Sleep(500);
@@ -1163,14 +1164,14 @@ namespace MotionSensor
                                 Rectangle rect = new Rectangle();
                                 rect = Screen.GetWorkingArea(this);
 
-                                XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2) - difference_Value) * 1000/amplification;
-                                XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4) - difference_Value) * 1000/amplification;
-                                XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[10]) + Convert.ToDouble((SerialReceiveData[12] & 0x0c) << 6) - difference_Value) *1000/amplification;
-                                XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[12] & 0x03) << 8) - difference_Value) *1000/amplification;
-                                XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[17] & 0xc0) << 2) - difference_Value) *1000/amplification;
-                                XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4) - difference_Value) *1000/amplification;
-                                XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6) - difference_Value) *1000/amplification;
-                                XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8) - difference_Value) *1000/amplification;
+                                XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[10]) + Convert.ToDouble((SerialReceiveData[12] & 0x0c) << 6) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[12] & 0x03) << 8) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[17] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8) - difference_Value) * 100 / amplification + BaseLine;
 
                                 //XdataV[EcgDataTimer * M + 8] = 0;
                                 //XdataV[EcgDataTimer * M + 9] = 0;
@@ -1194,7 +1195,8 @@ namespace MotionSensor
 
 
                                 FileStream fs = null;
-                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
+                               // string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
+                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.hex";
                                 try
                                 {
                                     fs = File.OpenWrite(filePath);
@@ -1203,41 +1205,44 @@ namespace MotionSensor
                                     {
                                         int j = 0;
                                         byte[] bytes = new byte[10];
-                                        int m_ecgdata = (int)XdataV[EcgDataTimer * M + i];
-                                        if (m_ecgdata < 0)
-                                        {
-                                            bytes[j++] = 0x2D;
-                                            m_ecgdata = Math.Abs(m_ecgdata);
-                                        }
-                                        if (m_ecgdata >= 1000)
-                                        {
-                                            byte m1 = (byte)(m_ecgdata / 1000);
-                                            bytes[j++] = (byte)(0x30 + m1);
-                                        }
-                                        if (m_ecgdata >= 100)
-                                        {
-                                            byte m2 = (byte)(m_ecgdata / 100);
-                                            m2 = (byte)(m2 % 10);
-                                            bytes[j++] = (byte)(0x30 + m2);
-                                        }
-                                        if (m_ecgdata >= 10)
-                                        {
-                                            byte m3 = (byte)(m_ecgdata / 10);
-                                            m3 = (byte)(m3 % 10);
-                                            bytes[j++] = (byte)(0x30 + m3);
-                                        }
-                                        if (m_ecgdata >= 0)
-                                        {
-                                            byte m4 = (byte)(m_ecgdata % 10);
-                                            bytes[j++] = (byte)(0x30 + m4);
-                                        }
-                                        if (m_ecgdata == 0)
-                                        {
-                                            m_ecgdata = 0;
-                                        }
-                                        bytes[j++] = 0x0d;
-                                        bytes[j] = 0x0a;
-                                        fs.Write(bytes, 0, j + 1);
+                                        short m_ecgdata = (short)XdataV[EcgDataTimer * M + i];
+                                        bytes[0] = (byte)m_ecgdata;
+                                        bytes[1] = (byte)(m_ecgdata/256);
+                                        fs.Write(bytes, 0, 2);
+                                    //    if (m_ecgdata < 0)
+                                    //    {
+                                    //        bytes[j++] = 0x2D;
+                                    //        m_ecgdata = Math.Abs(m_ecgdata);
+                                    //    }
+                                    //    if (m_ecgdata >= 1000)
+                                    //    {
+                                    //        byte m1 = (byte)(m_ecgdata / 1000);
+                                    //        bytes[j++] = (byte)(0x30 + m1);
+                                    //    }
+                                    //    if (m_ecgdata >= 100)
+                                    //    {
+                                    //        byte m2 = (byte)(m_ecgdata / 100);
+                                    //        m2 = (byte)(m2 % 10);
+                                    //        bytes[j++] = (byte)(0x30 + m2);
+                                    //    }
+                                    //    if (m_ecgdata >= 10)
+                                    //    {
+                                    //        byte m3 = (byte)(m_ecgdata / 10);
+                                    //        m3 = (byte)(m3 % 10);
+                                    //        bytes[j++] = (byte)(0x30 + m3);
+                                    //    }
+                                    //    if (m_ecgdata >= 0)
+                                    //    {
+                                    //        byte m4 = (byte)(m_ecgdata % 10);
+                                    //        bytes[j++] = (byte)(0x30 + m4);
+                                    //    }
+                                    //    if (m_ecgdata == 0)
+                                    //    {
+                                    //        m_ecgdata = 0;
+                                    //    }
+                                    //    bytes[j++] = 0x0d;
+                                    //    bytes[j] = 0x0a;
+                                    //    fs.Write(bytes, 0, j + 1);
 
                                     }
 
@@ -1337,6 +1342,7 @@ namespace MotionSensor
                                             ScalingFlag = 12;   //完成0mv校准
                                             calibration_Num = 0;
                                         }
+                                        BaseLine = 500;
                                     }
                                 }
 
@@ -1520,11 +1526,11 @@ namespace MotionSensor
 
 
             // SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog1.Filter = "文本文件(*.txt)|*.txt|bin文件(*.bin)|*.bin";
+            saveFileDialog1.Filter = "bin文件(*.hex)|*.hex|文本文件(*.txt)|*.txt";
             saveFileDialog1.Title = "保存心电数据";
             saveFileDialog1.FilterIndex = 1;
             saveFileDialog1.RestoreDirectory = true;
-            string FileName = "ecg_data"+"  " + StartStoreDataTime +"--"+ DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + ".txt"; // 
+            string FileName = "ecg_data"+"  " + StartStoreDataTime +"--"+ DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + ".hex"; // 
             saveFileDialog1.FileName = FileName;
             saveFileDialog1.AddExtension = true;
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
@@ -1539,7 +1545,7 @@ namespace MotionSensor
                 //    swt.WriteLine(adrbuf);
                 //}
                 //fst.Close();
-                string filePath = System.IO.Directory.GetCurrentDirectory() + "\\ecg_data.txt";
+                string filePath = System.IO.Directory.GetCurrentDirectory() + "\\ecg_data.hex";
                 string localFilePath = saveFileDialog1.FileName.ToString(); //获得文件路径 
 
                 try
@@ -2332,7 +2338,8 @@ namespace MotionSensor
             amplification_Back = amplification;
             difference_Value_Back = difference_Value;
             difference_Value = 0;
-            amplification = 1000;
+            amplification = 100;
+            BaseLine = 0;
             System.Threading.Thread.Sleep(100);
         }
 
@@ -2402,7 +2409,8 @@ namespace MotionSensor
             amplification_Back = amplification;
             difference_Value_Back = difference_Value;
             difference_Value = 0;
-            amplification = 1000;
+            amplification = 100;
+            BaseLine = 0;
             System.Threading.Thread.Sleep(100);
         }
     }
