@@ -760,9 +760,9 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 StopReceiveECGDataSerialCommand();
-                                System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(200);
                                 DisAutoConnectBLESerialCommand();
-                                System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(200);
                                 AutoConnectBLEStatusSerialCommand();
                             }
                             #endregion
@@ -2276,23 +2276,27 @@ namespace MotionSensor
         {
             if (ConnectBLEButton.Text == "设备已连接")
             {
-                byte[] ssss = new byte[13];
+                byte[] ssss = new byte[14];
                 ssss[0] = 0x77;   //
-                ssss[1] = 0x10;   //ID发送命令
+                ssss[1] = 0x34;   //ID发送命令
                 ssss[2] = 0x00;
-                ssss[3] = 0x09;
-               // char[] charIDValue = textBoxID.Text.ToCharArray();
+                ssss[3] = 10;
+                char[] charIDValue = textBoxScan.Text.ToCharArray();
                 try
                 {
-               //     if (textBoxID.Text.Length == 9)
+                    if (textBoxScan.Text.Length == 10)
                     {
-                        for (int i = 0; i < 9; i++)
+                        for (int i = 0; i < 10; i++)
                         {
-                           // ssss[4 + i] = (byte)charIDValue[i];
+                            ssss[4 + i] = (byte)charIDValue[i];
                         }
                         if (SerialPort.IsOpen)
                         {
-                            SerialPort.Write(ssss, 0, 13);
+                            string DisplayString = "请求设置ID！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+
+                            SerialPort.Write(ssss, 0, 14);
                         }
                         else
                         {
@@ -2301,7 +2305,7 @@ namespace MotionSensor
                             OutMsg(MonitorText, DisplayString, Color.Red);
                         }
                     }
-                   // else
+                    else
                     {
                         string DisplayString = "ID数据错误！\r\n";
                         DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;

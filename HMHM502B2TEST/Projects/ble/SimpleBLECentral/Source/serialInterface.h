@@ -39,6 +39,8 @@
 #define APP_CMD_STOPRECEIVEECGDATAACK                0x17
 #define APP_CMD_ECGPATCHID                      0x18
 #define APP_CMD_ECGPATCHIDACK                0x19
+#define APP_CMD_SETECGPATCHID                      0x34
+#define APP_CMD_SETECGPATCHIDACK                0x35
 #define APP_CMD_AUTOCONNECTSTATUS                0x1A
 #define APP_CMD_AUTOCONNECTSTATUSACK                0x1B
 #define APP_CMD_CentralMAC               0x1C

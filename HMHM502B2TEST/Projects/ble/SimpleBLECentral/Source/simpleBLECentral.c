@@ -190,7 +190,7 @@ uint8 ECGPatchMAC[6];    //连接心电补丁MAC地址
 
 //uint8 PairMAC[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
 //uint8 PairMAC[6] = {0xE5,0x39,0x00,0x0B,0x0E,0x00};
-uint8 PairMAC[6] = {0xE9,0x39,0x00,0x0B,0x0E,0x00};
+uint8 PairMAC[6] = {0xE6,0x39,0x00,0x0B,0x0E,0x00};
 uint8 PairFlag = 1;   //配对功能使能
 
 
@@ -468,7 +468,7 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
     if ( simpleBLEState == BLE_STATE_CONNECTED )
     { 
       SendCommand2Peripheral(APP_CMD_GET0MVVALUE,0,0);
-      osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,500);
+      osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
     }
   }       
   // Discard unknown events
@@ -810,7 +810,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_OFF );
           simpleBLEProcedureInProgress = FALSE;
           
-         // osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
+          osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
        //   SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
           
         }

@@ -22,6 +22,7 @@
 #define SENDSET0MVCODE										0x08			//设置0mv校准
 #define SENDGET1MVCODE										0x09			//获取1mv定标
 #define SENDGET0MVCODE										0x0A			//获取0mv校准
+#define SENDSETECGPATCHIDCODE								0x0B			//发送心电补丁ID
 
 
 #define SERIAL_IDENTIFIER       									0x77
@@ -31,6 +32,7 @@
 #define SERIAL_DATASIZE_NONE       								0x00
 #define SERIAL_DATASIZE_ONE       								0x01
 #define SERIAL_DATASIZE_TWO       								0x02
+#define SERIAL_DATASIZE_TEN       								0x0A
 
 #define SERIAL_DATAADDR_NONE       								0x00
 
@@ -46,6 +48,9 @@
 #define APP_CMD_STOPRECEIVEECGDATAREQ           	0x17
 #define APP_CMD_ECGPATCHIDACK                    	0x18
 #define APP_CMD_ECGPATCHIDREQ                			0x19
+
+#define APP_CMD_SETECGPATCHIDACK                    	0x34
+#define APP_CMD_SETECGPATCHIDREQ                			0x35
 
 #define APP_CMD_ECGPATCHHARDVERSIONACK          	0x30
 #define APP_CMD_ECGPATCHHARDVERSIONREQ        		0x31

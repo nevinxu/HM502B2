@@ -274,6 +274,13 @@ void task_bluetooth_rx(task_param_t param)
 									data[1] = (flashdatapackage.difference_Value>>8);
 									BlueToothSendCommand(SENDGET0MVCODE,APP_CMD_GET0MVVALUEACK,SERIAL_DATASIZE_TWO,data); 						
 								}
+								else if(bluerxbuffer[1] == APP_CMD_SETECGPATCHIDACK)				//获取0mv校准值
+								{
+									memcpy(flashdatapackage.IDValue,&bluerxbuffer[4],10);		
+									WriteData2Flash();
+									ReadData4Flash();	
+									BlueToothSendCommand(SENDSETECGPATCHIDCODE,APP_CMD_SETECGPATCHIDREQ,SERIAL_DATASIZE_TEN,flashdatapackage.IDValue); 
+								}
 						 }
 					 }
 /************************************************************************************************/	
