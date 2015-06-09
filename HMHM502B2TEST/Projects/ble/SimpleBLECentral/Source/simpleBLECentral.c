@@ -810,7 +810,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_OFF );
           simpleBLEProcedureInProgress = FALSE;
           
-          osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
+         // osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
        //   SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
           
         }

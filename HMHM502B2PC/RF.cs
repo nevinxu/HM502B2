@@ -87,7 +87,6 @@ namespace MotionSensor
         byte[] HardVersion = new byte[4];
         byte[] SoftVersion = new byte[4];
 
-        private int CommandStatusFlag = 0;
 
         public RF()
         {
@@ -164,7 +163,7 @@ namespace MotionSensor
         {
             try
             {
-                if (SerialPort.IsOpen)
+                //if (SerialPort.IsOpen)
                 {
                     SerialPort.Close();
                 }
