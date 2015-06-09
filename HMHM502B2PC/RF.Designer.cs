@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, "0,0");
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint2 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, "0,0");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RF));
             this.Lea = new System.Windows.Forms.Panel();
             this.label12 = new System.Windows.Forms.Label();
@@ -92,11 +92,12 @@
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.EcgPatchVersionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button1 = new System.Windows.Forms.Button();
             this.AmplificationValue = new System.Windows.Forms.Label();
             this.differenceValue = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -512,7 +513,7 @@
             // 
             this.ScanButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.ScanButton.Enabled = false;
-            this.ScanButton.Location = new System.Drawing.Point(965, 366);
+            this.ScanButton.Location = new System.Drawing.Point(880, 368);
             this.ScanButton.Name = "ScanButton";
             this.ScanButton.Size = new System.Drawing.Size(93, 23);
             this.ScanButton.TabIndex = 10;
@@ -526,9 +527,9 @@
             this.MACComboBox.FormattingEnabled = true;
             this.MACComboBox.Items.AddRange(new object[] {
             "无设备"});
-            this.MACComboBox.Location = new System.Drawing.Point(792, 370);
+            this.MACComboBox.Location = new System.Drawing.Point(794, 341);
             this.MACComboBox.Name = "MACComboBox";
-            this.MACComboBox.Size = new System.Drawing.Size(167, 20);
+            this.MACComboBox.Size = new System.Drawing.Size(257, 20);
             this.MACComboBox.TabIndex = 11;
             this.MACComboBox.SelectedIndexChanged += new System.EventHandler(this.MACComboBox_SelectedIndexChanged);
             // 
@@ -547,7 +548,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(792, 344);
+            this.label11.Location = new System.Drawing.Point(792, 316);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(125, 12);
             this.label11.TabIndex = 21;
@@ -625,7 +626,7 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(938, 342);
+            this.checkBox1.Location = new System.Drawing.Point(962, 315);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(96, 16);
             this.checkBox1.TabIndex = 33;
@@ -682,14 +683,16 @@
             // 
             // statusStrip2
             // 
+            this.statusStrip2.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.statusStrip2.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.statusStrip2.Dock = System.Windows.Forms.DockStyle.None;
             this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel3,
             this.toolStripStatusLabel4,
-            this.toolStripStatusLabel5});
-            this.statusStrip2.Location = new System.Drawing.Point(0, 571);
+            this.EcgPatchVersionLabel});
+            this.statusStrip2.Location = new System.Drawing.Point(954, 574);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(1063, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(109, 22);
             this.statusStrip2.SizingGrip = false;
             this.statusStrip2.TabIndex = 40;
             // 
@@ -703,46 +706,46 @@
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
             this.toolStripStatusLabel4.Size = new System.Drawing.Size(0, 17);
             // 
-            // toolStripStatusLabel5
+            // EcgPatchVersionLabel
             // 
-            this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
-            this.toolStripStatusLabel5.Size = new System.Drawing.Size(131, 17);
-            this.toolStripStatusLabel5.Text = "toolStripStatusLabel5";
+            this.EcgPatchVersionLabel.Name = "EcgPatchVersionLabel";
+            this.EcgPatchVersionLabel.Size = new System.Drawing.Size(92, 17);
+            this.EcgPatchVersionLabel.Text = "未连接心电补丁";
             // 
             // chart1
             // 
-            chartArea1.AxisX.Interval = 128D;
-            chartArea1.AxisX.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
-            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisX.Maximum = 512D;
-            chartArea1.AxisX.Minimum = 0D;
-            chartArea1.AxisX.MinorGrid.Enabled = true;
-            chartArea1.AxisX.MinorGrid.Interval = 16D;
-            chartArea1.AxisX.MinorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisX.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
-            chartArea1.AxisX.Title = "时间/ms";
-            chartArea1.AxisY.Interval = 100D;
-            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisY.Maximum = 1200D;
-            chartArea1.AxisY.Minimum = 0D;
-            chartArea1.AxisY.MinorGrid.Enabled = true;
-            chartArea1.AxisY.MinorGrid.Interval = 20D;
-            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisY.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.DashDotDot;
-            chartArea1.AxisY.MinorTickMark.LineColor = System.Drawing.Color.White;
-            chartArea1.AxisY.Title = "心电数据/1uv";
-            chartArea1.BackColor = System.Drawing.Color.Black;
-            chartArea1.Name = "ChartArea_Ecg";
-            this.chart1.ChartAreas.Add(chartArea1);
+            chartArea2.AxisX.Interval = 128D;
+            chartArea2.AxisX.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
+            chartArea2.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea2.AxisX.Maximum = 512D;
+            chartArea2.AxisX.Minimum = 0D;
+            chartArea2.AxisX.MinorGrid.Enabled = true;
+            chartArea2.AxisX.MinorGrid.Interval = 16D;
+            chartArea2.AxisX.MinorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea2.AxisX.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
+            chartArea2.AxisX.Title = "时间/ms";
+            chartArea2.AxisY.Interval = 100D;
+            chartArea2.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea2.AxisY.Maximum = 1200D;
+            chartArea2.AxisY.Minimum = 0D;
+            chartArea2.AxisY.MinorGrid.Enabled = true;
+            chartArea2.AxisY.MinorGrid.Interval = 20D;
+            chartArea2.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea2.AxisY.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.DashDotDot;
+            chartArea2.AxisY.MinorTickMark.LineColor = System.Drawing.Color.White;
+            chartArea2.AxisY.Title = "心电数据/1uv";
+            chartArea2.BackColor = System.Drawing.Color.Black;
+            chartArea2.Name = "ChartArea_Ecg";
+            this.chart1.ChartAreas.Add(chartArea2);
             this.chart1.Location = new System.Drawing.Point(0, 12);
             this.chart1.Name = "chart1";
-            series1.ChartArea = "ChartArea_Ecg";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            series1.Name = "Series_Ecg";
-            series1.Points.Add(dataPoint1);
-            series1.YValuesPerPoint = 2;
-            this.chart1.Series.Add(series1);
+            series2.ChartArea = "ChartArea_Ecg";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series2.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            series2.Name = "Series_Ecg";
+            series2.Points.Add(dataPoint2);
+            series2.YValuesPerPoint = 2;
+            this.chart1.Series.Add(series2);
             this.chart1.Size = new System.Drawing.Size(594, 556);
             this.chart1.TabIndex = 41;
             this.chart1.Text = "chart1";
@@ -776,6 +779,11 @@
             this.differenceValue.TabIndex = 44;
             this.differenceValue.Text = "-1";
             this.differenceValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // RF
             // 
@@ -816,7 +824,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RF";
-            this.Text = "HM502B2心电数据显示软件V1.4(20150602)";
+            this.Text = "HM502B2心电数据显示软件V1.5(20150609)";
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();
@@ -898,11 +906,12 @@
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
+        private System.Windows.Forms.ToolStripStatusLabel EcgPatchVersionLabel;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label differenceValue;
         private System.Windows.Forms.Label AmplificationValue;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

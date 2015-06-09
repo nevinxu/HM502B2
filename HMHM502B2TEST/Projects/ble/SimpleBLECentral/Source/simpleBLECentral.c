@@ -184,13 +184,13 @@ uint8 AutoConnectFlag = 1;   //自动连接初始化时能
 uint8 DeviceMode = 0;     //303模式
 //uint8 DeviceMode = 1;     //测试模式
 
-uint8 IDValue[9];
+uint8 IDValue[10] = {"D000000000"};
 uint8 CentralMAC[6];
 uint8 ECGPatchMAC[6];    //连接心电补丁MAC地址
 
 //uint8 PairMAC[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
 //uint8 PairMAC[6] = {0xE5,0x39,0x00,0x0B,0x0E,0x00};
-uint8 PairMAC[6] = {0xE6,0x39,0x00,0x0B,0x0E,0x00};
+uint8 PairMAC[6] = {0xE9,0x39,0x00,0x0B,0x0E,0x00};
 uint8 PairFlag = 1;   //配对功能使能
 
 
@@ -662,16 +662,22 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
  */
 static void simpleBLECentralRssiCB( uint16 connHandle, int8 rssi )
 {
+  static uint8 i =0;
   if(simpleBLEState == BLE_STATE_CONNECTED)
   {
     if(DeviceMode == 1)  //上位机测试模式下
     {
-      txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
-      txSerialPkt.header.opCode = APP_CMD_RSSIVALUE;
-      txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 1;
-      txSerialPkt.data[0] = rssi;
-      sendSerialEvt();
+      i++;
+      if(i >5)
+      {
+        i=0;
+        txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+        txSerialPkt.header.opCode = APP_CMD_RSSIVALUE;
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 1;
+        txSerialPkt.data[0] = rssi;
+        sendSerialEvt();
+      }
     }
   }
 }
@@ -715,8 +721,15 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
 /***********************************************************************************************/       
     case GAP_DEVICE_DISCOVERY_EVENT:   //搜索结果回调函数   
       {
-#if 0
-        // if not filtering device discovery results based on service UUID
+#if 1
+        txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+        txSerialPkt.header.opCode = APP_CMD_ADVERTISEOVER;
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 0;
+        sendSerialEvt();
+#endif
+#if 1
+              // if not filtering device discovery results based on service UUID
         if ( DEFAULT_DEV_DISC_BY_SVC_UUID == FALSE )
         {
           // Copy results
@@ -739,7 +752,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
             txSerialPkt.data[i*6+j] = simpleBLEDevList[i].addr[j];
           }
         }
-        sendSerialEvt();
+      //  sendSerialEvt();
         
         // initialize scan index to last device
       //  simpleBLEScanIdx = 0;   //选择第一个index
@@ -772,7 +785,6 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           }
         }
 #endif
-
       }
       break;
       
@@ -848,23 +860,27 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
     default:
       break;
   }
+#if 1
   if(pEvent->deviceInfo.eventType == GAP_ADRPT_ADV_IND )//判断是否是广播包
 
   {
-    osal_memset(ECGPatchMAC,0,6); 
+   // osal_memset(ECGPatchMAC,0,6); 
 
   }
 
   else if(pEvent->deviceInfo.eventType == GAP_ADRPT_SCAN_RSP)//判断是否是扫描Rsp
 
   {
+#if 1
     txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
     txSerialPkt.header.opCode = APP_CMD_ADVERTISEACK;
     txSerialPkt.header.status = 0x00;
     txSerialPkt.length = pEvent->deviceInfo.dataLen + 8;
     osal_memcpy(txSerialPkt.data,pEvent->deviceInfo.addr,txSerialPkt.length);
     sendSerialEvt();
+#endif
   }
+#endif
   
   
 }

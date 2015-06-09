@@ -362,8 +362,8 @@ void parseCmd(void){
         txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
         txSerialPkt.header.opCode = APP_CMD_ECGPATCHIDACK;
         txSerialPkt.header.status = 0x00;
-        txSerialPkt.length = 15; 
-        osal_memset(txSerialPkt.data,0,15);    
+        txSerialPkt.length = 10; 
+        osal_memcpy(txSerialPkt.data,IDValue,10);   
         sendSerialEvt();
       }
     }
@@ -580,6 +580,7 @@ void sendSerialEvt(void){
   case APP_CMD_GET1MVVALUEACK:
   case APP_CMD_ECGPATCHHARDVERSIONREQ:
   case APP_CMD_ECGPATCHSOFTVERSIONREQ:
+  case APP_CMD_ADVERTISEOVER:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     
