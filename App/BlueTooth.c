@@ -21,11 +21,8 @@ static lpuart_state_t s_bt_lpuart[2];
 
 extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列 
 
-extern uint8_t ECGPatchID[15];
-
 uint8_t	HardWareVersion[4] = {"1.00"};
 uint8_t	SoftWareVersion[4] = {"1.00"};
-uint8_t	SucessFlag[1] = {0x01};
 
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
@@ -38,6 +35,7 @@ BTTransmitPackage m_btdatapackage;
 extern FlashDataPackage flashdatapackage;
 
 
+
 uint8_t OKGetReturn(uint8_t *buffer)
 {
     if(buffer[0] == 'O' && (buffer[1] == 'K') && (buffer[2] == '+') && (buffer[3] == 'G') && (buffer[4] == 'e')&& (buffer[5] == 't'))
@@ -46,8 +44,6 @@ uint8_t OKGetReturn(uint8_t *buffer)
     }
     return 0xff;
 }
-
-
 
 void InitBlueTooth()
 {
@@ -69,8 +65,6 @@ void InitBlueTooth()
 			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 		}
 		
-		
-	
     while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETPI10,strlen(GETPI10))); //
     while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
     if(OKGetReturn(rxbuffer) == '1')
@@ -108,12 +102,7 @@ void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
 		else if(time == (HighTime*i)+(HighTime/2))
 		{
 			LED1_OFF;
-		}
-//		else if(time == PeriodTime)
-//		{
-//			
-//		}
-		
+		}	
 	}
 	time++;
 	if(time >= PeriodTime)	
@@ -133,10 +122,9 @@ void task_bluetooth_tx(task_param_t param)
 	while(1)
 	{
       OSA_MsgQGet(hBTMsgQueue,&m_btdatapackage,portMAX_DELAY); 
-			{
-
-					if(m_btdatapackage.code == ECGDATACODE)
-					{
+				switch(m_btdatapackage.code)
+				{
+					case ECGDATACODE:
 						if(ECGDataSendFlag == 1)
 						{
 							while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
@@ -149,55 +137,26 @@ void task_bluetooth_tx(task_param_t param)
 								LedSet(2,3,25);
 							}
 						}
-					}
-					else if(m_btdatapackage.code == SENDECGPATCHIDCODE)
-					{
+						break;
+					case  SENDECGPATCHIDCODE:
+					case	SENDECGENABLECODE:
+					case  SENDECGDISABLECODE:
+					case  SENDSET1MVCODE:
+					case  SENDSET0MVCODE:
+					case  SENDGET1MVCODE:
+					case  SENDGET0MVCODE:
+					case  SENDHARDVERSIONCODE:
+					case  SENDSOFTVERSIONCODE:
+					case  SENDSETECGPATCHIDCODE:
 						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDECGENABLECODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDECGDISABLECODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDSET1MVCODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDSET0MVCODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDGET1MVCODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDGET0MVCODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDHARDVERSIONCODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDSOFTVERSIONCODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					else if(m_btdatapackage.code == SENDSETECGPATCHIDCODE)
-					{
-						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-					}
-					
-			}
-			
+						break;
+				}		
 	}
 }
 
 void task_bluetooth_rx(task_param_t param)
 {
+	uint8_t	SucessFlag[1] = {0x01};
 	uint8_t bluerxbuffer[100];
     
 	while(1)

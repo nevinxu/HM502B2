@@ -92,12 +92,9 @@ int32_t ReadData4Flash()
 	uint8_t DataArray[100];
 	int32_t ret;
 	uint32_t destination; 
-	//WriteData2Flash();
 	flashSSDConfig.CallBack = (PCALLBACK)RelocateFunction((uint32_t)__ram_for_callback , CALLBACK_SIZE , (uint32_t)callback);     
 	g_FlashLaunchCommand = (pFLASHCOMMANDSEQUENCE)RelocateFunction((uint32_t)__ram_func , LAUNCH_CMD_SIZE ,(uint32_t)FlashCommandSequence);         
- 
 	destination = flashSSDConfig.PFlashBlockBase + BYTE2WORD(flashSSDConfig.PFlashBlockSize - 6*FTFx_PSECTOR_SIZE); /* Start address of Program Once Field */
- // FlashReadResource(&flashSSDConfig, destination, DataArray, 0x0, g_FlashLaunchCommand);
 	for(uint16_t i = 0;i<(sizeof(flashdatapackage));i++)
 	{
 		DataArray[i] = REG_READ(destination + i);

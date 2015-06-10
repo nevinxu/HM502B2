@@ -21,7 +21,11 @@
 
 #define ECGPACKAGEDEEP											5   //心电数据队列保存深度   
 
-#define BATTERYLOW							256
+#define BATTERYLOW								270
+#define BATTERYTOOLOW							256
+
+#define ECGBASEVALUE						500
+
 
 typedef struct _EcgDataPackage
 {

@@ -28,6 +28,7 @@
 #define SERIAL_IDENTIFIER       									0x77
 
 #define SERIAL_STATUS_OK       										0x00
+#define SERIAL_STATUS_FAIL       									0x01
 
 #define SERIAL_DATASIZE_NONE       								0x00
 #define SERIAL_DATASIZE_ONE       								0x01
