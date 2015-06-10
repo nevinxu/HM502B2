@@ -14,6 +14,10 @@
 #include "BlueTooth.h"
 #include "EcgCapture.h"
 
+const uint8_t  AT[2]  = "AT";   
+uint8_t  SETNAME[18]   = "AT+NAMEED000000000";
+uint8_t  SETNAMB[18]   = "AT+NAMBBD000000000";
+
 uint8_t     BLEConnectedFlag = 0;    //BLE连接状态
 uint8_t     ECGDataSendFlag = 1;    //心电数据发送时能标志
 
@@ -26,9 +30,6 @@ uint8_t	SoftWareVersion[4] = {"1.00"};
 
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
-
-const unsigned char NameEDR[] = "HM502B2_EDR";
-const unsigned char NameBLE[] = "HM502B2_BLE";
 
 BTTransmitPackage m_btdatapackage;
 
@@ -47,47 +48,84 @@ uint8_t OKGetReturn(uint8_t *buffer)
 
 void InitBlueTooth()
 {
+	
 	lpuart_status_t ret;
 	uint8_t rxbuffer[100];
+	
+	while(GPIO_DRV_ReadPinInput(kGpioBTPIO1) == 0);
     
-    while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
-    while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-		if(memcmp(&rxbuffer[7],NameBLE,sizeof(NameBLE)))
-		{
-			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,strlen(SETNAMB), portMAX_DELAY));
+	//连接断开   未连接返回OK
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,AT,sizeof(AT), portMAX_DELAY));
+  while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
+
+	//单模收发
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETDUAL,strlen(GETDUAL), portMAX_DELAY));
+  while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
+	if(OKGetReturn(rxbuffer) == '0')
+	{
+        while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETDUAL1,strlen(SETDUAL1),portMAX_DELAY));
+        while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	}
+	
+	//透传+远控模式
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETMODE,strlen(GETMODE), portMAX_DELAY));
+  while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
+	if(OKGetReturn(rxbuffer) == '0')
+	{
+        while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETMODE1,strlen(SETMODE1),portMAX_DELAY));
+        while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	}
+	
+	//连接后通知上位机
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNOTI,strlen(GETNOTI), portMAX_DELAY));
+  while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
+	if(OKGetReturn(rxbuffer) == '0')
+	{
+        while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNOTI1,strlen(SETNOTI1),portMAX_DELAY));
+        while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	}
+	
+		//获取EDR设备名称
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
+	while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	if(memcmp(&rxbuffer[8],flashdatapackage.IDValue,10) != 0)
+	{
+		memcpy(&SETNAME[8],flashdatapackage.IDValue,10);
+	//	uint8_t i =  sizeof(SETNAME);
+			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,sizeof(SETNAME), portMAX_DELAY));
 			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-		}
-		while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
-    while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-		if(memcmp(rxbuffer,NameEDR,sizeof(NameEDR)))
-		{
-			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,strlen(SETNAME), portMAX_DELAY));
+	}
+	
+	//获取BLE设备名称
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
+	while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	if(memcmp(&rxbuffer[8],flashdatapackage.IDValue,10) != 0)
+	{
+		memcpy(&SETNAMB[8],flashdatapackage.IDValue,10);
+			while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,sizeof(SETNAMB), portMAX_DELAY));
 			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-		}
-		
-    while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETPI10,strlen(GETPI10))); //
-    while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-    if(OKGetReturn(rxbuffer) == '1')
-    {
+	}
+	
+	//LED灯显示状态	
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETPI10,strlen(GETPI10))); //
+	while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	if(OKGetReturn(rxbuffer) == '1')
+	{
         while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,SETPI100,strlen(SETPI100))); //待机慢闪，连接后常亮
         while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-    }
-    
-    while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETADDE,strlen(GETADDE))); //获取 EDR MAC
-    while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-    memcpy(MACEDR,rxbuffer+7,12);
+	}
+	
+  //获取 EDR MAC  
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETADDE,strlen(GETADDE))); 
+	while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	memcpy(MACEDR,rxbuffer+7,12);
 
-    while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETADDB,strlen(GETADDB))); //获取 BLE MAC
-    while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-    memcpy(MACBLE,rxbuffer+7,12);
-    
-    while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETNOTI,strlen(GETNOTI))); //
-    while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-    if(OKGetReturn(rxbuffer) == '0')
-    {
-        while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,SETNOTI1,strlen(SETNOTI1))); //连接后通知上位机
-        while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-		} 
+	//获取 BLE MAC
+	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETADDB,strlen(GETADDB))); 
+	while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+	memcpy(MACBLE,rxbuffer+7,12);
+	
+	
 }
 
 void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
@@ -112,12 +150,9 @@ void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
 }
 
 
-void task_bluetooth_tx(task_param_t param)
+void task_bluetooth_tx(task_param_t param)   //优先级高  
 {
-	if(BLEConnectedFlag == 0)
-	{
-		InitBlueTooth();
-	}
+	InitBlueTooth();
     
 	while(1)
 	{
@@ -157,38 +192,20 @@ void task_bluetooth_tx(task_param_t param)
 void task_bluetooth_rx(task_param_t param)
 {
 	uint8_t	SucessFlag[1] = {0x01};
-	uint8_t bluerxbuffer[100];
+	uint8_t bluerxbuffer[20];
     
 	while(1)
 	{
        
-       if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,100))
+       if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,300))
        {
-/************************************************************************************************/ 
-           if((bluerxbuffer[0] == 'O') && (bluerxbuffer[1] == 'K') && (bluerxbuffer[2] == '+'))
-           {
-                if((bluerxbuffer[3] == 'C') && (bluerxbuffer[4] == 'O') && (bluerxbuffer[5] == 'N')&& (bluerxbuffer[6] == 'B'))
-                {
-                  //  BLEConnectedFlag = 1;
-                }
-                else if((bluerxbuffer[3] == 'L') && (bluerxbuffer[4] == 'S') && (bluerxbuffer[5] == 'T')&& (bluerxbuffer[6] == 'B'))
-                {
-                    BLEConnectedFlag = 0;
-                    LED1_OFF;
-                }
-           }
-/************************************************************************************************/	
-						if(bluerxbuffer[0] == 	0x01)
-						{
-							bluerxbuffer[0] = 0;
-						}							
+/************************************************************************************************/						
 					 if(bluerxbuffer[0] == SERIAL_IDENTIFIER)
 					 {
 						 if(bluerxbuffer[2] == SERIAL_STATUS_OK)
 						 {
 								if(bluerxbuffer[1] == APP_CMD_RECEIVEECGDATAACK)    //开始发送心电数据
 								{
-									uint8_t data[1] = {0x01};
 									BlueToothSendCommand(SENDECGENABLECODE,APP_CMD_RECEIVEECGDATAREQ,SERIAL_DATASIZE_ONE,SucessFlag);
 									ECGDataSendFlag  = 1;									
 								}
@@ -247,7 +264,7 @@ void task_bluetooth_rx(task_param_t param)
 						 }
 					 }
 /************************************************************************************************/	
-        memset(bluerxbuffer,0,100);
+        memset(bluerxbuffer,0,20);
        }
        
 	}

@@ -69,7 +69,7 @@
 #define APP_CMD_GET0MVVALUEACK               			0x2B
 
 
-#define     AT                          "AT"
+                     
 #define     GETATOB                     "AT+ATOB?"                      //查询/设置模块三通模式
 #define     SETATOB0                    "AT+ATOB0" 
 #define     SETATOB1                    "AT+ATOB1" 
@@ -135,8 +135,7 @@
 #define     GETNAMB                     "AT+NAMB?"                           //查询、设置 BLE 设备名称
 //#define     SETNAME                     "AT+NAMELJS_EDR"
 //#define     SETNAMB                     "AT+NAMBLJS_BLE"
-#define     SETNAME                     "AT+NAMEHM502B2_EDR"
-#define     SETNAMB                     "AT+NAMBHM502B2_BLE"
+
 
 #define     GETPIO0                     "AT+PIO0?"                  //PIO0 按键管脚功能设置
 #define     SETPIO00                     "AT+PIO00"

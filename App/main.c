@@ -100,6 +100,20 @@ int32_t ReadData4Flash()
 		DataArray[i] = REG_READ(destination + i);
 	}
 	memcpy(&flashdatapackage,&DataArray,sizeof(flashdatapackage));
+	
+	if(flashdatapackage.amplification >100)
+	{
+		flashdatapackage.amplification = 60;
+	}
+	if(flashdatapackage.difference_Value >1000)
+	{
+		flashdatapackage.difference_Value = 525;
+	}
+	if(flashdatapackage.IDValue[0] != 'D')
+	{
+		memcpy(flashdatapackage.IDValue,"D000000002",10);
+	}
+	
 }
 
 /********************************************************************************/

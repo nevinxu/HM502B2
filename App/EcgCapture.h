@@ -41,8 +41,8 @@ typedef struct _EcgDataPackage
 
 typedef struct _FlashDataPackage
 {
-	short amplification;
-	short difference_Value;
+	uint16_t amplification;
+	uint16_t difference_Value;
 	uint8_t IDValue[10]; 
 	uint8_t None[2]; 
 }FlashDataPackage;    //

@@ -334,6 +334,7 @@ lpuart_status_t LPUART_DRV_ReceiveDataBlocking(uint32_t instance,
     if (syncStatus != kStatus_OSA_Success)
     {
          lpuartState->isRxBusy = false;   //nevinxu modify  2015.03.03
+				lpuartState->rxSize = 0;					//nevinxu modify  2015.06.10
         return kStatus_LPUART_Timeout;
     }
     
@@ -434,11 +435,13 @@ void LPUART_DRV_IrqHandler(uint32_t instance)
 {
     lpuart_state_t * lpuartState = g_lpuartStatePtr[instance];
     uint32_t baseAddr = g_lpuartBaseAddr[instance];
-	bool rxCallbackEnd = false;
+		bool rxCallbackEnd = false;
 
     /* Exit the ISR if no transfer is happening for this instance. */
     if ((!lpuartState->isTxBusy) && (!lpuartState->isRxBusy))
     {
+//			lpuartState->isRxBusy = 0;
+//			lpuartState->txSize = 0;
         return;
     }
 
@@ -478,7 +481,7 @@ void LPUART_DRV_IrqHandler(uint32_t instance)
             else
             {
                 ++lpuartState->rxBuff;
-        		--lpuartState->rxSize;
+								--lpuartState->rxSize;
             }
 
         /* Check to see if this was the last byte received */
