@@ -39,8 +39,9 @@ typedef struct _FlashDataPackage
 {
 	short amplification;
 	short difference_Value;
-	uint8_t IDValue[10];
-}FlashDataPackage;
+	uint8_t IDValue[10]; 
+	uint8_t None[2]; 
+}FlashDataPackage;    //
 
 void ecgcaptureenable(uint32_t instance);
 extern int32_t init_ecg(uint32_t instance);

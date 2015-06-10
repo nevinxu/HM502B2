@@ -592,7 +592,6 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
             {
               if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_ECGPATCHIDACK)
               {
-               
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
               }
               else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_DATASEND)
@@ -642,6 +641,11 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
               {
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
               }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_SETECGPATCHIDACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              
             }
           }
         }

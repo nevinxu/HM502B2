@@ -15,8 +15,6 @@
 #include "ConnectPC.h"
 #include "ecg.c"
 
-//ÐÄµç²¹¶¡IDÖµ
-uint8_t ECGPatchID[15] = {0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x30};
 
 /* SIM base address */
 const uint32_t gSimBaseAddr[] = SIM_BASE_ADDRS;
@@ -68,11 +66,11 @@ static void ecg_adc_isr_callback(void)
 	
     if(i % 2)
     {
-//			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
-//			{
-//				ecgdatapackage.ecgdata[i/2] = 500;
-//			}
-//			else
+			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
+			{
+				ecgdatapackage.ecgdata[i/2] = 500;
+			}
+			else
 			{
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}

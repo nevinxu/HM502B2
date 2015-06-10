@@ -352,7 +352,7 @@ void parseCmd(void){
     break;
     case APP_CMD_ECGPATCHID:
     {
-#if 0
+#if 1
       if( simpleBLEState == BLE_STATE_CONNECTED )
       {
         SendCommand2Peripheral(APP_CMD_ECGPATCHID,0,0);
@@ -546,10 +546,9 @@ void parseCmd(void){
     break;
     case APP_CMD_SETECGPATCHID:
     {
-      osal_memcpy(txSerialPkt.data,IDValue,10); 
       if( simpleBLEState == BLE_STATE_CONNECTED )
       {
-        SendCommand2Peripheral(APP_CMD_SETECGPATCHID,txSerialPkt.data,10);
+        SendCommand2Peripheral(APP_CMD_SETECGPATCHID,rxSerialPkt.data,10);
       }
       else   //心电补丁未连接
       {

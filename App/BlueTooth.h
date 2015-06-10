@@ -22,7 +22,7 @@
 #define SENDSET0MVCODE										0x08			//设置0mv校准
 #define SENDGET1MVCODE										0x09			//获取1mv定标
 #define SENDGET0MVCODE										0x0A			//获取0mv校准
-#define SENDSETECGPATCHIDCODE								0x0B			//发送心电补丁ID
+#define SENDSETECGPATCHIDCODE								0x0B			//设置心电补丁ID回应
 
 
 #define SERIAL_IDENTIFIER       									0x77
@@ -36,7 +36,7 @@
 
 #define SERIAL_DATAADDR_NONE       								0x00
 
-#define ECGPATCHIDSIZE														15
+#define ECGPATCHIDSIZE														10
 #define ECGPATCHHARDVERSIONSIZE										4
 #define ECGPATCHSOFTVERSIONSIZE										4
 #define ECGDATASIZE																14

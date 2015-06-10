@@ -186,6 +186,11 @@ void task_bluetooth_tx(task_param_t param)
 					{
 						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
 					}
+					else if(m_btdatapackage.code == SENDSETECGPATCHIDCODE)
+					{
+						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
+					}
+					
 			}
 			
 	}
@@ -235,7 +240,7 @@ void task_bluetooth_rx(task_param_t param)
 								}
 								else if(bluerxbuffer[1] == APP_CMD_ECGPATCHIDACK)				//发送ID值
 								{
-									BlueToothSendCommand(SENDECGPATCHIDCODE,APP_CMD_ECGPATCHIDREQ,ECGPATCHIDSIZE,ECGPatchID); 							
+									BlueToothSendCommand(SENDECGPATCHIDCODE,APP_CMD_ECGPATCHIDREQ,ECGPATCHIDSIZE,flashdatapackage.IDValue); 							
 								}
 								else if(bluerxbuffer[1] == APP_CMD_ECGPATCHHARDVERSIONACK)				//发送硬件版本
 								{
@@ -251,7 +256,6 @@ void task_bluetooth_rx(task_param_t param)
 									flashdatapackage.amplification = bluerxbuffer[4] + (bluerxbuffer[5]<<8);
 									WriteData2Flash();
 									ReadData4Flash();	
-									
 								}
 								else if(bluerxbuffer[1] == APP_CMD_SET0MVVALUE)				//保存0mv校准值
 								{
@@ -274,9 +278,9 @@ void task_bluetooth_rx(task_param_t param)
 									data[1] = (flashdatapackage.difference_Value>>8);
 									BlueToothSendCommand(SENDGET0MVCODE,APP_CMD_GET0MVVALUEACK,SERIAL_DATASIZE_TWO,data); 						
 								}
-								else if(bluerxbuffer[1] == APP_CMD_SETECGPATCHIDACK)				//获取0mv校准值
+								else if(bluerxbuffer[1] == APP_CMD_SETECGPATCHIDACK)				//设置ID值
 								{
-									memcpy(flashdatapackage.IDValue,&bluerxbuffer[4],10);		
+									memcpy(flashdatapackage.IDValue,&bluerxbuffer[4],ECGPATCHIDSIZE);		
 									WriteData2Flash();
 									ReadData4Flash();	
 									BlueToothSendCommand(SENDSETECGPATCHIDCODE,APP_CMD_SETECGPATCHIDREQ,SERIAL_DATASIZE_TEN,flashdatapackage.IDValue); 

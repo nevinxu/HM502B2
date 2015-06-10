@@ -1162,6 +1162,22 @@ namespace MotionSensor
                                 }
                             }
                             #endregion
+
+                            #region
+                            else if (SerialReceiveData[1] == 0x35)
+                            {
+                               // if (SerialReceiveData[4] == 1)
+                                {
+                                    for (int i = 0; i < 10; i++)
+                                    {
+                                        ECGPatchID[i] = SerialReceiveData[4 + i];
+                                    }
+                                    string DisplayString = "设置心电补丁ID值成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
+                            }
+                            #endregion
                             #region
                             else if (SerialReceiveData[1] == 0x21)
                             {
@@ -1500,6 +1516,7 @@ namespace MotionSensor
                         else if (ScalingFlag == 2)
                         {
                             str2 = "1mv已定标！";
+                            ScalingFlag = 0;
                         }
                         else if (ScalingFlag == 11)
                         {
@@ -1508,6 +1525,7 @@ namespace MotionSensor
                         else if (ScalingFlag == 12)
                         {
                             str2 = "0mv已校准！";
+                            ScalingFlag = 0;
                         }
                         else
                         {
