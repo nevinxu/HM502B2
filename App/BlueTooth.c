@@ -51,39 +51,49 @@ void InitBlueTooth()
 	
 	lpuart_status_t ret;
 	uint8_t rxbuffer[100];
+	uint32_t bytesRemaining;
 	
 	while(GPIO_DRV_ReadPinInput(kGpioBTPIO1) == 0);
     
 	//连接断开   未连接返回OK
-	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,AT,sizeof(AT), portMAX_DELAY));
-  while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
+	while ( kStatus_LPUART_Success != LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,AT,sizeof(AT), portMAX_DELAY));
+  while ( kStatus_LPUART_Timeout !=  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100)); 
+
+	LPUART_DRV_GetReceiveStatus(BOARD_BT_UART_INSTANCE,&bytesRemaining);
+	memset(rxbuffer,0,100);	
 
 	//单模收发
-	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETDUAL,strlen(GETDUAL), portMAX_DELAY));
-  while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
+	while ( kStatus_LPUART_Success != LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETDUAL,strlen(GETDUAL), portMAX_DELAY));
+  while ( kStatus_LPUART_Timeout !=  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
 	if(OKGetReturn(rxbuffer) == '0')
 	{
         while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETDUAL1,strlen(SETDUAL1),portMAX_DELAY));
         while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 	}
+	LPUART_DRV_GetReceiveStatus(BOARD_BT_UART_INSTANCE,&bytesRemaining);
+	memset(rxbuffer,0,100);	
 	
 	//透传+远控模式
-	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETMODE,strlen(GETMODE), portMAX_DELAY));
-  while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
+	while ( kStatus_LPUART_Success != LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETMODE,strlen(GETMODE), portMAX_DELAY));
+  while ( kStatus_LPUART_Timeout !=  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
 	if(OKGetReturn(rxbuffer) == '0')
 	{
         while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETMODE1,strlen(SETMODE1),portMAX_DELAY));
         while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 	}
+	LPUART_DRV_GetReceiveStatus(BOARD_BT_UART_INSTANCE,&bytesRemaining);
+	memset(rxbuffer,0,100);	
 	
 	//连接后通知上位机
-	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNOTI,strlen(GETNOTI), portMAX_DELAY));
-  while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
+	while ( kStatus_LPUART_Success != LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNOTI,strlen(GETNOTI), portMAX_DELAY));
+  while ( kStatus_LPUART_Timeout !=  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));  
 	if(OKGetReturn(rxbuffer) == '0')
 	{
         while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNOTI1,strlen(SETNOTI1),portMAX_DELAY));
         while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 	}
+	LPUART_DRV_GetReceiveStatus(BOARD_BT_UART_INSTANCE,&bytesRemaining);
+	memset(rxbuffer,0,100);	
 	
 		//获取EDR设备名称
 	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
@@ -96,6 +106,8 @@ void InitBlueTooth()
 			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 	}
 	
+	memset(rxbuffer,0,100);	
+	
 	//获取BLE设备名称
 	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
 	while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
@@ -106,6 +118,8 @@ void InitBlueTooth()
 			while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 	}
 	
+	memset(rxbuffer,0,100);	
+	
 	//LED灯显示状态	
 	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETPI10,strlen(GETPI10))); //
 	while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
@@ -115,10 +129,14 @@ void InitBlueTooth()
         while ( kStatus_LPUART_RxBusy == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 	}
 	
+	memset(rxbuffer,0,100);	
+	
   //获取 EDR MAC  
 	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETADDE,strlen(GETADDE))); 
 	while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 	memcpy(MACEDR,rxbuffer+7,12);
+	
+	memset(rxbuffer,0,100);	
 
 	//获取 BLE MAC
 	while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,GETADDB,strlen(GETADDB))); 
@@ -258,7 +276,35 @@ void task_bluetooth_rx(task_param_t param)
 								{
 									memcpy(flashdatapackage.IDValue,&bluerxbuffer[4],ECGPATCHIDSIZE);		
 									WriteData2Flash();
-									ReadData4Flash();	
+									ReadData4Flash();
+
+									uint8_t rxbuffer[100];
+									//获取EDR设备名称
+								while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
+								while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+								if(memcmp(&rxbuffer[8],flashdatapackage.IDValue,10) != 0)
+								{
+									memcpy(&SETNAME[8],flashdatapackage.IDValue,10);
+								//	uint8_t i =  sizeof(SETNAME);
+										while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,sizeof(SETNAME), portMAX_DELAY));
+										while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+								}
+								
+								memset(rxbuffer,0,100);	
+								
+								//获取BLE设备名称
+								while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
+								while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+								if(memcmp(&rxbuffer[8],flashdatapackage.IDValue,10) != 0)
+								{
+									memcpy(&SETNAMB[8],flashdatapackage.IDValue,10);
+										while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,sizeof(SETNAMB), portMAX_DELAY));
+										while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+								}
+								
+								memset(rxbuffer,0,100);	
+
+									
 									BlueToothSendCommand(SENDSETECGPATCHIDCODE,APP_CMD_SETECGPATCHIDREQ,SERIAL_DATASIZE_TEN,flashdatapackage.IDValue); 
 								}
 						 }
