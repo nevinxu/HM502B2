@@ -211,11 +211,13 @@ void task_bluetooth_rx(task_param_t param)
 {
 	uint8_t	SucessFlag[1] = {0x01};
 	uint8_t bluerxbuffer[20];
+	uint32_t bytesRemaining;
     
 	while(1)
 	{
        
-       if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,300))
+       while(kStatus_LPUART_Timeout != LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,10));
+				LPUART_DRV_GetReceiveStatus(BOARD_BT_UART_INSTANCE,&bytesRemaining);
        {
 /************************************************************************************************/						
 					 if(bluerxbuffer[0] == SERIAL_IDENTIFIER)
@@ -329,6 +331,13 @@ void BlueToothSendCommand(uint8_t code,uint8_t command,uint8_t DataSize,uint8_t 
 }
 
 
+lpuart_status_t BTlpuart_rx_callback_t(uint8_t * rxByte, void * param)
+{
+	
+	
+	
+	
+}
 
 lpuart_status_t lpuart_Init(
         uint32_t uartInstance, uint32_t baudRate)
@@ -342,9 +351,16 @@ lpuart_status_t lpuart_Init(
     lpuartConfig.parityMode = kLpuartParityDisabled;
     lpuartConfig.stopBitCount = kLpuartOneStopBit;
 
+
     /* Init LPUART device. */
     LPUART_DRV_Init(uartInstance, &s_bt_lpuart[uartInstance], &lpuartConfig);
 
+		if(BOARD_BT_UART_INSTANCE == uartInstance)
+	{
+		s_bt_lpuart[BOARD_BT_UART_INSTANCE].rxCallback = BTlpuart_rx_callback_t;
+		s_bt_lpuart[BOARD_DEBUG_UART_INSTANCE].rxCallback = BTlpuart_rx_callback_t;
+	}
+	
    // s_bt_lpuart.instance = uartInstance;
     return kStatus_LPUART_Success;
 }
