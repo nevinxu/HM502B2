@@ -92,6 +92,10 @@
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
             this.EcgPatchVersionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button1 = new System.Windows.Forms.Button();
@@ -131,9 +135,9 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(48, 55);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(17, 12);
+            this.label12.Size = new System.Drawing.Size(11, 12);
             this.label12.TabIndex = 19;
-            this.label12.Text = "Mv";
+            this.label12.Text = "%";
             this.label12.Click += new System.EventHandler(this.label12_Click);
             // 
             // Lead
@@ -689,10 +693,14 @@
             this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel3,
             this.toolStripStatusLabel4,
+            this.toolStripStatusLabel8,
+            this.toolStripStatusLabel7,
+            this.toolStripStatusLabel6,
+            this.toolStripStatusLabel5,
             this.EcgPatchVersionLabel});
-            this.statusStrip2.Location = new System.Drawing.Point(954, 574);
+            this.statusStrip2.Location = new System.Drawing.Point(576, 574);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(109, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(487, 22);
             this.statusStrip2.SizingGrip = false;
             this.statusStrip2.TabIndex = 40;
             // 
@@ -705,6 +713,30 @@
             // 
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
             this.toolStripStatusLabel4.Size = new System.Drawing.Size(0, 17);
+            // 
+            // toolStripStatusLabel8
+            // 
+            this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
+            this.toolStripStatusLabel8.Size = new System.Drawing.Size(90, 17);
+            this.toolStripStatusLabel8.Text = "主设备接收包:0";
+            // 
+            // toolStripStatusLabel7
+            // 
+            this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
+            this.toolStripStatusLabel7.Size = new System.Drawing.Size(90, 17);
+            this.toolStripStatusLabel7.Text = "主设备丢包数:0";
+            // 
+            // toolStripStatusLabel6
+            // 
+            this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
+            this.toolStripStatusLabel6.Size = new System.Drawing.Size(99, 17);
+            this.toolStripStatusLabel6.Text = "上位机接收包：0";
+            // 
+            // toolStripStatusLabel5
+            // 
+            this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
+            this.toolStripStatusLabel5.Size = new System.Drawing.Size(99, 17);
+            this.toolStripStatusLabel5.Text = "上位机丢包数：0";
             // 
             // EcgPatchVersionLabel
             // 
@@ -741,9 +773,10 @@
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea_Ecg";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            series1.Color = System.Drawing.Color.Lime;
             series1.Name = "Series_Ecg";
             series1.Points.Add(dataPoint1);
+            series1.ShadowColor = System.Drawing.Color.Red;
             series1.YValuesPerPoint = 2;
             this.chart1.Series.Add(series1);
             this.chart1.Size = new System.Drawing.Size(594, 556);
@@ -912,6 +945,10 @@
         private System.Windows.Forms.Label differenceValue;
         private System.Windows.Forms.Label AmplificationValue;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
     }
 }
 

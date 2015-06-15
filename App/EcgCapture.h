@@ -34,8 +34,7 @@ typedef struct _EcgDataPackage
 	uint8_t	status;
 	uint8_t	length;
 	uint8_t sequence;
-	uint8_t leadoffstatus;
-	uint16_t battery;
+	uint8_t leadoffstatus_battery;
 	uint16_t ecgdata[ECGNUMPACKAGE];
 }EcgDataPackage;
 

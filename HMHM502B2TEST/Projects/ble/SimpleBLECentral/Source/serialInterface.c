@@ -599,6 +599,7 @@ void sendSerialEvt(void){
   case APP_CMD_ECGPATCHSOFTVERSIONREQ:
   case APP_CMD_ADVERTISEOVER:
     case APP_CMD_SETECGPATCHIDACK:
+  case   APP_CMD_RECEIVEPACKAGENUMVALUE:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     

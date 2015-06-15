@@ -19,14 +19,14 @@ uint8_t  SETNAME[18]   = "AT+NAMEED000000000";
 uint8_t  SETNAMB[18]   = "AT+NAMBBD000000000";
 
 uint8_t     BLEConnectedFlag = 0;    //BLE连接状态
-uint8_t     ECGDataSendFlag = 1;    //心电数据发送时能标志
+uint8_t     ECGDataSendFlag = 0;    //心电数据发送时能标志
 
 static lpuart_state_t s_bt_lpuart[2];
 
 extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列 
 
-uint8_t	HardWareVersion[4] = {"1.00"};
-uint8_t	SoftWareVersion[4] = {"1.00"};
+uint8_t	HardWareVersion[4] = {"1.01"};
+uint8_t	SoftWareVersion[4] = {"1.01"};
 
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
@@ -35,6 +35,8 @@ BTTransmitPackage m_btdatapackage;
 
 extern FlashDataPackage flashdatapackage;
 
+uint8_t g_RxBuffer[20];
+uint8_t RxSuccessFlag = 0;
 
 
 uint8_t OKGetReturn(uint8_t *buffer)
@@ -155,7 +157,7 @@ void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
 		{
 			LED1_ON;
 		}
-		else if(time == (HighTime*i)+(HighTime/2))
+		else if(time == ((HighTime*i)+1))
 		{
 			LED1_OFF;
 		}	
@@ -170,8 +172,9 @@ void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
 
 void task_bluetooth_tx(task_param_t param)   //优先级高  
 {
-	InitBlueTooth();
-    
+	//InitBlueTooth();
+	while ( kStatus_LPUART_Success != LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,AT,sizeof(AT), portMAX_DELAY));
+
 	while(1)
 	{
       OSA_MsgQGet(hBTMsgQueue,&m_btdatapackage,portMAX_DELAY); 
@@ -181,13 +184,13 @@ void task_bluetooth_tx(task_param_t param)   //优先级高
 						if(ECGDataSendFlag == 1)
 						{
 							while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
-							if(m_btdatapackage.data[5] == 1)
+							if((m_btdatapackage.data[5]>>7) == 1)
 							{
-								LedSet(2,1,25);
+								LedSet(3,1,25);
 							}
 							else
 							{
-								LedSet(2,3,25);
+								LedSet(3,3,25);
 							}
 						}
 						break;
@@ -215,10 +218,12 @@ void task_bluetooth_rx(task_param_t param)
     
 	while(1)
 	{
-       
-       while(kStatus_LPUART_Timeout != LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,10));
-				LPUART_DRV_GetReceiveStatus(BOARD_BT_UART_INSTANCE,&bytesRemaining);
+			OSA_TimeDelay(5);
+			if(RxSuccessFlag == 1)
        {
+				 RxSuccessFlag = 0;
+				 memcpy(bluerxbuffer,g_RxBuffer,20);
+				 memset(g_RxBuffer,0,20);
 /************************************************************************************************/						
 					 if(bluerxbuffer[0] == SERIAL_IDENTIFIER)
 					 {
@@ -280,41 +285,38 @@ void task_bluetooth_rx(task_param_t param)
 									WriteData2Flash();
 									ReadData4Flash();
 
-									uint8_t rxbuffer[100];
-									//获取EDR设备名称
-								while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
-								while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-								if(memcmp(&rxbuffer[8],flashdatapackage.IDValue,10) != 0)
-								{
-									memcpy(&SETNAME[8],flashdatapackage.IDValue,10);
-								//	uint8_t i =  sizeof(SETNAME);
-										while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,sizeof(SETNAME), portMAX_DELAY));
-										while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-								}
-								
-								memset(rxbuffer,0,100);	
-								
-								//获取BLE设备名称
-								while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
-								while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-								if(memcmp(&rxbuffer[8],flashdatapackage.IDValue,10) != 0)
-								{
-									memcpy(&SETNAMB[8],flashdatapackage.IDValue,10);
-										while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,sizeof(SETNAMB), portMAX_DELAY));
-										while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
-								}
-								
-								memset(rxbuffer,0,100);	
-
-									
+//									uint8_t rxbuffer[100];
+//									//获取EDR设备名称
+//								while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
+//								while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+//								if(memcmp(&rxbuffer[8],flashdatapackage.IDValue,10) != 0)
+//								{
+//									memcpy(&SETNAME[8],flashdatapackage.IDValue,10);
+//								//	uint8_t i =  sizeof(SETNAME);
+//										while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAME,sizeof(SETNAME), portMAX_DELAY));
+//										while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+//								}
+//								
+//								memset(rxbuffer,0,100);	
+//								
+//								//获取BLE设备名称
+//								while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAMB,strlen(GETNAMB), portMAX_DELAY));
+//								while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+//								if(memcmp(&rxbuffer[8],flashdatapackage.IDValue,10) != 0)
+//								{
+//									memcpy(&SETNAMB[8],flashdatapackage.IDValue,10);
+//										while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,SETNAMB,sizeof(SETNAMB), portMAX_DELAY));
+//										while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
+//								}
+//								
+//								memset(rxbuffer,0,100);	
 									BlueToothSendCommand(SENDSETECGPATCHIDCODE,APP_CMD_SETECGPATCHIDREQ,SERIAL_DATASIZE_TEN,flashdatapackage.IDValue); 
 								}
 						 }
 					 }
 /************************************************************************************************/	
         memset(bluerxbuffer,0,20);
-       }
-       
+       }   
 	}
 }
 
@@ -333,9 +335,36 @@ void BlueToothSendCommand(uint8_t code,uint8_t command,uint8_t DataSize,uint8_t 
 
 lpuart_status_t BTlpuart_rx_callback_t(uint8_t * rxByte, void * param)
 {
-	
-	
-	
+	static uint8_t i= 0;
+	static uint8_t m_RxBuffer[20];
+	m_RxBuffer[i] = rxByte[0];
+	uint8_t DataLength = 0;
+	i++;
+	if(m_RxBuffer[0] != SERIAL_IDENTIFIER)
+	{
+		i = 0;
+	}
+	if(i >= 4)
+	{
+			if(m_RxBuffer[2] == SERIAL_STATUS_OK)
+			{
+				DataLength = m_RxBuffer[3];
+				if(DataLength > 10)
+				{
+					i = 0;
+				}
+			}
+			if(i >= (4+DataLength))
+			{
+				i = 0;
+				memcpy(g_RxBuffer,m_RxBuffer,20);
+				RxSuccessFlag = 1;
+			}
+			if(i>20)
+			{
+				i = 0;
+			}
+	}
 	
 }
 

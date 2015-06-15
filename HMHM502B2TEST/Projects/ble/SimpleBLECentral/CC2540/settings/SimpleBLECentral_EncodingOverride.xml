@@ -2,6 +2,10 @@
 
 <userOverrides>
   <override>
+    <path>D:\360data\&#x91CD;&#x8981;&#x6570;&#x636e;\&#x684C;&#x9762;\HM502B2\HMHM502B2TEST\Projects\ble\SimpleBLECentral\Source\simpleBLECentral.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
     <path>D:\HM502B2\HMHM502B2TEST\Projects\ble\SimpleBLECentral\Source\simpleBLECentral.c</path>
     <encoding>System</encoding>
   </override>

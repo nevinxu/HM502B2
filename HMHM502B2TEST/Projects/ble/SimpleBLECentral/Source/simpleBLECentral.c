@@ -51,13 +51,13 @@
 #define DEFAULT_LINK_WHITE_LIST               FALSE
 
 // Default RSSI polling period in ms
-#define DEFAULT_RSSI_PERIOD                   1000
+#define DEFAULT_RSSI_PERIOD                   10000
 
 // Whether to enable automatic parameter update request when a connection is formed
 #define DEFAULT_ENABLE_UPDATE_REQUEST         TRUE
 
 // Minimum connection interval (units of 1.25ms) if automatic parameter update request is enabled
-#define DEFAULT_UPDATE_MIN_CONN_INTERVAL      80
+#define DEFAULT_UPDATE_MIN_CONN_INTERVAL      50
 
 // Maximum connection interval (units of 1.25ms) if automatic parameter update request is enabled
 #define DEFAULT_UPDATE_MAX_CONN_INTERVAL      100
@@ -193,6 +193,9 @@ uint8 ECGPatchMAC[6];    //连接心电补丁MAC地址
 uint8 PairMAC[6] = {0xE6,0x39,0x00,0x0B,0x0E,0x00};
 uint8 PairFlag = 1;   //配对功能使能
 
+long  ReceivePackageNum;
+long  LostPackageNum;
+int LastPackageNum = -1;
 
 
 
@@ -407,7 +410,7 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       if(AutoConnectFlag == 1)
       {
         txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
-        txSerialPkt.header.opCode = APP_CMD_ADVERTISEBEGIN;
+        txSerialPkt.header.opCode = APP_CMD_ADVERTISEBEGIN;    //开始搜索蓝牙设备
         txSerialPkt.header.status = 0x00;
         txSerialPkt.length = 0;
         sendSerialEvt();
@@ -416,6 +419,7 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       
       if(simpleBLERssi)
       {
+        simpleBLERssi = FALSE;
         GAPCentralRole_CancelRssi(simpleBLEConnHandle);
       }
       
@@ -426,6 +430,18 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       {
         simpleBLERssi = TRUE;
         GAPCentralRole_StartRssi( simpleBLEConnHandle, DEFAULT_RSSI_PERIOD );
+      }
+      
+      if(ReceivePackageNum>0)
+      {
+        txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+        txSerialPkt.header.opCode = APP_CMD_RECEIVEPACKAGENUMVALUE;    //
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 8;
+        memcpy(txSerialPkt.data,&ReceivePackageNum,4);
+        memcpy(&txSerialPkt.data[4],&LostPackageNum,4);
+        
+        sendSerialEvt();
       }
     }
     return (events ^ simpleBLE_PERIODIC_EVT);
@@ -596,13 +612,32 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
               }
               else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_DATASEND)
               {
-                if(pMsg->msg.handleValueNoti.len == 0x12)     // 数据完整性
+               // if(pMsg->msg.handleValueNoti.len == 0x12)     // 数据完整性
                 {
-                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+                  HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, 0x12);
+                  
+                  ReceivePackageNum++;
+                  
+                  if (LastPackageNum != -1)  //不是第一次  
+                  {
+                    int buffer = LastPackageNum + 1;
+                    if(buffer == 256)
+                    {
+                      buffer = 0;
+                    }
+                    if (pMsg->msg.handleValueNoti.value[4] != buffer)
+                    {
+                      LostPackageNum++;
+                    }
+                  }
+                  LastPackageNum = pMsg->msg.handleValueNoti.value[4];
                 }
               }
               else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_RECEIVEECGDATAACK)
               {
+                ReceivePackageNum = 0;
+                LostPackageNum = 0;
+                LastPackageNum = -1;
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
               }
               else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_SET1MVVALUEACK)
@@ -666,23 +701,19 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
  */
 static void simpleBLECentralRssiCB( uint16 connHandle, int8 rssi )
 {
-  static uint8 i =0;
   if(simpleBLEState == BLE_STATE_CONNECTED)
   {
+#if 1
     if(DeviceMode == 1)  //上位机测试模式下
     {
-      i++;
-      if(i >5)
-      {
-        i=0;
         txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
         txSerialPkt.header.opCode = APP_CMD_RSSIVALUE;
         txSerialPkt.header.status = 0x00;
         txSerialPkt.length = 1;
         txSerialPkt.data[0] = rssi;
         sendSerialEvt();
-      }
     }
+#endif
   }
 }
 

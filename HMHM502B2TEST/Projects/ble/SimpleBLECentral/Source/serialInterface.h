@@ -61,6 +61,7 @@
 #define APP_CMD_GET1MVVALUEACK               0x27
 #define APP_CMD_GET0MVVALUE               0x2A
 #define APP_CMD_GET0MVVALUEACK               0x2B
+#define APP_CMD_RECEIVEPACKAGENUMVALUE              0x36
 
 #define APP_CMD_ECGPATCHHARDVERSIONACK          	0x30
 #define APP_CMD_ECGPATCHHARDVERSIONREQ        		0x31

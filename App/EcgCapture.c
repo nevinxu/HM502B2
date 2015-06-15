@@ -36,6 +36,7 @@ FlashDataPackage flashdatapackage;
 	
 int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 {
+	
 	uint16_t k = 0;
 	uint8_t B = 0;
 	uint16_t W = 0;
@@ -61,9 +62,12 @@ int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 static void ecg_adc_isr_callback(void)
 {
 		static uint8_t i;
+		static uint16_t j =0;
 		static uint16_t batterybuffer[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		uint16_t buffer = 0;
 		adc_chn_config_t adcChnConfig;
+		
+		static uint16_t batteryValue_Mv;
 	
     if(i % 2)  //心电采集
     {
@@ -76,7 +80,8 @@ static void ecg_adc_isr_callback(void)
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}
 
-		//		ecgdatapackage.ecgdata[i/2] = sinTab[j++];
+			//	ecgdatapackage.ecgdata[i/2] = sinTab[j++];
+			//ecgdatapackage.ecgdata[i/2] = j++;
 			adcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
 			adcChnConfig.diffEnable = false;
 			adcChnConfig.intEnable = true;
@@ -122,31 +127,54 @@ static void ecg_adc_isr_callback(void)
 					}
 				}
 			}
-				ecgdatapackage.leadoffstatus = GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK);
+			ecgdatapackage.leadoffstatus_battery = 0;
+			
+				if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK))
+				{
+					ecgdatapackage.leadoffstatus_battery |= 0x80; 
+				}
+				else
+				{
+					ecgdatapackage.leadoffstatus_battery &= 0x7F; 
+				}
 				ecgdatapackage.sequence++;
-				ecgdatapackage.battery = 0;
 				if(batterybuffer[15]>0)
 				{
 					for(uint8_t j = 0;j < 16; j++)
 					{
 						buffer += batterybuffer[j];
 					}
-					ecgdatapackage.battery = (buffer>>4);
+					buffer = (buffer>>4);
 				}
 				else
 				{
-					ecgdatapackage.battery = batterybuffer[0];
+					buffer = batterybuffer[0];
 				}
 				
-				if(ecgdatapackage.battery <= BATTERYTOOLOW)   //电压过低  
+				if(buffer <= BATTERYTOOLOW)   //电压过低  
 				{
 					ECGDataSendFlag = 0;   
-					LedSet(2,2,25);
+					LedSet(3,2,25);
 				}
-				if(ecgdatapackage.battery <= BATTERYLOW)   //电压低  
+				if(buffer <= BATTERYLOW)   //电压低  
 				{ 
-					LedSet(2,2,25);
+					LedSet(3,2,25);
 				}
+				
+				if(buffer >318)
+				{
+					ecgdatapackage.leadoffstatus_battery += 100; 
+				}
+				else if(buffer <256)
+				{
+					ecgdatapackage.leadoffstatus_battery += 0;
+				}
+				else
+				{
+					ecgdatapackage.leadoffstatus_battery += 1000*(318 - buffer)/560;
+				}
+				
+				batteryValue_Mv = 3300 *4 * buffer /1024 ;
 				
 			if(ECGDataSendFlag  == 1)
 			{
@@ -160,7 +188,7 @@ static void ecg_adc_isr_callback(void)
 
 				
 		//压缩		
-				EncodeData4WTo5B(ecgdatapackage.ecgdata,&m_bttransmitpackage.data[8],8);
+				EncodeData4WTo5B(ecgdatapackage.ecgdata,&m_bttransmitpackage.data[6],8);
 				m_bttransmitpackage.size = m_bttransmitpackage.size-6;
 				
 				OSA_MsgQPut(hBTMsgQueue,&m_bttransmitpackage);   

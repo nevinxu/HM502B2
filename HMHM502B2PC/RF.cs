@@ -69,8 +69,8 @@ namespace MotionSensor
         private int PairingFlag = 1;
         byte[] ECGPairMAC = new byte[6];
         private int EcgDataTimer = 0;
-        private Int16 amplification = 1;
-        private Int16 difference_Value = 0;
+        private Int16 amplification = 60;
+        private Int16 difference_Value = 525;
 
         private Int16 amplification_Back = 1;
         private Int16 difference_Value_Back = 0;
@@ -81,11 +81,16 @@ namespace MotionSensor
         private double[] ScalingEcgMin = new double[8];
         private double[] ScalingEcgMax = new double[8];
 
-        private int ZeroValue = -6001;
+        private int ZeroValue = 500;
         private int BaseLine = 500;
 
         byte[] HardVersion = new byte[4];
         byte[] SoftVersion = new byte[4];
+
+        private double LostPackageNum = 0;
+        private double ReceivePackageNum = 0;
+
+        private int LastPackageNum = -1;
 
 
         public RF()
@@ -131,7 +136,7 @@ namespace MotionSensor
         private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             int length;
-          //  System.Threading.Thread.Sleep(10);
+            System.Threading.Thread.Sleep(1);
             if (!SerialPort.IsOpen)   //检测串口是否关闭
             {
                 return;
@@ -247,11 +252,9 @@ namespace MotionSensor
 
             for (int i = 0; i < (N * M); i++)
             {
-                Xdata[i] = (i*8).ToString();
-                //  XdataV[i] = i;
+                Xdata[i] = ((i+1)*1000/128).ToString();
             }
-           // chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
-            //chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+            chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
 
             textBox1.Text = chartlenMin.ToString();
@@ -403,6 +406,8 @@ namespace MotionSensor
                 XdataV[i] = ZeroValue;
             }
             chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+            chart1.Series["Series_Ecg"].Color = Color.Black;
+
             this.EcgPatchVersionLabel.Text = "";
             this.toolStripStatusLabel2.Text = "";
 
@@ -592,6 +597,7 @@ namespace MotionSensor
                                     XdataV[i] = ZeroValue;
                                 }
                                 chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+                                chart1.Series["Series_Ecg"].Color = Color.Black;
 
                                 BLEConnectFlag = 0;
                             }
@@ -760,7 +766,7 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 StopReceiveECGDataSerialCommand();
-                                System.Threading.Thread.Sleep(200);
+                                System.Threading.Thread.Sleep(500);
                                 DisAutoConnectBLESerialCommand();
                                 System.Threading.Thread.Sleep(200);
                                 AutoConnectBLEStatusSerialCommand();
@@ -874,6 +880,7 @@ namespace MotionSensor
                                     XdataV[i] = ZeroValue;
                                 }
                                 chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+                                chart1.Series["Series_Ecg"].Color = Color.Black;
 
                                 BLEConnectFlag = 0;
 
@@ -938,6 +945,8 @@ namespace MotionSensor
                                     XdataV[i] = ZeroValue;
                                 }
                                 chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+                                chart1.Series["Series_Ecg"].Color = Color.Black;
+
                             }
                             #endregion
                             #region
@@ -955,7 +964,7 @@ namespace MotionSensor
                                 {
                                     checkBox1.Checked = false;
                                 }
-                                // System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(100);
                                 SetTestModeCommand();
 
                             }
@@ -968,7 +977,7 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                // System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(100);
                                 ReceiveCentralMACCommand();
                             }
                             #endregion
@@ -984,7 +993,7 @@ namespace MotionSensor
                                     BLECentralMAC[i] = SerialReceiveData[4 + i];
                                 }
 
-                                //  System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(200);
                                 ReceiveECGPatchMACCommand();
                             }
                             #endregion
@@ -1009,7 +1018,7 @@ namespace MotionSensor
                                 {
                                     ECGPatchMAC[i] = SerialReceiveData[4 + i];
                                 }
-                                //  System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(200);
                                 ReceivePairingStatusCCommand();
                             }
                             #endregion
@@ -1028,7 +1037,7 @@ namespace MotionSensor
                                     ECGPairMAC[i] = SerialReceiveData[4 + i];
                                 }
 
-                                // System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(200);
                                 ReceiveECGPatchIDSerialCommand();
                             }
                             #endregion
@@ -1062,7 +1071,7 @@ namespace MotionSensor
                                     ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
                                     ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
 
-                                // System.Threading.Thread.Sleep(100);
+                                System.Threading.Thread.Sleep(100);
                                 calibration0mvSerialCommand();
                             }
                             #endregion
@@ -1084,6 +1093,14 @@ namespace MotionSensor
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
                                     EcgDataTimer = 0;
+
+                                    LostPackageNum = 0;
+                                    ReceivePackageNum = 0;
+
+                                    LastPackageNum = -1;
+                                   // LostPackageNum++;
+                                    this.toolStripStatusLabel5.Text = "上位机丢包数：" + LostPackageNum.ToString();
+                                    this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
                                 }
 
 
@@ -1097,6 +1114,7 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 difference_Value = (Int16)(SerialReceiveData[4] + (SerialReceiveData[5] << 8));
+                                System.Threading.Thread.Sleep(200);
                                 calibration1mvSerialCommand();
                             }
                             #endregion
@@ -1108,6 +1126,7 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 amplification = (Int16)(SerialReceiveData[4] + (SerialReceiveData[5] << 8));
+                                System.Threading.Thread.Sleep(200);
                                 GetHardWareVersionSerialCommand();
                             }
                             #endregion
@@ -1122,6 +1141,7 @@ namespace MotionSensor
                                 {
                                     HardVersion[i] = SerialReceiveData[4 + i];
                                 }
+                                System.Threading.Thread.Sleep(300);
                                 GetSoftWareVersionSerialCommand();
                             }
                             #endregion
@@ -1136,6 +1156,7 @@ namespace MotionSensor
                                 {
                                     SoftVersion[i] = SerialReceiveData[4 + i];
                                 }
+                                System.Threading.Thread.Sleep(200);
                                 ReceiveECGDataSerialCommand();
                             }
                             #endregion
@@ -1147,6 +1168,7 @@ namespace MotionSensor
                                     string DisplayString = "设置0mv校准值成功！\r\n";
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
+                                    System.Threading.Thread.Sleep(200);
                                     calibration1mvSerialCommand();
                                 }
                             }
@@ -1202,6 +1224,24 @@ namespace MotionSensor
 
                             }
                             #endregion
+
+                            #region
+                            else if (SerialReceiveData[1] == 0x36)
+                            {
+                                    string DisplayString = "正在接收主设备接收心电包数...\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                    double CentralReceivePackage = SerialReceiveData[4] + (SerialReceiveData[5]<<8) + (SerialReceiveData[6]<<16) + (SerialReceiveData[7]<<24);
+
+                                    this.toolStripStatusLabel8.Text = "主设备接收包：" + CentralReceivePackage.ToString();
+
+                                    double CentralLostPackage = SerialReceiveData[8] + (SerialReceiveData[9] << 8) + (SerialReceiveData[10] << 16) + (SerialReceiveData[11] << 24);
+
+                                    this.toolStripStatusLabel7.Text = "主设备丢包：" + CentralLostPackage.ToString();
+                            }
+                            #endregion
+
                             #region
                             else if (SerialReceiveData[1] == 0x09)
                             {
@@ -1231,37 +1271,65 @@ namespace MotionSensor
                                     differenceValue.Text = Convert.ToString(difference_Value);
                                 }
 
-                                Rectangle rect = new Rectangle();
-                                rect = Screen.GetWorkingArea(this);
-
-                                XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[12] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[12] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[10]) + Convert.ToDouble((SerialReceiveData[12] & 0x0c) << 6) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[12] & 0x03) << 8) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[17] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[17] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[17] & 0x0c) << 6) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[17] & 0x03) << 8) - difference_Value) * 100 / amplification + BaseLine;
-
-                                //XdataV[EcgDataTimer * M + 8] = 0;
-                                //XdataV[EcgDataTimer * M + 9] = 0;
-                                //XdataV[EcgDataTimer * M + 10] = 0;
-                                //XdataV[EcgDataTimer * M + 11] = 0;
-                                //XdataV[EcgDataTimer * M + 12] = 0;
-                                //XdataV[EcgDataTimer * M + 13] = 0;
-                                //XdataV[EcgDataTimer * M + 14] = 0;
-                                //XdataV[EcgDataTimer * M + 15] = 0;
-                                //XdataV[EcgDataTimer * M +16] = 0;
+                                //Rectangle rect = new Rectangle();
+                                //rect = Screen.GetWorkingArea(this);
 
 
-                                SerialEcgData.Add(XdataV[0]);
-                                SerialEcgData.Add(XdataV[1]);
-                                SerialEcgData.Add(XdataV[2]);
-                                SerialEcgData.Add(XdataV[3]);
-                                SerialEcgData.Add(XdataV[4]);
-                                SerialEcgData.Add(XdataV[5]);
-                                SerialEcgData.Add(XdataV[6]);
-                                SerialEcgData.Add(XdataV[7]);
+                                if (LastPackageNum != -1)  //不是第一次  
+                                {
+                                    int buffer = LastPackageNum + 1;
+                                    if(buffer == 256)
+                                    {
+                                        buffer = 0;
+                                    }
+                                    if (SerialReceiveData[4] != buffer)
+                                    {
+                                        LostPackageNum++;
+                                    }
+                                }
+                                LastPackageNum = SerialReceiveData[4];
+                                // LostPackageNum++;
+                                this.toolStripStatusLabel5.Text = "上位机丢包数：" + LostPackageNum.ToString();
+
+                                ReceivePackageNum++;
+                                this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
+
+                                XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[6]) + Convert.ToDouble((SerialReceiveData[10] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[7]) + Convert.ToDouble((SerialReceiveData[10] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[10] & 0x0c) << 6) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[10] & 0x03) << 8) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[15] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[12]) + Convert.ToDouble((SerialReceiveData[15] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[15] & 0x0c) << 6) - difference_Value) * 100 / amplification + BaseLine;
+                                XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[15] & 0x03) << 8) - difference_Value) * 100 / amplification + BaseLine;
+
+
+                               // chart1.Series["数据个数"].Color = Color.Green;
+
+                             //   chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 8).Color = Color.Black;
+
+                                //if (EcgDataTimer < 62)
+                                //{
+                                //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 4).Color = Color.Black;
+                                //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 5).Color = Color.Black;
+                                //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 6).Color = Color.Black;
+                                //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 7).Color = Color.Black;
+                                    //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 12).Color = Color.Black;
+                                    //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 13).Color = Color.Black;
+                                    //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 14).Color = Color.Black;
+                                    //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 15).Color = Color.Black;
+                                    //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 16).Color = Color.Black;
+                                //}
+
+
+                                //SerialEcgData.Add(XdataV[0]);
+                                //SerialEcgData.Add(XdataV[1]);
+                                //SerialEcgData.Add(XdataV[2]);
+                                //SerialEcgData.Add(XdataV[3]);
+                                //SerialEcgData.Add(XdataV[4]);
+                                //SerialEcgData.Add(XdataV[5]);
+                                //SerialEcgData.Add(XdataV[6]);
+                                //SerialEcgData.Add(XdataV[7]);
 
 
                                 FileStream fs = null;
@@ -1421,6 +1489,7 @@ namespace MotionSensor
                                 {
                                     EcgDataTimer = (chartlenMin / 8);
                                 }
+ 
                                 //if (SerialEcgData.Count > 512)
                                 //{
                                 //    SerialEcgData.RemoveRange(0, SerialEcgData.Count - 512);//从接收列表中删除包
@@ -1434,8 +1503,8 @@ namespace MotionSensor
 
                                 DataTransmissionFlag = 1;
 
-                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[5]);
-                                Vbat = Convert.ToInt16(SerialReceiveData[7] << 8) + Convert.ToInt16(SerialReceiveData[6]);
+                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[5])>>7;
+                                Vbat = Convert.ToInt16(SerialReceiveData[5]&0x7f);
                             }
                             #endregion
                             
@@ -1552,8 +1621,18 @@ namespace MotionSensor
                             + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  " + str2 + str3;
 
                         this.EcgPatchVersionLabel.Text = "心电补丁已连接 硬件版本:"+ Encoding.UTF8.GetString(HardVersion) + "   软件版本:" + Encoding.UTF8.GetString(SoftVersion);
-
+                        chart1.Series["Series_Ecg"].Color = Color.FromArgb(0, 192, 0); ;
                         chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+
+                        if (EcgDataTimer < 63 && (EcgDataTimer >=0))
+                        {
+                            chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 2).Color = Color.Black;
+                            chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 3).Color = Color.Black;
+                            chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 4).Color = Color.Black;
+                            chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 5).Color = Color.Black;
+                            chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 6).Color = Color.Black;
+                            chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 7).Color = Color.Black;
+                        }
                     }
                 }
             }
@@ -1561,8 +1640,8 @@ namespace MotionSensor
             {
                 //HeartRate.Text = rate.ToString();
                 BatteryValue.SelectAll();
-                double batteryValue = 3300 *4 * Vbat /1024 ;
-               // double batteryValue = Vbat;
+              //  double batteryValue = 3300 *4 * Vbat /1024 ;
+                double batteryValue = Vbat;
                 BatteryValue.Text = batteryValue.ToString();
               //  BloodPressure.Text = "";
                 if ((LeadOffStatus & 0x01) == 0x01)
@@ -2197,6 +2276,7 @@ namespace MotionSensor
                     XdataV[i] = ZeroValue;
                 }
                 chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+                chart1.Series["Series_Ecg"].Color = Color.Black;
             }
             else
             {

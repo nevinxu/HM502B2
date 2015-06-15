@@ -40,7 +40,7 @@
 #define ECGPATCHIDSIZE														10
 #define ECGPATCHHARDVERSIONSIZE										4
 #define ECGPATCHSOFTVERSIONSIZE										4
-#define ECGDATASIZE																14
+#define ECGDATASIZE																12
 
 #define APP_CMD_ECGDATASEND                				0x09
 #define APP_CMD_RECEIVEECGDATAACK                	0x14
