@@ -54,4 +54,5 @@ extern lpuart_status_t PC_lpuart_Init(
 extern lpuart_status_t PC_lpuart_DeInit(uint32_t uartInstance);
 
 extern void SendCommand2PC(uint8_t command,uint8_t status, uint8_t *data,uint8_t datalength);
+extern lpuart_status_t DEBUGlpuart_rx_callback_t(uint8_t * rxByte, void * param);
 #endif

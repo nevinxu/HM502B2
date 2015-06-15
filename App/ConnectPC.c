@@ -99,3 +99,7 @@ void SendCommand2PC(uint8_t command,uint8_t status, uint8_t *data,uint8_t datale
     
 }
 
+lpuart_status_t DEBUGlpuart_rx_callback_t(uint8_t * rxByte, void * param)
+{
+
+}

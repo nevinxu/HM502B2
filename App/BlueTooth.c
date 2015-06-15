@@ -13,6 +13,7 @@
 
 #include "BlueTooth.h"
 #include "EcgCapture.h"
+#include "ConnectPC.h"
 
 const uint8_t  AT[2]  = "AT";   
 uint8_t  SETNAME[18]   = "AT+NAMEED000000000";
@@ -387,7 +388,11 @@ lpuart_status_t lpuart_Init(
 		if(BOARD_BT_UART_INSTANCE == uartInstance)
 	{
 		s_bt_lpuart[BOARD_BT_UART_INSTANCE].rxCallback = BTlpuart_rx_callback_t;
-		s_bt_lpuart[BOARD_DEBUG_UART_INSTANCE].rxCallback = BTlpuart_rx_callback_t;
+		
+	}
+	else if(BOARD_DEBUG_UART_INSTANCE == uartInstance)
+	{
+		s_bt_lpuart[BOARD_DEBUG_UART_INSTANCE].rxCallback = DEBUGlpuart_rx_callback_t;
 	}
 	
    // s_bt_lpuart.instance = uartInstance;

@@ -27,6 +27,7 @@ extern msg_queue_handler_t hBTMsgQueue;  //
 extern msg_queue_handler_t hPCMsgQueue;  //
 
 BTTransmitPackage 	m_bttransmitpackage;   //À¶ÑÀ·¢ËÍ°ü
+static PCTransmitPackage m_pctransmitpackage;
 
 uint8_t BT_RunLedStatus = 0;   //À¶ÑÀÖ¸Ê¾µÆ×´Ì¬
 uint8_t BT_LedStatusNum = 0;
@@ -194,11 +195,11 @@ static void ecg_adc_isr_callback(void)
 				OSA_MsgQPut(hBTMsgQueue,&m_bttransmitpackage);   
 
 
-//				pctransmitpackage.start = STARTHEAD;
-//				pctransmitpackage.command = ECGDATACODE;
-//				pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
-//				memcpy(pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-//				OSA_MsgQPut(hPCMsgQueue,&pctransmitpackage);  
+				m_pctransmitpackage.start = STARTHEAD;
+				m_pctransmitpackage.command = ECGDATACODE;
+				m_pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
+				memcpy(m_pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+				OSA_MsgQPut(hPCMsgQueue,&m_pctransmitpackage);  
 			}
 		}
 }
