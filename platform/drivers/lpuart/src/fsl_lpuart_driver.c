@@ -488,11 +488,11 @@ void LPUART_DRV_IrqHandler(uint32_t instance)
 //                    rxCallbackEnd = true;
 //                }
 //				}
-//				else
-//				{
-//                ++lpuartState->rxBuff;
-//								--lpuartState->rxSize;
-//				}
+				else
+				{
+                ++lpuartState->rxBuff;
+								--lpuartState->rxSize;
+				}
 
         /* Check to see if this was the last byte received */
 //        if (lpuartState->rxSize == 0)

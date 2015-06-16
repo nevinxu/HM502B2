@@ -150,12 +150,12 @@
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>RxBuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>RxBuffer</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
@@ -165,7 +165,7 @@
         <Ww>
           <count>3</count>
           <WinNumber>2</WinNumber>
-          <ItemText>bluerxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
@@ -175,25 +175,30 @@
         <Ww>
           <count>5</count>
           <WinNumber>2</WinNumber>
-          <ItemText>DataArray</ItemText>
+          <ItemText>bluerxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>2</WinNumber>
-          <ItemText>flashdatapackage</ItemText>
+          <ItemText>DataArray</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>2</WinNumber>
-          <ItemText>s_bt_lpuart</ItemText>
+          <ItemText>flashdatapackage</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>2</WinNumber>
-          <ItemText>g_lpuartStatePtr</ItemText>
+          <ItemText>s_bt_lpuart</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>g_lpuartStatePtr</ItemText>
+        </Ww>
+        <Ww>
+          <count>10</count>
           <WinNumber>2</WinNumber>
           <ItemText>g_lpuartStatePtr[instance]</ItemText>
         </Ww>

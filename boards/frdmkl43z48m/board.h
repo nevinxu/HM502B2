@@ -43,11 +43,11 @@
 #define BOARD_NAME                      "HM502B2"
 /*! The LPUART to use for debug messages. */
 #define BOARD_DEBUG_UART_INSTANCE  0
-#define BOARD_DEBUG_UART_BASEADDR   LPUART1_BASE
-#define BOARD_DEBUG_UART_BAUD       115200
+#define BOARD_DEBUG_UART_BASEADDR   LPUART0_BASE
+#define BOARD_DEBUG_UART_BAUD       9600
 
 #define BOARD_BT_UART_INSTANCE   1
-#define BOARD_BT_UART_BASEADDR   LPUART0_BASE
+#define BOARD_BT_UART_BASEADDR   LPUART1_BASE
 #define BOARD_BT_UART_BAUD       115200
 
 /* board led color mapping */
