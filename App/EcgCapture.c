@@ -123,7 +123,7 @@ static void ecg_adc_isr_callback(void)
 					BLEConnectedFlag = 1;   //长时间亮   代表蓝牙已连接 
 					if(ECGDataSendFlag == 0)   //未发送数据  
 					{
-						ECGDataSendFlag = 1;
+//						ECGDataSendFlag = 1;
 						LED1_OFF;	   //
 					}
 				}

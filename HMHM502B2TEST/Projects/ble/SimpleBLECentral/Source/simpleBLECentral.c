@@ -791,7 +791,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
         
         // initialize scan index to last device
       //  simpleBLEScanIdx = 0;   //选择第一个index
-        osal_memcpy(ECGPatchMAC,simpleBLEDevList[0].addr,6);
+   //     osal_memcpy(ECGPatchMAC,simpleBLEDevList[0].addr,6);
         
         if(simpleBLEScanRes > 0)   //
         {
@@ -839,7 +839,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           txSerialPkt.length = 0;
           sendSerialEvt();
           
-          osal_memcpy(ECGPatchMAC,simpleBLEDevList[simpleBLEScanIdx].addr,6);
+       //   osal_memcpy(ECGPatchMAC,simpleBLEDevList[simpleBLEScanIdx].addr,6);
           
           HalLedSet( HAL_LED_YELLOW, HAL_LED_MODE_ON );    
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_OFF );

@@ -457,6 +457,15 @@ namespace MotionSensor
     unsafe private void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             int EcgMaxValue, EcgMinValue;
+
+        if (DebugMode == 2)
+        {
+                    while (SerialReceiveData.Count >= 1 && (SerialReceiveData[0] != 0x77))
+                    {
+                        //杩欓噷鏄¯寰堥噸瑕佺殑锛屽¦傛灉鏁版嵁寮€濮嬩笉鏄¯澶达紝鍒欏垹闄ゆ暟鎹®  
+                        SerialReceiveData.RemoveAt(0);
+                    }
+        }
             while (SerialReceiveData.Count >= 4 && ((SerialReceiveData[3]+4) <= SerialReceiveData.Count))
             {
                 #region
@@ -1114,6 +1123,10 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 difference_Value = (Int16)(SerialReceiveData[4] + (SerialReceiveData[5] << 8));
+                                if (difference_Value <= 0 || (difference_Value > 1000))
+                                {
+                                    difference_Value = 500;
+                                }
                                 System.Threading.Thread.Sleep(200);
                                 calibration1mvSerialCommand();
                             }
@@ -1126,6 +1139,10 @@ namespace MotionSensor
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
                                 amplification = (Int16)(SerialReceiveData[4] + (SerialReceiveData[5] << 8));
+                                if (amplification <= 0 || (amplification > 100))
+                                {
+                                    amplification = 60;
+                                }
                                 System.Threading.Thread.Sleep(200);
                                 GetHardWareVersionSerialCommand();
                             }
