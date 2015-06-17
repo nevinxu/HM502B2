@@ -111,7 +111,7 @@ int32_t ReadData4Flash()
 	}
 	if(flashdatapackage.IDValue[0] != 'D')
 	{
-		memcpy(flashdatapackage.IDValue,"D000000002",10);
+		memcpy(flashdatapackage.IDValue,"D88888888",10);
 	}
 	
 }
