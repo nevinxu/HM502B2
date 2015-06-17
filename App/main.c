@@ -19,7 +19,6 @@
 
 OSA_TASK_DEFINE(task_connect_pc_rx, TASK_CONNECT_PC_STACK_SIZE);
 OSA_TASK_DEFINE(task_connect_pc_tx, TASK_CONNECT_PC_STACK_SIZE);
-OSA_TASK_DEFINE(task_bluetooth_rx, TASK_BLUETOOTH_STACK_SIZE);
 OSA_TASK_DEFINE(task_bluetooth_tx, TASK_BLUETOOTH_STACK_SIZE);
 
 MSG_QUEUE_DECLARE(mqBTData, 50, 1);  //大小在freertos上无效  
@@ -143,8 +142,6 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
 	
 
 	FlashInit(&flashSSDConfig);
-	/* Configure the power mode protection */
-//	SMC_HAL_SetProtection(SMC_BASE, &smc_power_prot_cfg);	
 	ReadData4Flash();
 	
 	OSA_Init();   //直接返回 OSA_Success   实时操作系统的初始化     freertos没有函数体  直接返回   
@@ -159,14 +156,6 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
 	hBTMsgQueue = OSA_MsgQCreate(mqBTData, BTPACKAGEDEEP, sizeof(bttransmitpackage));  //定义蓝牙发送传输队列 
 	hPCMsgQueue = OSA_MsgQCreate(mqPCData, PCPACKAGEDEEP, sizeof(pctransmitpackage));  //定义调试串口发送传输队列
 	
-	OSA_TaskCreate(task_bluetooth_rx,
-                   (uint8_t*) "bluetooth_rx",
-                    TASK_BLUETOOTH_STACK_SIZE,
-                    task_bluetooth_rx_stack,
-                    TASK_BLUETOOTH_RX_PRIO,
-                    (task_param_t)0,
-                    false,
-                    &task_bluetooth_rx_task_handler);
 	OSA_TaskCreate(task_bluetooth_tx,
                    (uint8_t*) "bluetooth_tx",
                     TASK_BLUETOOTH_STACK_SIZE,

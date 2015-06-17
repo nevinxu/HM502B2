@@ -67,6 +67,8 @@ extern "C"
 #define simpleBLE_PERIODIC_EVT                        0x0200
 #define START_RECEIVEECGDATA_EVT                      0x0400
 #define START_GET0MVVALUE_EVT                      0x0800
+#define START_GETECGPatchMACVALUE_EVT                      0x1000
+   
 /*********************************************************************
  * MACROS
  */

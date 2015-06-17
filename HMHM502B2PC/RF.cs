@@ -1625,9 +1625,9 @@ namespace MotionSensor
                         }
                         else
                         {
-                            str3 = "配对MAC：" + ECGPairMAC[0].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") +
-                                    ":" + ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") +
-                                    ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[5].ToString("X2");
+                            str3 = "配对MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
+                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
+                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
                         }
                         this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
                                     + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")

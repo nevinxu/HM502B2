@@ -389,14 +389,18 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       if ( simpleBLEScanRes > 0 )
       {
         // connect to current device in scan result
-        peerAddr = PairMAC;
-        addrType = simpleBLEDevList[simpleBLEScanIdx].addrType;
-      
-        simpleBLEState = BLE_STATE_CONNECTING;
+        if(memcmp(simpleBLEDevList[simpleBLEScanIdx].addr,PairMAC,6) == 0)
+        {
+          peerAddr = PairMAC;
+          memcpy(ECGPatchMAC,PairMAC,6);
+          addrType = simpleBLEDevList[simpleBLEScanIdx].addrType;
         
-        GAPCentralRole_EstablishLink( DEFAULT_LINK_HIGH_DUTY_CYCLE,
-                                      DEFAULT_LINK_WHITE_LIST,
-                                      addrType, peerAddr );
+          simpleBLEState = BLE_STATE_CONNECTING;
+          
+          GAPCentralRole_EstablishLink( DEFAULT_LINK_HIGH_DUTY_CYCLE,
+                                        DEFAULT_LINK_WHITE_LIST,
+                                        addrType, peerAddr );
+        }
       }
     }
     return ( events ^ START_CONNECT_EVT );
@@ -486,7 +490,23 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       SendCommand2Peripheral(APP_CMD_GET0MVVALUE,0,0);
       osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
     }
-  }       
+  }    
+
+    if ( events & START_GETECGPatchMACVALUE_EVT )  //
+  {
+    if ( simpleBLEState == BLE_STATE_CONNECTED )
+    { 
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_ECGPatchMACACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 6; 
+      osal_memcpy(txSerialPkt.data,ECGPatchMAC,6);
+      sendSerialEvt();
+      
+      osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
+    }
+  } 
+  
   // Discard unknown events
   return 0;
 }
@@ -845,7 +865,9 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_OFF );
           simpleBLEProcedureInProgress = FALSE;
           
-          osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
+        //  osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
+          osal_start_timerEx( simpleBLETaskId, START_GETECGPatchMACVALUE_EVT,500);
+          
        //   SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
           
         }

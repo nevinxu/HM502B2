@@ -445,7 +445,7 @@ void LPUART_DRV_IrqHandler(uint32_t instance)
     uint32_t baseAddr = g_lpuartBaseAddr[instance];
 		bool rxCallbackEnd = false;
 
-		lpuartState->isRxBusy = 1;
+//		lpuartState->isRxBusy = 1;
 	
     /* Exit the ISR if no transfer is happening for this instance. */
     if ((!lpuartState->isTxBusy) && (!lpuartState->isRxBusy))
@@ -476,7 +476,8 @@ void LPUART_DRV_IrqHandler(uint32_t instance)
     {
 			static uint8_t rxbuffer;
         /* get data and put in receive buffer  */
-        LPUART_HAL_Getchar(baseAddr, &rxbuffer);
+      //  LPUART_HAL_Getchar(baseAddr, &rxbuffer);
+			LPUART_HAL_Getchar(baseAddr, lpuartState->rxBuff);
 				if (lpuartState->rxCallback != NULL)
 				{
 					lpuartState->rxCallback(&rxbuffer, lpuartState->rxCallbackParam);
@@ -492,14 +493,15 @@ void LPUART_DRV_IrqHandler(uint32_t instance)
 				{
                 ++lpuartState->rxBuff;
 								--lpuartState->rxSize;
+					        /* Check to see if this was the last byte received */
+						if (lpuartState->rxSize == 0)
+						{
+								/* Complete transfer, will disable rx interrupt */
+								LPUART_DRV_CompleteReceiveData(instance);
+						}
 				}
 
-        /* Check to see if this was the last byte received */
-//        if (lpuartState->rxSize == 0)
-//        {
-//            /* Complete transfer, will disable rx interrupt */
-//          //  LPUART_DRV_CompleteReceiveData(instance);
-//        }
+
     }
 
     /* Handle receive overrun interrupt */
