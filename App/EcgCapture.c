@@ -62,7 +62,7 @@ int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 
 static void ecg_adc_isr_callback(void)
 {
-		static uint8_t i;
+		static uint8_t i,ii;
 		static uint16_t j =0;
 		static uint16_t batterybuffer[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		uint16_t buffer = 0;
@@ -91,6 +91,10 @@ static void ecg_adc_isr_callback(void)
     }
     else  //电量采集
     {
+			ii++;
+			if(ii>=128)   //一秒钟一次
+			{
+				ii = 0;
 				for(uint8_t j = 15;j > 0; j--)
 				{
 					batterybuffer[j] = batterybuffer[j-1];
@@ -102,6 +106,7 @@ static void ecg_adc_isr_callback(void)
         adcChnConfig.intEnable = true;
         adcChnConfig.chnMux = kAdcChnMuxOfB;
         ADC_DRV_ConfigConvChn(0, ECGCHNGROUP, &adcChnConfig);
+			}
     }
 		i++;
 		if(i >= (ECGNUMPACKAGE<<1))
@@ -152,9 +157,12 @@ static void ecg_adc_isr_callback(void)
 					buffer = batterybuffer[0];
 				}
 				
+				
+				
 				if(buffer <= BATTERYTOOLOW)   //电压过低  
 				{
-					ECGDataSendFlag = 0;   
+					ecgdatapackage.leadoffstatus_battery = 0;   //导联脱离  数据发0  
+					memset(ecgdatapackage.ecgdata,0,8);
 					LedSet(3,2,25);
 				}
 				if(buffer <= BATTERYLOW)   //电压低  
@@ -172,7 +180,7 @@ static void ecg_adc_isr_callback(void)
 				}
 				else
 				{
-					ecgdatapackage.leadoffstatus_battery += 1000*(318 - buffer)/560;
+					ecgdatapackage.leadoffstatus_battery += 1000*(buffer-256)/620;
 				}
 				
 				batteryValue_Mv = 3300 *4 * buffer /1024 ;

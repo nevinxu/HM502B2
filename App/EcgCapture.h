@@ -14,6 +14,8 @@
 #define BATTERYCHNGROUP		    0u
 
 
+
+
 #define ECG_ADC_INPUT_CHAN          13U  /* default input signal channel */
 #define BATTERY_ADC_INPUT_CHAN      23U  /* default input signal channel */
 
@@ -43,6 +45,8 @@ typedef struct _FlashDataPackage
 	uint16_t amplification;
 	uint16_t difference_Value;
 	uint8_t IDValue[10]; 
+	uint8_t	EcgdataRate;
+	
 	uint8_t None[2]; 
 }FlashDataPackage;    //
 

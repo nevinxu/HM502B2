@@ -106,7 +106,7 @@ int32_t ReadData4Flash()
 	}
 	if(flashdatapackage.difference_Value >1000)
 	{
-		flashdatapackage.difference_Value = 525;
+		flashdatapackage.difference_Value = 500;
 	}
 	if(flashdatapackage.IDValue[0] != 'D')
 	{
@@ -119,10 +119,6 @@ int32_t ReadData4Flash()
 
 int main(void)
 {	
-
-	uint32_t destination; 
-	uint8_t DataArray[1024];
-	
 	// Read the function address from the ROM API tree.
 runBootloaderAddress = **(uint32_t **)(0x1c00001c);
 runBootloader = (void (*)(void * arg))runBootloaderAddress;

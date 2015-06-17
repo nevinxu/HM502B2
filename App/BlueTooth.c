@@ -176,8 +176,7 @@ void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
 void task_bluetooth_tx(task_param_t param)   //优先级高  
 {
 	InitBlueTooth();
-	//while ( kStatus_LPUART_Success != LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,AT,sizeof(AT), portMAX_DELAY));
-	
+
 	OSA_TaskCreate(task_bluetooth_rx,
                    (uint8_t*) "bluetooth_rx",
                     TASK_BLUETOOTH_STACK_SIZE,
@@ -299,7 +298,7 @@ void task_bluetooth_rx(task_param_t param)
 									WriteData2Flash();
 									ReadData4Flash();
 
-//									uint8_t rxbuffer[100];
+									uint8_t rxbuffer[100];
 //									//获取EDR设备名称
 //								while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,GETNAME,strlen(GETNAME), portMAX_DELAY));
 //								while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
@@ -323,7 +322,7 @@ void task_bluetooth_rx(task_param_t param)
 //										while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 //								}
 //								
-//								memset(rxbuffer,0,100);	
+								memset(rxbuffer,0,100);	
 									BlueToothSendCommand(SENDSETECGPATCHIDCODE,APP_CMD_SETECGPATCHIDREQ,SERIAL_DATASIZE_TEN,flashdatapackage.IDValue); 
 								}
 						 }

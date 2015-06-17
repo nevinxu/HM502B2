@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-//using Dundas.Charting.WinControl;
 using System.IO;
 using System.IO.Ports;
 using Microsoft.Win32;
@@ -91,6 +90,8 @@ namespace MotionSensor
         private double ReceivePackageNum = 0;
 
         private int LastPackageNum = -1;
+
+        private int DeviceConnectMode = 0;    //1 蓝牙  2 直接连接
 
 
         public RF()
