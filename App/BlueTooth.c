@@ -42,6 +42,7 @@ uint8_t g_RxBuffer[20];
 uint8_t RxSuccessFlag = 0;
 
 extern uint8_t BTSendNum;
+extern uint8_t BTSendSuccessFlag;
 
 extern EcgDataPackage ecgdatapackage;
 
@@ -179,7 +180,7 @@ void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
 
 void task_bluetooth_tx(task_param_t param)   //优先级高  
 {
-	InitBlueTooth();
+	//InitBlueTooth();
 
 	OSA_TaskCreate(task_bluetooth_rx,
                    (uint8_t*) "bluetooth_rx",
@@ -233,14 +234,14 @@ void task_bluetooth_rx(task_param_t param)
     
 	while(1)
 	{
-//			OSA_TimeDelay(5);
-//			if(RxSuccessFlag == 1)
-//       {
-//				 RxSuccessFlag = 0;
-//				 memcpy(bluerxbuffer,g_RxBuffer,20);
-//				 memset(g_RxBuffer,0,20);
-		    if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,80))
-				{
+			OSA_TimeDelay(5);
+			if(RxSuccessFlag == 1)
+       {
+				 RxSuccessFlag = 0;
+				 memcpy(bluerxbuffer,g_RxBuffer,20);
+				 memset(g_RxBuffer,0,20);
+//		    if(kStatus_LPUART_Timeout == LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,bluerxbuffer,20,80))
+//				{
 /************************************************************************************************/						
 					 if(bluerxbuffer[0] == SERIAL_IDENTIFIER)
 					 {
@@ -334,7 +335,8 @@ void task_bluetooth_rx(task_param_t param)
 								}
 								else if(bluerxbuffer[1] == APP_CMD_ECGDATAOKREQ)				//心电数据接收回应
 								{
-									BTSendNum++;
+									//BTSendNum++;
+									BTSendSuccessFlag = 1;
 								}
 						 }
 					 }
@@ -408,15 +410,15 @@ lpuart_status_t lpuart_Init(
     /* Init LPUART device. */
     LPUART_DRV_Init(uartInstance, &s_bt_lpuart[uartInstance], &lpuartConfig);
 
-//		if(BOARD_BT_UART_INSTANCE == uartInstance)
-//	{
-//		s_bt_lpuart[BOARD_BT_UART_INSTANCE].rxCallback = BTlpuart_rx_callback_t;
-//		
-//	}
-//	else if(BOARD_DEBUG_UART_INSTANCE == uartInstance)
-//	{
-//		s_bt_lpuart[BOARD_DEBUG_UART_INSTANCE].rxCallback = DEBUGlpuart_rx_callback_t;
-//	}
+		if(BOARD_BT_UART_INSTANCE == uartInstance)
+	{
+		s_bt_lpuart[BOARD_BT_UART_INSTANCE].rxCallback = BTlpuart_rx_callback_t;
+		
+	}
+	else if(BOARD_DEBUG_UART_INSTANCE == uartInstance)
+	{
+		s_bt_lpuart[BOARD_DEBUG_UART_INSTANCE].rxCallback = DEBUGlpuart_rx_callback_t;
+	}
 	
    // s_bt_lpuart.instance = uartInstance;
     return kStatus_LPUART_Success;

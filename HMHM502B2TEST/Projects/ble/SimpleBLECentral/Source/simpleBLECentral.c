@@ -515,6 +515,11 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       HalFlashRead(PairMACPage, 0, PairMAC, 6);
     return (events ^ START_STOREPAIRMAC_EVT);
   }
+  if ( events & START_ECGRECEIVEREQ_EVT ) 
+  {
+    SendCommand2Peripheral(APP_CMD_ECGDATAOKREQ,0,0);
+    return (events ^ START_ECGRECEIVEREQ_EVT);
+  }
   
   // Discard unknown events
   return 0;
@@ -644,8 +649,8 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
                // if(pMsg->msg.handleValueNoti.len == 0x12)     // 数据完整性
                 {
                   HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, 0x12);
-                  
-                 // SendCommand2Peripheral(APP_CMD_ECGDATAOKREQ,0,0);
+                  osal_set_event( simpleBLETaskId, START_ECGRECEIVEREQ_EVT);
+             //     SendCommand2Peripheral(APP_CMD_ECGDATAOKREQ,0,0);
                   
                   ReceivePackageNum++;
                   

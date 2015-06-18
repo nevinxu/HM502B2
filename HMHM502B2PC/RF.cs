@@ -48,7 +48,7 @@ namespace MotionSensor
         private byte BLEConnectFlag = 0;
 
         private int ScanBLENum = 0;
-        private byte[,] ScanBLEMAC = new byte[10,6];
+        private byte[,] ScanBLEMAC = new byte[100,6];
 
         string StartStoreDataTime = "";
 

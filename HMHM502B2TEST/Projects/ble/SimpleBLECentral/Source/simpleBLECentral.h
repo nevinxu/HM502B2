@@ -69,6 +69,7 @@ extern "C"
 #define START_GET0MVVALUE_EVT                      0x0800
 #define START_GETECGPatchMACVALUE_EVT                      0x1000
 #define START_STOREPAIRMAC_EVT                      0x2000
+#define START_ECGRECEIVEREQ_EVT                      0x4000
    
 /*********************************************************************
  * MACROS
