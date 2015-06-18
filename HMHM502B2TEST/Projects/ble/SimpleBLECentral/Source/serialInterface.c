@@ -428,10 +428,10 @@ void parseCmd(void){
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = 6; 
       osal_memcpy(PairMAC,rxSerialPkt.data,6);
-      HalFlashErase(PairMACPage);
-      HalFlashWrite(PairMACAddr, PairMAC, 6);
+
       osal_memcpy(txSerialPkt.data,rxSerialPkt.data,6);
       sendSerialEvt();
+      osal_set_event( simpleBLETaskId, START_STOREPAIRMAC_EVT);
     }
     break;
     case APP_CMD_SET1MVVALUE:

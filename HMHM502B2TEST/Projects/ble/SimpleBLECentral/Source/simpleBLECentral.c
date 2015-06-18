@@ -255,8 +255,8 @@ void SimpleBLECentral_Init( uint8 task_id )
 {
   simpleBLETaskId = task_id;
   
-  HalFlashErase(PairMACPage);
-  HalFlashWrite(PairMACAddr, PairMAC, 6);
+//  HalFlashErase(PairMACPage);
+//  HalFlashWrite(PairMACAddr, PairMAC, 6);
   
   HalFlashRead(PairMACPage, 0, PairMAC, 6);
 
@@ -482,6 +482,7 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
     { 
       SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
     }
+    return (events ^ START_RECEIVEECGDATA_EVT);
   }
   if ( events & START_GET0MVVALUE_EVT )  //
   {
@@ -490,6 +491,7 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       SendCommand2Peripheral(APP_CMD_GET0MVVALUE,0,0);
       osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
     }
+    return (events ^ START_GET0MVVALUE_EVT);
   }    
 
     if ( events & START_GETECGPatchMACVALUE_EVT )  //
@@ -505,7 +507,16 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       
       osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
     }
+    return (events ^ START_GETECGPatchMACVALUE_EVT);
   } 
+  if ( events & START_STOREPAIRMAC_EVT ) 
+  {
+          HalFlashErase(PairMACPage);
+      HalFlashWrite(PairMACAddr, PairMAC, 6);
+      memset(PairMAC,0,6);
+      HalFlashRead(PairMACPage, 0, PairMAC, 6);
+    return (events ^ START_STOREPAIRMAC_EVT);
+  }
   
   // Discard unknown events
   return 0;

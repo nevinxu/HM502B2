@@ -463,7 +463,6 @@ namespace MotionSensor
         {
                     while (SerialReceiveData.Count >= 1 && (SerialReceiveData[0] != 0x77))
                     {
-                        //杩欓噷鏄¯寰堥噸瑕佺殑锛屽¦傛灉鏁版嵁寮€濮嬩笉鏄¯澶达紝鍒欏垹闄ゆ暟鎹®  
                         SerialReceiveData.RemoveAt(0);
                     }
         }
