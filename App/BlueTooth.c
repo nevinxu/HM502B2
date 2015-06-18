@@ -41,6 +41,10 @@ extern FlashDataPackage flashdatapackage;
 uint8_t g_RxBuffer[20];
 uint8_t RxSuccessFlag = 0;
 
+extern uint8_t BTSendNum;
+
+extern EcgDataPackage ecgdatapackage;
+
 
 uint8_t OKGetReturn(uint8_t *buffer)
 {
@@ -245,7 +249,8 @@ void task_bluetooth_rx(task_param_t param)
 								if(bluerxbuffer[1] == APP_CMD_RECEIVEECGDATAACK)    //开始发送心电数据
 								{
 									BlueToothSendCommand(SENDECGENABLECODE,APP_CMD_RECEIVEECGDATAREQ,SERIAL_DATASIZE_ONE,SucessFlag);
-									ECGDataSendFlag  = 1;									
+									ECGDataSendFlag  = 1;		
+									ecgdatapackage.sequence = 0;								
 								}
 								else if(bluerxbuffer[1] == APP_CMD_STOPRECEIVEECGDATAACK)				//停止发送心电数据
 								{
@@ -322,8 +327,14 @@ void task_bluetooth_rx(task_param_t param)
 //										while ( kStatus_LPUART_RxBusy ==  LPUART_DRV_ReceiveDataBlocking(BOARD_BT_UART_INSTANCE,rxbuffer,100, 100));
 //								}
 //								
+								
+
 								memset(rxbuffer,0,100);	
 									BlueToothSendCommand(SENDSETECGPATCHIDCODE,APP_CMD_SETECGPATCHIDREQ,SERIAL_DATASIZE_TEN,flashdatapackage.IDValue); 
+								}
+								else if(bluerxbuffer[1] == APP_CMD_ECGDATAOKREQ)				//心电数据接收回应
+								{
+									BTSendNum++;
 								}
 						 }
 					 }

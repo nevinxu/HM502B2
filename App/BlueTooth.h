@@ -68,6 +68,8 @@
 #define APP_CMD_GET0MVVALUE               				0x2A
 #define APP_CMD_GET0MVVALUEACK               			0x2B
 
+#define APP_CMD_ECGDATAOKREQ                    0x37    //????????
+
 
                      
 #define     GETATOB                     "AT+ATOB?"                      //查询/设置模块三通模式

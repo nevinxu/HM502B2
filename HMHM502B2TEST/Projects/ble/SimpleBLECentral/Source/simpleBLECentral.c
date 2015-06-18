@@ -188,8 +188,6 @@ uint8 IDValue[10] = {"D000000000"};
 uint8 CentralMAC[6];
 uint8 ECGPatchMAC[6];    //连接心电补丁MAC地址
 
-//uint8 PairMAC[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
-//uint8 PairMAC[6] = {0xE5,0x39,0x00,0x0B,0x0E,0x00};
 uint8 PairMAC[6] = {0xE6,0x39,0x00,0x0B,0x0E,0x00};
 uint8 PairFlag = 1;   //配对功能使能
 
@@ -610,7 +608,7 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
   {
     if(DeviceMode == 0)  //HM303接收数据格式
     {
-        uint8 valueReadSize = pMsg->msg.handleValueNoti.len; 
+     //   uint8 valueReadSize = pMsg->msg.handleValueNoti.len; 
         static uint8 rxpacketnum = 0;
         static uint8 serial_txbuffer[100];
         {
@@ -618,12 +616,12 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
           rxpacketnum++;
           if(rxpacketnum >= 8)
           {
-            uint16 batteryvalue;
+           // uint16 batteryvalue;
             rxpacketnum = 0;
             serial_txbuffer[0] = '[';
             serial_txbuffer[83] = ']';
             serial_txbuffer[1] = 84;
-            batteryvalue = pMsg->msg.handleValueNoti.value[7] + (pMsg->msg.handleValueNoti.value[6]<<8);
+          //  batteryvalue = pMsg->msg.handleValueNoti.value[7] + (pMsg->msg.handleValueNoti.value[6]<<8);
             serial_txbuffer[2] = ((pMsg->msg.handleValueNoti.value[5]&0x01)<<7)+ (pMsg->msg.handleValueNoti.value[6]&0x7f);
             NPI_WriteTransport(serial_txbuffer,84);
           }
@@ -646,6 +644,8 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
                // if(pMsg->msg.handleValueNoti.len == 0x12)     // 数据完整性
                 {
                   HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, 0x12);
+                  
+                 // SendCommand2Peripheral(APP_CMD_ECGDATAOKREQ,0,0);
                   
                   ReceivePackageNum++;
                   

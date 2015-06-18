@@ -808,10 +808,10 @@ namespace MotionSensor
                                     }
                                     ScanBLENum++;
                                     byte[] BleName = new byte[16];
-                                    for (int j = 0; j < 11; j++)
-                                    {
-                                        BleName[j] = SerialReceiveData[0x10 + j];
-                                    }
+                                    //for (int j = 0; j < 11; j++)
+                                    //{
+                                    //    BleName[j] = SerialReceiveData[0x10 + j];
+                                    //}
                                     string aa = Encoding.UTF8.GetString(BleName);
                                     MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") +")"+ aa );
 

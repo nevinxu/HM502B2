@@ -63,6 +63,8 @@
 #define APP_CMD_GET0MVVALUEACK               0x2B
 #define APP_CMD_RECEIVEPACKAGENUMVALUE              0x36
 
+#define APP_CMD_ECGDATAOKREQ                    0x37    //心电数据接收回应
+
 #define APP_CMD_ECGPATCHHARDVERSIONACK          	0x30
 #define APP_CMD_ECGPATCHHARDVERSIONREQ        		0x31
 #define APP_CMD_ECGPATCHSOFTVERSIONACK          	0x32

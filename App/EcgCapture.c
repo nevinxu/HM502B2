@@ -16,6 +16,13 @@
 #include "ecg.c"
 
 
+uint16_t Ecgbuffer[256][8];
+uint8_t Ecg_Row = 0;
+uint8_t Ecg_Col = 0;
+uint8_t BTSendNum = 0;
+uint8_t BTSendSuccessFlag = 1;
+
+
 /* SIM base address */
 const uint32_t gSimBaseAddr[] = SIM_BASE_ADDRS;
 adc_state_t gAdcState;
@@ -75,11 +82,21 @@ static void ecg_adc_isr_callback(void)
 			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
 			{
 				ecgdatapackage.ecgdata[i/2] = ECGBASEVALUE;
+				Ecgbuffer[Ecg_Row][Ecg_Col] = ECGBASEVALUE;
 			}
 			else
 			{
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+				Ecgbuffer[Ecg_Row][Ecg_Col] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}
+			
+			Ecg_Col++;
+			if(Ecg_Col >= 8)
+			{
+				Ecg_Col = 0;
+				Ecg_Row ++;				
+			}
+			
 
 			//	ecgdatapackage.ecgdata[i/2] = sinTab[j++];
 			//ecgdatapackage.ecgdata[i/2] = j++;
@@ -128,7 +145,7 @@ static void ecg_adc_isr_callback(void)
 					BLEConnectedFlag = 1;   //长时间亮   代表蓝牙已连接 
 					if(ECGDataSendFlag == 0)   //未发送数据  
 					{
-//						ECGDataSendFlag = 1;
+						ECGDataSendFlag = 1;
 						LED1_OFF;	   //
 					}
 				}
@@ -187,27 +204,32 @@ static void ecg_adc_isr_callback(void)
 				
 			if(ECGDataSendFlag  == 1)
 			{
-				m_bttransmitpackage.code = ECGDATACODE;
-				m_bttransmitpackage.size = sizeof(ecgdatapackage);
-				ecgdatapackage.start = SERIAL_IDENTIFIER;
-				ecgdatapackage.command = APP_CMD_ECGDATASEND;
-				ecgdatapackage.status = SERIAL_STATUS_OK;
-				ecgdatapackage.length = ECGDATASIZE;
-				memcpy(m_bttransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+		//		if(BTSendSuccessFlag == 1)
+				{
+						BTSendSuccessFlag = 0;
+						m_bttransmitpackage.code = ECGDATACODE;
+						m_bttransmitpackage.size = sizeof(ecgdatapackage);
+						ecgdatapackage.start = SERIAL_IDENTIFIER;
+						ecgdatapackage.command = APP_CMD_ECGDATASEND;
+						ecgdatapackage.status = SERIAL_STATUS_OK;
+						ecgdatapackage.length = ECGDATASIZE;
+						memcpy(m_bttransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+						//memcpy(m_bttransmitpackage.data,Ecgbuffer[BTSendNum],sizeof(ecgdatapackage));
 
-				
-		//压缩		
-				EncodeData4WTo5B(ecgdatapackage.ecgdata,&m_bttransmitpackage.data[6],8);
-				m_bttransmitpackage.size = m_bttransmitpackage.size-6;
-				
-				OSA_MsgQPut(hBTMsgQueue,&m_bttransmitpackage);   
+						
+				//压缩		
+						EncodeData4WTo5B(ecgdatapackage.ecgdata,&m_bttransmitpackage.data[6],8);
+						m_bttransmitpackage.size = m_bttransmitpackage.size-6;
+						
+						OSA_MsgQPut(hBTMsgQueue,&m_bttransmitpackage);   
 
 
-				m_pctransmitpackage.start = STARTHEAD;
-				m_pctransmitpackage.command = ECGDATACODE;
-				m_pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
-				memcpy(m_pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-				OSA_MsgQPut(hPCMsgQueue,&m_pctransmitpackage);  
+						m_pctransmitpackage.start = STARTHEAD;
+						m_pctransmitpackage.command = ECGDATACODE;
+						m_pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
+						memcpy(m_pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+						OSA_MsgQPut(hPCMsgQueue,&m_pctransmitpackage);  
+				}
 			}
 		}
 }
