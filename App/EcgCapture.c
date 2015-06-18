@@ -87,7 +87,7 @@ static void ecg_adc_isr_callback(void)
 			else
 			{
         ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
-				Ecgbuffer[Ecg_Row][Ecg_Col] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+			//	Ecgbuffer[Ecg_Row][Ecg_Col] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}
 			
 			Ecg_Col++;
