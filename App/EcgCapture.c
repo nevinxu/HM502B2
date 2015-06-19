@@ -69,7 +69,7 @@ int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 
 static void ecg_adc_isr_callback(void)
 {
-		static uint8_t i,ii;
+		static uint8_t i,ii = 128;
 		static uint16_t j =0;
 		static uint16_t batterybuffer[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		uint16_t buffer = 0;

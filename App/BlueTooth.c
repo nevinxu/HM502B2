@@ -29,7 +29,7 @@ static lpuart_state_t s_bt_lpuart[2];
 extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列 
 
 uint8_t	HardWareVersion[4] = {"1.00"};
-uint8_t	SoftWareVersion[4] = {"1.02"};   //sdk1.0.0   2015.06.17
+uint8_t	SoftWareVersion[4] = {"1.03"};   //sdk1.0.0   2015.06.17
 
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
@@ -181,6 +181,10 @@ void LedSet(uint8_t HighTime,uint8_t HighNum,uint16_t PeriodTime)
 void task_bluetooth_tx(task_param_t param)   //优先级高  
 {
 	//InitBlueTooth();
+	
+	while(GPIO_DRV_ReadPinInput(kGpioBTPIO1) == 0);
+		while ( kStatus_LPUART_Success != LPUART_DRV_SendDataBlocking(BOARD_BT_UART_INSTANCE,AT,sizeof(AT), portMAX_DELAY));
+
 
 	OSA_TaskCreate(task_bluetooth_rx,
                    (uint8_t*) "bluetooth_rx",
