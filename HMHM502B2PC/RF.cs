@@ -93,6 +93,8 @@ namespace MotionSensor
 
         private int DeviceConnectMode = 0;    //1 蓝牙  2 直接连接
 
+        private int ComConnectFlag = 0;   //串口连接标志
+
 
         public RF()
         {
@@ -398,6 +400,7 @@ namespace MotionSensor
                     SerialPort.Close();
                     System.Threading.Thread.Sleep(500);
                 }
+                ComConnectFlag = 0;
                 DataStoreButton.Enabled = false;
                 ScanButton.Enabled = false;
                 ConnectBLEButton.Enabled = false;
@@ -774,6 +777,8 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
+                                ComConnectFlag = 1;
+
                                 StopReceiveECGDataSerialCommand();
                                 System.Threading.Thread.Sleep(500);
                                 DisAutoConnectBLESerialCommand();
@@ -808,9 +813,12 @@ namespace MotionSensor
                                     }
                                     ScanBLENum++;
                                     byte[] BleName = new byte[16];
-                                    for (int j = 0; j < 11; j++)
+                                    if ((SerialReceiveData.Count - 0x10) >= 11)
                                     {
-                                        BleName[j] = SerialReceiveData[0x10 + j];
+                                        for (int j = 0; j < 11; j++)
+                                        {
+                                            BleName[j] = SerialReceiveData[0x10 + j];
+                                        }
                                     }
                                     string aa = Encoding.UTF8.GetString(BleName);
                                     MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") +")"+ aa );
@@ -1870,14 +1878,17 @@ namespace MotionSensor
             }
             else if (DebugMode == 2)
             {
-                byte[] ssss = { 0x77, 0x05, 0x00, 0x01,0x00 };
-                ssss[4] = (byte)MACComboBox.SelectedIndex;
-                SerialPort.Write(ssss, 0, 5);
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "请求连接设备...\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
-                DisConnectBLEEnableFlag = 0;
+                if (SerialPort.IsOpen)
+                {
+                    byte[] ssss = { 0x77, 0x05, 0x00, 0x01, 0x00 };
+                    ssss[4] = (byte)MACComboBox.SelectedIndex;
+                    SerialPort.Write(ssss, 0, 5);
+                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                    string DisplayString = "请求连接设备...\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                    DisConnectBLEEnableFlag = 0;
+                }
             }
         }
         private void DisconnectBLESerialCommand()
@@ -2566,7 +2577,44 @@ namespace MotionSensor
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            if (ComConnectFlag == 1)
+            {
+                if (!SerialPort.IsOpen)
+                {
+                    checkBox1.Checked = false;
 
+                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                    string DisplayString = "串口已断开！\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                    SerialSetButton.Text = "初始化串口";
+
+                    Vbat = 0;
+
+                    comboBoxCom.Enabled = true;
+                    comboBoxPortel.Enabled = true;
+                    this.toolStripStatusLabel1.Text = comName + "已经关闭！";
+                    if (SerialPort.IsOpen)
+                    {
+                        SerialPort.Close();
+                        System.Threading.Thread.Sleep(500);
+                    }
+                    ComConnectFlag = 0;
+                    DataStoreButton.Enabled = false;
+                    ScanButton.Enabled = false;
+                    ConnectBLEButton.Enabled = false;
+
+                    for (int i = 0; i < N * M; i++)
+                    {
+                        XdataV[i] = ZeroValue;
+                    }
+                    chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+                    chart1.Series["Series_Ecg"].Color = Color.Black;
+
+                    this.EcgPatchVersionLabel.Text = "";
+                    this.toolStripStatusLabel2.Text = "";
+                }
+            }
         }
     }
 }
