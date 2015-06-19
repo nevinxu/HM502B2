@@ -16,7 +16,7 @@
 #include "ecg.c"
 
 
-uint16_t Ecgbuffer[256][8];
+uint16_t Ecgbuffer[256][8];   //8s
 uint8_t Ecg_Row = 0;
 uint8_t Ecg_Col = 0;
 uint8_t BTSendNum = 0;
