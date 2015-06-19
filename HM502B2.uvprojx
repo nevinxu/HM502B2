@@ -50,7 +50,7 @@
           <OutputName>HM502B2</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>1</CreateHexFile>
+          <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\out\</ListingPath>
@@ -350,7 +350,7 @@
             <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>0</OneElfS>
+            <OneElfS>1</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -363,7 +363,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls>--library_interface=armcc  --library_type=standardlib --c99 --diag_suppress=1296,186</MiscControls>
-              <Define>DEBUG,CPU_MKL17Z128VFT4,KEIL, FREEDOM,FSL_RTOS_FREE_RTOS,USE_STDIO_FUNCTIONS</Define>
+              <Define>DEBUG,CPU_MKL17Z128VFT4,KEIL, FREEDOM,FSL_RTOS_FREE_RTOS</Define>
               <Undefine></Undefine>
               <IncludePath>.\platform\CMSIS\Include;.\platform\CMSIS\Include\device;.\platform\system\clock;.\platform\system\clock\MKL17Z4;.\platform\startup\MKL17Z4;.\platform\hal\sim;.\platform\hal\sim\MKL17Z4;.\platform\hal\mcglite;.\platform\osa;.\platform\system\interrupt;.\platform\hal\lptmr;.\platform\drivers\lptmr;.\platform\drivers\lptmr\common;.\platform\hal\gpio;.\platform\drivers\gpio;.\platform\drivers\gpio\common;.\boards\frdmkl43z48m;.\platform\hal\port;.\platform\hal\gpio;.\platform\hal\adc;.\platform\drivers\adc;.\platform\drivers\adc\common;.\platform\drivers\lpuart;.\platform\drivers\lpuart\common;.\platform\hal\lpuart;.\platform\utilities;.\platform\drivers\uart;.\platform\drivers\uart\common;.\platform\hal\uart;.\rtos\FreeRTOS\config\KL43Z4\keil;.\rtos\FreeRTOS\include;.\rtos\FreeRTOS\port\keil;.\platform\hal\smc;.\platform\hal\pit;.\platform\drivers\pit;.\platform\drivers\pit\common;.\platform\hal\dma;.\platform\hal\dmamux;.\platform\drivers\dma;.\platform\drivers\dma\common;.\platform\hal\pit;.\platform\drivers\pit;.\platform\drivers\pit\common;.\App;.\platform\drivers\flash\C90TFS\drvsrc\include</IncludePath>
             </VariousControls>

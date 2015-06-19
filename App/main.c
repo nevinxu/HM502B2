@@ -139,6 +139,7 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
 
 	FlashInit(&flashSSDConfig);
 	ReadData4Flash();
+	WriteData2Flash();
 	
 	OSA_Init();   //直接返回 OSA_Success   实时操作系统的初始化     freertos没有函数体  直接返回   
 	

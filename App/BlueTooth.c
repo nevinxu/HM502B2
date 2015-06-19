@@ -46,6 +46,8 @@ extern uint8_t BTSendSuccessFlag;
 
 extern EcgDataPackage ecgdatapackage;
 
+extern int32_t WriteData2Flash();
+extern int32_t ReadData4Flash();
 
 uint8_t OKGetReturn(uint8_t *buffer)
 {
