@@ -47,7 +47,7 @@ typedef struct _FlashDataPackage
 	uint8_t IDValue[10]; 
 	uint8_t	EcgdataRate;
 	
-	uint8_t None[2]; 
+	uint8_t None[1]; 
 }FlashDataPackage;    //
 
 void ecgcaptureenable(uint32_t instance);

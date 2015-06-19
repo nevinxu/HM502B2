@@ -835,16 +835,13 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           {
             for(int i = 0;i<simpleBLEScanRes; i++)
             {
-              for(int j = 0;j<6;j++)
-              {
-                if(simpleBLEDevList[i].addr[j] != PairMAC[j])
-                  break;
-                if(j == 5)
+                if(memcmp(simpleBLEDevList[i].addr, PairMAC,6) == 0)
                 {
                   osal_memcpy(ECGPatchMAC,simpleBLEDevList[i].addr,6);
-                  osal_start_timerEx( simpleBLETaskId, START_CONNECT_EVT,100);
+                  simpleBLEScanIdx = i;
+                  osal_start_timerEx( simpleBLETaskId, START_CONNECT_EVT,500);
+                  break;
                 }
-              }
             }
           }
           else
@@ -948,7 +945,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
     txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
     txSerialPkt.header.opCode = APP_CMD_ADVERTISEACK;
     txSerialPkt.header.status = 0x00;
-    txSerialPkt.length = pEvent->deviceInfo.dataLen + 8;
+    txSerialPkt.length = pEvent->deviceInfo.dataLen + 4;
     osal_memcpy(txSerialPkt.data,pEvent->deviceInfo.addr,txSerialPkt.length);
     sendSerialEvt();
 #endif
