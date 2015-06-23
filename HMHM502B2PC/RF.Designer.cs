@@ -61,6 +61,7 @@
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.label4 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.comboBoxPortel = new System.Windows.Forms.ComboBox();
             this.comboBoxCom = new System.Windows.Forms.ComboBox();
             this.SerialSetButton = new System.Windows.Forms.Button();
@@ -102,6 +103,8 @@
             this.AmplificationValue = new System.Windows.Forms.Label();
             this.differenceValue = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label14 = new System.Windows.Forms.Label();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -111,6 +114,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
             this.statusStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // Lea
@@ -160,7 +164,6 @@
             this.BatteryValue.Size = new System.Drawing.Size(37, 23);
             this.BatteryValue.TabIndex = 17;
             this.BatteryValue.TabStop = false;
-            this.BatteryValue.Text = "无数据";
             this.BatteryValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label9
@@ -183,7 +186,6 @@
             this.BloodPressure.Size = new System.Drawing.Size(57, 23);
             this.BloodPressure.TabIndex = 15;
             this.BloodPressure.TabStop = false;
-            this.BloodPressure.Text = "无数据";
             this.BloodPressure.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label3
@@ -226,7 +228,6 @@
             this.HeartRate.Size = new System.Drawing.Size(48, 23);
             this.HeartRate.TabIndex = 7;
             this.HeartRate.TabStop = false;
-            this.HeartRate.Text = "无数据";
             this.HeartRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label1
@@ -245,7 +246,7 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripStatusLabel2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 593);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 630);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1063, 22);
             this.statusStrip1.SizingGrip = false;
@@ -268,6 +269,8 @@
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.numericUpDown1);
+            this.panel3.Controls.Add(this.label14);
             this.panel3.Controls.Add(this.trackBar2);
             this.panel3.Controls.Add(this.textBox4);
             this.panel3.Controls.Add(this.textBox3);
@@ -280,7 +283,7 @@
             this.panel3.Controls.Add(this.radioButton1);
             this.panel3.Location = new System.Drawing.Point(600, 350);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(181, 226);
+            this.panel3.Size = new System.Drawing.Size(181, 255);
             this.panel3.TabIndex = 5;
             // 
             // trackBar2
@@ -363,6 +366,7 @@
             // trackBar1
             // 
             this.trackBar1.AccessibleRole = System.Windows.Forms.AccessibleRole.Window;
+            this.trackBar1.LargeChange = 128;
             this.trackBar1.Location = new System.Drawing.Point(-1, 78);
             this.trackBar1.Maximum = 512;
             this.trackBar1.Name = "trackBar1";
@@ -410,6 +414,7 @@
             // panel4
             // 
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel4.Controls.Add(this.checkBox2);
             this.panel4.Controls.Add(this.comboBoxPortel);
             this.panel4.Controls.Add(this.comboBoxCom);
             this.panel4.Controls.Add(this.SerialSetButton);
@@ -421,6 +426,19 @@
             this.panel4.Size = new System.Drawing.Size(181, 169);
             this.panel4.TabIndex = 7;
             // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Checked = true;
+            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox2.Location = new System.Drawing.Point(43, 138);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(96, 16);
+            this.checkBox2.TabIndex = 18;
+            this.checkBox2.Text = "串口自动连接";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            // 
             // comboBoxPortel
             // 
             this.comboBoxPortel.BackColor = System.Drawing.SystemColors.ActiveBorder;
@@ -429,7 +447,7 @@
             this.comboBoxPortel.Items.AddRange(new object[] {
             "9600",
             "115200"});
-            this.comboBoxPortel.Location = new System.Drawing.Point(80, 73);
+            this.comboBoxPortel.Location = new System.Drawing.Point(80, 57);
             this.comboBoxPortel.Name = "comboBoxPortel";
             this.comboBoxPortel.Size = new System.Drawing.Size(86, 24);
             this.comboBoxPortel.TabIndex = 17;
@@ -439,7 +457,7 @@
             this.comboBoxCom.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.comboBoxCom.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.comboBoxCom.FormattingEnabled = true;
-            this.comboBoxCom.Location = new System.Drawing.Point(80, 28);
+            this.comboBoxCom.Location = new System.Drawing.Point(80, 12);
             this.comboBoxCom.Name = "comboBoxCom";
             this.comboBoxCom.Size = new System.Drawing.Size(86, 24);
             this.comboBoxCom.TabIndex = 16;
@@ -449,7 +467,7 @@
             // 
             this.SerialSetButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.SerialSetButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.SerialSetButton.Location = new System.Drawing.Point(13, 111);
+            this.SerialSetButton.Location = new System.Drawing.Point(13, 95);
             this.SerialSetButton.Name = "SerialSetButton";
             this.SerialSetButton.Size = new System.Drawing.Size(62, 37);
             this.SerialSetButton.TabIndex = 13;
@@ -461,7 +479,7 @@
             // 
             this.DataStoreButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.DataStoreButton.Enabled = false;
-            this.DataStoreButton.Location = new System.Drawing.Point(100, 111);
+            this.DataStoreButton.Location = new System.Drawing.Point(101, 94);
             this.DataStoreButton.Name = "DataStoreButton";
             this.DataStoreButton.Size = new System.Drawing.Size(64, 37);
             this.DataStoreButton.TabIndex = 9;
@@ -473,7 +491,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label7.Location = new System.Drawing.Point(19, 31);
+            this.label7.Location = new System.Drawing.Point(19, 15);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(56, 16);
             this.label7.TabIndex = 14;
@@ -483,7 +501,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label6.Location = new System.Drawing.Point(19, 76);
+            this.label6.Location = new System.Drawing.Point(19, 60);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(56, 16);
             this.label6.TabIndex = 15;
@@ -517,7 +535,7 @@
             // 
             this.ScanButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.ScanButton.Enabled = false;
-            this.ScanButton.Location = new System.Drawing.Point(880, 368);
+            this.ScanButton.Location = new System.Drawing.Point(880, 316);
             this.ScanButton.Name = "ScanButton";
             this.ScanButton.Size = new System.Drawing.Size(93, 23);
             this.ScanButton.TabIndex = 10;
@@ -531,7 +549,7 @@
             this.MACComboBox.FormattingEnabled = true;
             this.MACComboBox.Items.AddRange(new object[] {
             "无设备"});
-            this.MACComboBox.Location = new System.Drawing.Point(794, 341);
+            this.MACComboBox.Location = new System.Drawing.Point(794, 290);
             this.MACComboBox.Name = "MACComboBox";
             this.MACComboBox.Size = new System.Drawing.Size(257, 20);
             this.MACComboBox.TabIndex = 11;
@@ -541,7 +559,7 @@
             // 
             this.ConnectBLEButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.ConnectBLEButton.Enabled = false;
-            this.ConnectBLEButton.Location = new System.Drawing.Point(965, 400);
+            this.ConnectBLEButton.Location = new System.Drawing.Point(965, 345);
             this.ConnectBLEButton.Name = "ConnectBLEButton";
             this.ConnectBLEButton.Size = new System.Drawing.Size(93, 23);
             this.ConnectBLEButton.TabIndex = 18;
@@ -552,7 +570,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(792, 316);
+            this.label11.Location = new System.Drawing.Point(792, 270);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(125, 12);
             this.label11.TabIndex = 21;
@@ -571,7 +589,7 @@
             // 
             this.PauseButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.PauseButton.Enabled = false;
-            this.PauseButton.Location = new System.Drawing.Point(965, 433);
+            this.PauseButton.Location = new System.Drawing.Point(965, 374);
             this.PauseButton.Name = "PauseButton";
             this.PauseButton.Size = new System.Drawing.Size(93, 23);
             this.PauseButton.TabIndex = 24;
@@ -591,19 +609,19 @@
             // 
             // textBoxScan
             // 
-            this.textBoxScan.Location = new System.Drawing.Point(792, 464);
+            this.textBoxScan.Location = new System.Drawing.Point(797, 401);
             this.textBoxScan.MaxLength = 10;
             this.textBoxScan.Name = "textBoxScan";
-            this.textBoxScan.Size = new System.Drawing.Size(86, 21);
+            this.textBoxScan.Size = new System.Drawing.Size(157, 21);
             this.textBoxScan.TabIndex = 26;
             this.textBoxScan.Text = "D123456789";
             this.textBoxScan.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxScan_KeyPress);
             // 
             // IDValuebutton
             // 
-            this.IDValuebutton.Location = new System.Drawing.Point(801, 496);
+            this.IDValuebutton.Location = new System.Drawing.Point(965, 401);
             this.IDValuebutton.Name = "IDValuebutton";
-            this.IDValuebutton.Size = new System.Drawing.Size(61, 23);
+            this.IDValuebutton.Size = new System.Drawing.Size(93, 23);
             this.IDValuebutton.TabIndex = 29;
             this.IDValuebutton.Text = "ID值设置";
             this.IDValuebutton.UseVisualStyleBackColor = true;
@@ -611,7 +629,8 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(965, 520);
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(965, 494);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(93, 23);
             this.button2.TabIndex = 30;
@@ -621,7 +640,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(804, 444);
+            this.label10.Location = new System.Drawing.Point(795, 377);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(137, 12);
             this.label10.TabIndex = 31;
@@ -630,7 +649,7 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(962, 315);
+            this.checkBox1.Location = new System.Drawing.Point(955, 268);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(96, 16);
             this.checkBox1.TabIndex = 33;
@@ -640,7 +659,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(792, 402);
+            this.button3.Location = new System.Drawing.Point(794, 344);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(113, 23);
             this.button3.TabIndex = 34;
@@ -650,7 +669,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(965, 462);
+            this.button5.Location = new System.Drawing.Point(801, 429);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(93, 23);
             this.button5.TabIndex = 36;
@@ -660,7 +679,7 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(965, 548);
+            this.button6.Location = new System.Drawing.Point(965, 527);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(93, 23);
             this.button6.TabIndex = 37;
@@ -670,7 +689,7 @@
             // 
             // textBox5
             // 
-            this.textBox5.Location = new System.Drawing.Point(794, 550);
+            this.textBox5.Location = new System.Drawing.Point(794, 527);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(165, 21);
             this.textBox5.TabIndex = 38;
@@ -679,7 +698,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(799, 531);
+            this.label13.Location = new System.Drawing.Point(792, 499);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(155, 12);
             this.label13.TabIndex = 39;
@@ -698,7 +717,7 @@
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel5,
             this.EcgPatchVersionLabel});
-            this.statusStrip2.Location = new System.Drawing.Point(576, 574);
+            this.statusStrip2.Location = new System.Drawing.Point(576, 608);
             this.statusStrip2.Name = "statusStrip2";
             this.statusStrip2.Size = new System.Drawing.Size(487, 22);
             this.statusStrip2.SizingGrip = false;
@@ -758,8 +777,8 @@
             chartArea1.AxisX.Title = "时间/ms";
             chartArea1.AxisY.Interval = 100D;
             chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisY.Maximum = 1200D;
-            chartArea1.AxisY.Minimum = 0D;
+            chartArea1.AxisY.Maximum = 600D;
+            chartArea1.AxisY.Minimum = -600D;
             chartArea1.AxisY.MinorGrid.Enabled = true;
             chartArea1.AxisY.MinorGrid.Interval = 20D;
             chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
@@ -785,7 +804,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(965, 491);
+            this.button1.Location = new System.Drawing.Point(801, 464);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(93, 23);
             this.button1.TabIndex = 42;
@@ -796,21 +815,21 @@
             // AmplificationValue
             // 
             this.AmplificationValue.AutoSize = true;
-            this.AmplificationValue.Location = new System.Drawing.Point(937, 467);
+            this.AmplificationValue.Location = new System.Drawing.Point(900, 434);
             this.AmplificationValue.Name = "AmplificationValue";
-            this.AmplificationValue.Size = new System.Drawing.Size(17, 12);
+            this.AmplificationValue.Size = new System.Drawing.Size(137, 12);
             this.AmplificationValue.TabIndex = 43;
-            this.AmplificationValue.Text = "-1";
+            this.AmplificationValue.Text = "未定标或无法获取定标值";
             this.AmplificationValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // differenceValue
             // 
             this.differenceValue.AutoSize = true;
-            this.differenceValue.Location = new System.Drawing.Point(937, 497);
+            this.differenceValue.Location = new System.Drawing.Point(900, 470);
             this.differenceValue.Name = "differenceValue";
-            this.differenceValue.Size = new System.Drawing.Size(17, 12);
+            this.differenceValue.Size = new System.Drawing.Size(137, 12);
             this.differenceValue.TabIndex = 44;
-            this.differenceValue.Text = "-1";
+            this.differenceValue.Text = "未定标或无法获取定标值";
             this.differenceValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // timer1
@@ -818,12 +837,46 @@
             this.timer1.Enabled = true;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(14, 217);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(53, 12);
+            this.label14.TabIndex = 27;
+            this.label14.Text = "放大倍数";
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(92, 213);
+            this.numericUpDown1.Maximum = new decimal(new int[] {
+            8,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(66, 21);
+            this.numericUpDown1.TabIndex = 29;
+            this.numericUpDown1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            this.numericUpDown1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.numericUpDown1_KeyPress);
+            // 
             // RF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
-            this.ClientSize = new System.Drawing.Size(1063, 615);
+            this.ClientSize = new System.Drawing.Size(1063, 652);
             this.Controls.Add(this.differenceValue);
             this.Controls.Add(this.AmplificationValue);
             this.Controls.Add(this.button1);
@@ -857,7 +910,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RF";
-            this.Text = "HM502B2心电数据显示软件V1.7(201506018)";
+            this.Text = "HM502B2心电数据显示软件V1.83(201506023)";
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();
@@ -873,6 +926,7 @@
             this.statusStrip2.ResumeLayout(false);
             this.statusStrip2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -949,6 +1003,9 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
+        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
     }
 }
 

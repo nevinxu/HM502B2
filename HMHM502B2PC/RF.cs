@@ -81,7 +81,7 @@ namespace MotionSensor
         private double[] ScalingEcgMax = new double[8];
 
         private int ZeroValue = 500;
-        private int BaseLine = 500;
+        private int BaseLine = 0;
 
         byte[] HardVersion = new byte[4];
         byte[] SoftVersion = new byte[4];
@@ -94,6 +94,9 @@ namespace MotionSensor
         private int DeviceConnectMode = 0;    //1 蓝牙  2 直接连接
 
         private int ComConnectFlag = 0;   //串口连接标志
+        private int ComConnectTimeOut = 0;
+        private int AutoComConnectFlag = 1;
+        private int Ecgamplification = 1;
 
 
         public RF()
@@ -146,6 +149,10 @@ namespace MotionSensor
             }
 /********************************************串口接收**************************************************/
             length = SerialPort.BytesToRead;
+            if (length == 0)
+            {
+                return;
+            }
             
             if ((length > 0) && (length < 5000))
             {
@@ -193,7 +200,11 @@ namespace MotionSensor
             }
             catch (System.Exception)
             {
-                MessageBox.Show("不能打开当前串口", "系统初始化失败", MessageBoxButtons.OK, MessageBoxIcon.Question);
+               // MessageBox.Show("不能打开当前串口", "系统初始化失败", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString = "不能打开当前串口！\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
                 return false;
             }
         }
@@ -260,11 +271,13 @@ namespace MotionSensor
             chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
 
-            textBox1.Text = chartlenMin.ToString();
-            textBox2.Text = chartlenMax.ToString();
+            textBox1.Text = (chartlenMin*1000/128).ToString();
+            textBox2.Text = (chartlenMax*1000/128).ToString();
 
             textBox3.Text = chartYMin.ToString();
             textBox4.Text = chartYMax.ToString();
+
+            numericUpDown1.Value = Ecgamplification;
 
         }
         #endregion
@@ -309,39 +322,78 @@ namespace MotionSensor
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            //chart1.ChartAreas["ChartArea_Ecg"].AxisX.Interval = (chartlenMax - chartlenMin) / 16;
             if (radioButton2.Checked)
             {
-                if (chartlenMax >= chartlenMin)
-                {
-                    chartlenMax = trackBar1.Value;
-                }
-                else
-                {
-                    chartlenMax = chartlenMin;
-                }
+                trackBar1.Minimum = chartlenMin + 128;
+                chartlenMax = trackBar1.Value;
             }
             else if (radioButton1.Checked)
             {
-                if (chartlenMin <= chartlenMax)
+                trackBar1.Maximum = chartlenMax - 128;
+                chartlenMin = trackBar1.Value;
+            }
+            textBox1.Text = (chartlenMin*1000/128).ToString();
+            textBox2.Text = (chartlenMax*1000/128).ToString();
+            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Maximum = chartlenMax;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Minimum = chartlenMin;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Interval = (chartlenMax - chartlenMin) / 4;
+        }
+
+        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton3.Checked)
+            {
+                trackBar2.Value = chartYMin;
+            }
+            trackBar2.Focus();
+        }
+        private void radioButton4_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton4.Checked)
+            {
+                trackBar2.Value = chartYMax;
+            }
+            trackBar2.Focus();
+        }
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            chart1.ChartAreas["DX"].AxisY.Interval = (chartYMax - chartYMin) / 16;
+            if (radioButton4.Checked)
+            {
+                if (chartYMax > chartYMin)
                 {
-                    chartlenMin = trackBar1.Value;
+                    chartYMax = trackBar2.Value;
                 }
                 else
                 {
-                    chartlenMin = chartlenMax;
+                    chartYMax = chartYMin + 10;
+                    trackBar2.Value = chartYMax;
                 }
             }
-            textBox1.Text = chartlenMin.ToString();
-            textBox2.Text = chartlenMax.ToString();
-            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Maximum = chartlenMax;
-            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Minimum = chartlenMin;
+            else if (radioButton3.Checked)
+            {
+                if (chartYMin < chartYMax)
+                {
+                    chartYMin = trackBar2.Value;
+                }
+                else
+                {
+                    chartYMin = chartYMax - 10;
+                    trackBar2.Value = chartYMin;
+                }
+            }
+            textBox3.Text = chartYMin.ToString();
+            textBox4.Text = chartYMax.ToString();
+
+            chart1.ChartAreas["DX"].AxisY.Maximum = chartYMax;
+            chart1.ChartAreas["DX"].AxisY.Minimum = chartYMin;
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton1.Checked)
             {
+                trackBar1.Minimum = 0;
                 trackBar1.Value = chartlenMin;
             }
             trackBar1.Focus();
@@ -351,6 +403,7 @@ namespace MotionSensor
         {
             if (radioButton2.Checked)
             {
+                trackBar1.Maximum = 512;
                 trackBar1.Value = chartlenMax;
             }
             trackBar1.Focus();
@@ -363,7 +416,7 @@ namespace MotionSensor
                 if (ComInit())
                 {
                     System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                    string DisplayString = "正在连接串口...\r\n";
+                    string DisplayString = "正在连接" + comboBoxCom.Text + "串口...\r\n";
                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                     OutMsg(MonitorText, DisplayString, Color.Red);
                     comboBoxCom.Enabled = false;
@@ -414,7 +467,13 @@ namespace MotionSensor
 
             this.EcgPatchVersionLabel.Text = "";
             this.toolStripStatusLabel2.Text = "";
-
+            EcgPatchVersionLabel.Text = "";
+            toolStripStatusLabel5.Text = "";
+            toolStripStatusLabel6.Text = "";
+            toolStripStatusLabel7.Text = "";
+            toolStripStatusLabel8.Text = "";
+            BatteryValue.Text = "";
+            Lead.Text = "";
             
         }
 
@@ -461,6 +520,10 @@ namespace MotionSensor
     unsafe private void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             int EcgMaxValue, EcgMinValue;
+            if (!SerialPort.IsOpen)
+            {
+                return;
+            }
 
         if (DebugMode == 2)
         {
@@ -907,10 +970,8 @@ namespace MotionSensor
                                     + "  连接状态：心电补丁未连接";
 
                                 this.EcgPatchVersionLabel.Text = "";
-                                amplification = -1;
-                                difference_Value = -1;
-                                AmplificationValue.Text = Convert.ToString(amplification);
-                                differenceValue.Text = Convert.ToString(difference_Value);
+                                AmplificationValue.Text = "未定标或无法获取定标值";
+                                differenceValue.Text = "未定标或无法获取定标值";
 
                             }
                             #endregion
@@ -1284,6 +1345,8 @@ namespace MotionSensor
                                         string DisplayString2 = "正在1mv定标...\r\n";
                                         DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
                                         OutMsg(MonitorText, DisplayString, Color.Red);
+                                        AmplificationValue.Text = "正在1mv定标...";
+                                        differenceValue.Text = "正在1mv定标...";
                                     }
                                     else if (ScalingFlag == 11)
                                     {
@@ -1291,9 +1354,14 @@ namespace MotionSensor
                                         string DisplayString3 = "正在0mv校准...\r\n";
                                         DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
                                         OutMsg(MonitorText, DisplayString, Color.Red);
+                                        AmplificationValue.Text = "正在0mv校准...";
+                                        differenceValue.Text = "正在0mv校准...";
                                     }
-                                    AmplificationValue.Text = Convert.ToString(amplification);
-                                    differenceValue.Text = Convert.ToString(difference_Value);
+                                    else
+                                    {
+                                        AmplificationValue.Text ="获取的1mv定标值为：" + Convert.ToString(amplification);
+                                        differenceValue.Text ="获取的0mv校准值为：" + Convert.ToString(difference_Value);
+                                    }
                                 }
 
                                 //Rectangle rect = new Rectangle();
@@ -1318,6 +1386,15 @@ namespace MotionSensor
 
                                 ReceivePackageNum++;
                                 this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
+
+                                if (difference_Value < 0 || (difference_Value > 1000))
+                                {
+                                    difference_Value = 500;
+                                }
+                                if (amplification < 0 || (amplification > 100))
+                                {
+                                    amplification = 60;
+                                }
 
                                 XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[6]) + Convert.ToDouble((SerialReceiveData[10] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
                                 XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[7]) + Convert.ToDouble((SerialReceiveData[10] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
@@ -1646,7 +1723,18 @@ namespace MotionSensor
                             + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  " + str2 + str3;
 
                         this.EcgPatchVersionLabel.Text = "心电补丁已连接 硬件版本:"+ Encoding.UTF8.GetString(HardVersion) + "   软件版本:" + Encoding.UTF8.GetString(SoftVersion);
-                        chart1.Series["Series_Ecg"].Color = Color.FromArgb(0, 192, 0); ;
+                        try
+                        {
+                            chart1.Series["Series_Ecg"].Color = Color.FromArgb(0, 192, 0);
+                        }
+                        catch (System.Exception)
+                        {
+                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                            string DisplayString = "错误!!!\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+                        }
+                       
                         chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
                         if (EcgDataTimer < 63 && (EcgDataTimer >=0))
@@ -1882,7 +1970,10 @@ namespace MotionSensor
                 {
                     byte[] ssss = { 0x77, 0x05, 0x00, 0x01, 0x00 };
                     ssss[4] = (byte)MACComboBox.SelectedIndex;
-                    SerialPort.Write(ssss, 0, 5);
+                    if (SerialPort.IsOpen)
+                    {
+                        SerialPort.Write(ssss, 0, 5);
+                    }
                     System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                     string DisplayString = "请求连接设备...\r\n";
                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -1980,7 +2071,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x14, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求接收心电数据...\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -1997,7 +2091,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x16, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求停止接收心电数据...\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2014,7 +2111,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x18, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求接收心电补丁ID\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2031,7 +2131,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x1C, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取主设备蓝牙MAC\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2048,7 +2151,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x1E, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取心电补丁蓝牙MAC\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2066,7 +2172,10 @@ namespace MotionSensor
             {
                 byte[] ssss = { 0x77, 0x22, 0x00, 0x00 };
                 //   ECGPairMAC
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取配对状态\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2083,7 +2192,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x24, 0x00, 0x01, 0x01 };
-                SerialPort.Write(ssss, 0, 5);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 5);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "设置为测试模式\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2100,7 +2212,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x11, 0x00, 0x01, 0x01 };
-                SerialPort.Write(ssss, 0, 5);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 5);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求自动连接配置...\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2117,11 +2232,17 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x11, 0x00, 0x01, 0x00 };
-                SerialPort.Write(ssss, 0, 5);
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "请求关闭自动连接配置...\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                OutMsg(MonitorText, DisplayString, Color.Red);
+                if (SerialPort.IsOpen)
+                {
+                    if (SerialPort.IsOpen)
+                    {
+                        SerialPort.Write(ssss, 0, 5);
+                    }
+                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                    string DisplayString = "请求关闭自动连接配置...\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                }
             }
 
         }
@@ -2134,7 +2255,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x1A, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "获取自动连接配置状态...\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2171,7 +2295,10 @@ namespace MotionSensor
 
 
                 //   ECGPairMAC
-                SerialPort.Write(ssss, 0, 10);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 10);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求设置配对心电补丁的MAC\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2188,7 +2315,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x2A, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取0mv校准值...\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2204,7 +2334,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x26, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取1mv定标值...\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2225,7 +2358,10 @@ namespace MotionSensor
                 ssss[4] = (byte)m_buffer;
                 m_buffer = difference_Value / 256;
                 ssss[5] = (byte)m_buffer;
-                SerialPort.Write(ssss, 0, 6);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 6);
+                }
 
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "保存0mv校准值...\r\n";
@@ -2246,7 +2382,10 @@ namespace MotionSensor
                 ssss[4] = (byte)m_buffer;
                 m_buffer = amplification / 256;
                 ssss[5] = (byte)m_buffer;
-                SerialPort.Write(ssss, 0, 6);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 6);
+                }
 
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "保存1mv定标值...\r\n";
@@ -2263,7 +2402,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x30, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取硬件版本...\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2279,7 +2421,10 @@ namespace MotionSensor
             else if (DebugMode == 2)
             {
                 byte[] ssss = { 0x77, 0x32, 0x00, 0x00 };
-                SerialPort.Write(ssss, 0, 4);
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Write(ssss, 0, 4);
+                }
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "请求获取软件版本...\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2317,55 +2462,7 @@ namespace MotionSensor
                 OutMsg(MonitorText, DisplayString, Color.Red);
             }
         }
-        private void radioButton3_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton3.Checked)
-            {
-                trackBar2.Value = chartYMin;
-            }
-            trackBar2.Focus();
-        }
-        private void radioButton4_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton4.Checked)
-            {
-                trackBar2.Value = chartYMax;
-            }
-            trackBar2.Focus();
-        }
-        private void trackBar2_Scroll(object sender, EventArgs e)
-        {
-            chart1.ChartAreas["DX"].AxisY.Interval = (chartYMax - chartYMin) / 16;
-            if (radioButton4.Checked)
-            {
-                if (chartYMax > chartYMin)
-                {
-                    chartYMax = trackBar2.Value;
-                }
-                else
-                {
-                    chartYMax = chartYMin+10;
-                    trackBar2.Value = chartYMax;
-                }
-            }
-            else if(radioButton3.Checked)
-            {
-                if (chartYMin < chartYMax)
-                {
-                    chartYMin = trackBar2.Value;
-                }
-                else
-                {
-                    chartYMin = chartYMax-10;
-                    trackBar2.Value = chartYMin;
-                }
-            }
-            textBox3.Text = chartYMin.ToString();
-            textBox4.Text = chartYMax.ToString();
 
-            chart1.ChartAreas["DX"].AxisY.Maximum = chartYMax;
-            chart1.ChartAreas["DX"].AxisY.Minimum = chartYMin;
-        }
         private void button1_Click_2(object sender, EventArgs e)
         {
 
@@ -2579,6 +2676,7 @@ namespace MotionSensor
         {
             if (ComConnectFlag == 1)
             {
+                ComConnectTimeOut = 0;
                 if (!SerialPort.IsOpen)
                 {
                     checkBox1.Checked = false;
@@ -2615,6 +2713,73 @@ namespace MotionSensor
                     this.toolStripStatusLabel2.Text = "";
                 }
             }
+            else if (ComConnectFlag == 0)
+            {
+                if (AutoComConnectFlag == 1)
+                {
+                    ComConnectTimeOut++;
+                    if (ComConnectTimeOut >= 5)
+                    {
+                        ComConnectTimeOut = 0;
+                        if (comboBoxCom.SelectedIndex < (comboBoxCom.Items.Count - 1))
+                        {
+                            comboBoxCom.SelectedIndex++;
+                        }
+                        else if (comboBoxCom.SelectedIndex >= (comboBoxCom.Items.Count - 1))
+                        {
+                            GetComList();    //获取当前所有的串口
+                            comboBoxCom.SelectedIndex = 0;
+                        }
+                        if (ComInit())
+                        {
+                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                            string DisplayString = "正在连接" + comboBoxCom.Text + "...\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+                            comboBoxCom.Enabled = false;
+                            comboBoxPortel.Enabled = false;
+                            SerialSetButton.Text = "关闭串口";
+                            ScanButton.Enabled = true;
+
+                            PauseFlag = 0;
+                            PauseButton.Text = "运行中";
+
+                            BLEConnectFlag = 1;  //假设设备正在通讯
+
+                            SendConnectSerialCommand();  //发生连接central端命令  
+
+                        }
+                    }
+                }
+
+            }
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked)
+            {
+                AutoComConnectFlag = 1;
+            }
+            else
+            {
+                AutoComConnectFlag = 0;
+            }
+        }
+
+        private void numericUpDown1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum =(int)( 600 / (double)(numericUpDown1.Value));
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum =(int)( -600 / (double)(numericUpDown1.Value));
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval =(int) chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum / 6;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval*6;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = -chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval*6;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.MinorGrid.Interval = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval / 5;
         }
     }
 }

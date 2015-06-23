@@ -35,6 +35,8 @@
 #include "fsl_clock_manager.h"
 #include "fsl_interrupt_manager.h"
 
+extern uint8_t BTInitFlag;
+
 /*******************************************************************************
  * PROTOTYPES
  ******************************************************************************/
@@ -80,10 +82,10 @@ lpuart_status_t LPUART_DRV_Init(uint32_t instance, lpuart_state_t * lpuartStateP
     uint32_t baseAddr = g_lpuartBaseAddr[instance];
     
     /* Exit if current instance is already initialized. */
-    if (g_lpuartStatePtr[instance])
-    {
-        return kStatus_LPUART_Initialized;
-    }
+//    if (g_lpuartStatePtr[instance])
+//    {
+//        return kStatus_LPUART_Initialized;
+//    }
 
     /* Clear the state struct for this instance. */
     memset(lpuartStatePtr, 0, sizeof(lpuart_state_t));
@@ -445,7 +447,10 @@ void LPUART_DRV_IrqHandler(uint32_t instance)
     uint32_t baseAddr = g_lpuartBaseAddr[instance];
 		bool rxCallbackEnd = false;
 
-		lpuartState->isRxBusy = 1;
+		if(BTInitFlag)
+		{
+			lpuartState->isRxBusy = 1;
+		}
 	
     /* Exit the ISR if no transfer is happening for this instance. */
     if ((!lpuartState->isTxBusy) && (!lpuartState->isRxBusy))
@@ -474,33 +479,27 @@ void LPUART_DRV_IrqHandler(uint32_t instance)
     /* Handle receive data full interrupt */
     if(LPUART_HAL_IsRxDataRegFull(baseAddr))
     {
-			static uint8_t rxbuffer;
+			if(BTInitFlag == 0)
+			{
+				LPUART_HAL_Getchar(baseAddr, lpuartState->rxBuff);
+				++lpuartState->rxBuff;
+				--lpuartState->rxSize;
+				if (lpuartState->rxSize == 0)
+				{
+								/* Complete transfer, will disable rx interrupt */
+								LPUART_DRV_CompleteReceiveData(instance);
+				}
+			}
+			else
+			{
+				static uint8_t rxbuffer;
         /* get data and put in receive buffer  */
         LPUART_HAL_Getchar(baseAddr, &rxbuffer);
-		//	LPUART_HAL_Getchar(baseAddr, lpuartState->rxBuff);
 				if (lpuartState->rxCallback != NULL)
 				{
 					lpuartState->rxCallback(&rxbuffer, lpuartState->rxCallbackParam);
 				}
-                /* The callback will end the receiving early if not success.*/
-//                if (lpuartState->rxCallback(lpuartState->rxBuff, lpuartState->rxCallbackParam) !=
-//                        kStatus_LPUART_Success)
-//                {
-//                    rxCallbackEnd = true;
-//                }
-//				}
-//				else
-//				{
-//                ++lpuartState->rxBuff;
-//								--lpuartState->rxSize;
-//					        /* Check to see if this was the last byte received */
-//						if (lpuartState->rxSize == 0)
-//						{
-//								/* Complete transfer, will disable rx interrupt */
-//								LPUART_DRV_CompleteReceiveData(instance);
-//						}
-//				}
-
+			}
 
     }
 

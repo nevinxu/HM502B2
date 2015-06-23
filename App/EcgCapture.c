@@ -23,6 +23,8 @@ uint8_t BTSendNum = 0;
 uint8_t BTSendSuccessFlag = 1;
 
 
+
+
 /* SIM base address */
 const uint32_t gSimBaseAddr[] = SIM_BASE_ADDRS;
 adc_state_t gAdcState;
@@ -81,12 +83,12 @@ static void ecg_adc_isr_callback(void)
     {
 			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
 			{
-				//ecgdatapackage.ecgdata[i/2] = ECGBASEVALUE;
+				ecgdatapackage.ecgdata[i/2] = ECGBASEVALUE;
 				Ecgbuffer[Ecg_Row][Ecg_Col] = ECGBASEVALUE;
 			}
 			else
 			{
-      //  ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+        ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 				Ecgbuffer[Ecg_Row][Ecg_Col] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}
 			
@@ -203,9 +205,23 @@ static void ecg_adc_isr_callback(void)
 					memset(ecgdatapackage.ecgdata,0,8);
 					LedSet(3,2,25);
 				}
-				if(buffer <= BATTERYLOW)   //µçÑ¹µÍ  
+				else if(buffer <= BATTERYLOW)   //µçÑ¹µÍ  
 				{ 
 					LedSet(3,2,25);
+				}
+				else 
+				{
+					if(ECGDataSendFlag  == 1)
+					{
+						if((ecgdatapackage.leadoffstatus_battery>>7) == 1)
+						{
+									LedSet(3,1,25);
+						}
+						else
+						{
+									LedSet(3,3,25);
+						}
+					}
 				}
 				
 				if(buffer >318)
@@ -234,7 +250,7 @@ static void ecg_adc_isr_callback(void)
 						ecgdatapackage.command = APP_CMD_ECGDATASEND;
 						ecgdatapackage.status = SERIAL_STATUS_OK;
 						ecgdatapackage.length = ECGDATASIZE;
-						memcpy(ecgdatapackage.ecgdata,Ecgbuffer[BTSendNum++],16);
+					//	memcpy(ecgdatapackage.ecgdata,Ecgbuffer[BTSendNum++],16);
 						memcpy(m_bttransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
 
 						

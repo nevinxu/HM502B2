@@ -175,6 +175,7 @@
 
 #define     GETVERS                     "AT+VERS?"                      //²éÑ¯Èí¼þ±¾
 
+#define     RESET												"AT+RESET"
 
 typedef struct _BTTransmitPackage
 {
