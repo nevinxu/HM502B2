@@ -38,8 +38,8 @@
 #define SERIAL_DATAADDR_NONE       								0x00
 
 #define ECGPATCHIDSIZE														10
-#define ECGPATCHHARDVERSIONSIZE										4
-#define ECGPATCHSOFTVERSIONSIZE										4
+#define ECGPATCHHARDVERSIONSIZE										5
+#define ECGPATCHSOFTVERSIONSIZE										12
 #define ECGDATASIZE																12
 
 #define APP_CMD_ECGDATASEND                				0x09

@@ -89,7 +89,7 @@ typedef struct _BLEPacket
 BLEPacketHeader_t header;
 // payload
 uint8 length;  // opCode specific, 
-uint8 data[128];  // command or event specific data, 10 Bytes currently
+uint8 data[32];  // command or event specific data, 10 Bytes currently
 } BLEPacket_t;
 
 typedef struct _SerialEventPacket

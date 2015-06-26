@@ -80,11 +80,11 @@ namespace MotionSensor
         private double[] ScalingEcgMin = new double[8];
         private double[] ScalingEcgMax = new double[8];
 
-        private int ZeroValue = 500;
+        private int ZeroValue = 9999;
         private int BaseLine = 0;
 
-        byte[] HardVersion = new byte[4];
-        byte[] SoftVersion = new byte[4];
+        byte[] HardVersion = new byte[5];
+        byte[] SoftVersion = new byte[12];
 
         private double LostPackageNum = 0;
         private double ReceivePackageNum = 0;
@@ -97,6 +97,15 @@ namespace MotionSensor
         private int ComConnectTimeOut = 0;
         private int AutoComConnectFlag = 1;
         private int Ecgamplification = 1;
+        private int StartEcgCaptureFlag = 0;
+
+        byte[,] ScanBleName = new byte[100,10];
+
+        int X_Start;
+        int Y_Start;
+        DataPoint StoreDP;
+        DataPoint StartStoreDP;
+  //      DataPoint StartStoreDP;
 
 
         public RF()
@@ -227,6 +236,15 @@ namespace MotionSensor
             MACComboBox.SelectedIndex = 0;
             radioButton1.Select();
 
+            if (AutoComConnectFlag == 1)
+            {
+                SerialSetButton.Enabled = false;
+            }
+            else
+            {
+                SerialSetButton.Enabled = true;
+            }
+
             //chart1.Titles[0].Text = "原始心电输出信号";
             //chart1.Titles[0].Alignment = ContentAlignment.TopCenter;
             //chart1.Titles[0].Font = new Font("黑体", 10, FontStyle.Bold);
@@ -270,6 +288,13 @@ namespace MotionSensor
             }
             chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
+
+            chart1.Series["Series_Ecg"].Color = Color.Black;
+
+            for (int i = 0; i < chart1.Series["Series_Ecg"].Points.Count; i++)
+            {
+                chart1.Series["Series_Ecg"].Points[i].ToolTip = "#VALX,#VALY";
+            }
 
             textBox1.Text = (chartlenMin*1000/128).ToString();
             textBox2.Text = (chartlenMax*1000/128).ToString();
@@ -357,36 +382,36 @@ namespace MotionSensor
         }
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            chart1.ChartAreas["DX"].AxisY.Interval = (chartYMax - chartYMin) / 16;
-            if (radioButton4.Checked)
-            {
-                if (chartYMax > chartYMin)
-                {
-                    chartYMax = trackBar2.Value;
-                }
-                else
-                {
-                    chartYMax = chartYMin + 10;
-                    trackBar2.Value = chartYMax;
-                }
-            }
-            else if (radioButton3.Checked)
-            {
-                if (chartYMin < chartYMax)
-                {
-                    chartYMin = trackBar2.Value;
-                }
-                else
-                {
-                    chartYMin = chartYMax - 10;
-                    trackBar2.Value = chartYMin;
-                }
-            }
-            textBox3.Text = chartYMin.ToString();
-            textBox4.Text = chartYMax.ToString();
+            //chart1.ChartAreas["DX"].AxisY.Interval = (chartYMax - chartYMin) / 16;
+            //if (radioButton4.Checked)
+            //{
+            //    if (chartYMax > chartYMin)
+            //    {
+            //        chartYMax = trackBar2.Value;
+            //    }
+            //    else
+            //    {
+            //        chartYMax = chartYMin + 10;
+            //        trackBar2.Value = chartYMax;
+            //    }
+            //}
+            //else if (radioButton3.Checked)
+            //{
+            //    if (chartYMin < chartYMax)
+            //    {
+            //        chartYMin = trackBar2.Value;
+            //    }
+            //    else
+            //    {
+            //        chartYMin = chartYMax - 10;
+            //        trackBar2.Value = chartYMin;
+            //    }
+            //}
+            //textBox3.Text = chartYMin.ToString();
+            //textBox4.Text = chartYMax.ToString();
 
-            chart1.ChartAreas["DX"].AxisY.Maximum = chartYMax;
-            chart1.ChartAreas["DX"].AxisY.Minimum = chartYMin;
+            //chart1.ChartAreas["DX"].AxisY.Maximum = chartYMax;
+            //chart1.ChartAreas["DX"].AxisY.Minimum = chartYMin;
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
@@ -422,7 +447,7 @@ namespace MotionSensor
                     comboBoxCom.Enabled = false;
                     comboBoxPortel.Enabled = false;
                     SerialSetButton.Text = "关闭串口";
-                    ScanButton.Enabled = true;
+                    //ScanButton.Enabled = true;
 
                     PauseFlag = 0;
                     PauseButton.Text = "运行中";
@@ -457,6 +482,13 @@ namespace MotionSensor
                 DataStoreButton.Enabled = false;
                 ScanButton.Enabled = false;
                 ConnectBLEButton.Enabled = false;
+                button6.Enabled = false;
+                IDValuebutton.Enabled = false;
+                button5.Enabled = false;
+                button1.Enabled = false;
+                checkBox1.Enabled = false;
+
+
             }
             for (int i = 0; i < N * M; i++)
             {
@@ -842,8 +874,10 @@ namespace MotionSensor
 
                                 ComConnectFlag = 1;
 
+                                DisconnectBLESerialCommand();
+                                System.Threading.Thread.Sleep(200);
                                 StopReceiveECGDataSerialCommand();
-                                System.Threading.Thread.Sleep(500);
+                                System.Threading.Thread.Sleep(200);
                                 DisAutoConnectBLESerialCommand();
                                 System.Threading.Thread.Sleep(200);
                                 AutoConnectBLEStatusSerialCommand();
@@ -874,19 +908,44 @@ namespace MotionSensor
                                         macbuffer[j] = SerialReceiveData[4+j];
                                         ScanBLEMAC[ScanBLENum, j] = SerialReceiveData[4 + j];
                                     }
-                                    ScanBLENum++;
-                                    byte[] BleName = new byte[16];
-                                    if ((SerialReceiveData.Count - 0x10) >= 11)
-                                    {
-                                        for (int j = 0; j < 11; j++)
+                                    
+                                        if ((SerialReceiveData.Count - 0x10) >= 11)
                                         {
-                                            BleName[j] = SerialReceiveData[0x10 + j];
+                                            for (int j = 0; j < 10; j++)
+                                            {
+                                                ScanBleName[ScanBLENum,j] = SerialReceiveData[0x10 + j];
+                                            }
                                         }
+                                        for (int j = 0; j < 10; j++)
+                                        {
+                                            if (ScanBleName[ScanBLENum, j] == 0)
+                                            {
+                                                ScanBleName[ScanBLENum, j] = 0x20;
+                                            }
+                                        }
+                                        byte[] m_blename = new byte[10];
+                                        for (int j = 0; j < 10; j++)
+                                        {
+                                            m_blename[j] = ScanBleName[ScanBLENum, j];
+                                        }
+                                        string aa = Encoding.UTF8.GetString(m_blename);
+                                    if (ScanBleName[ScanBLENum, 0] == 'B' && (ScanBleName[ScanBLENum, 1] == 'D'))
+                                    {
+                                        MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(心电补丁)");
+                                
                                     }
-                                    string aa = Encoding.UTF8.GetString(BleName);
-                                    MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") +")"+ aa );
-
+                                    else if (ScanBleName[ScanBLENum, 0] == 'B' && (ScanBleName[ScanBLENum, 1] == 'G'))
+                                    {
+                                        MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(血压计)");
+                                    }
+                                    else
+                                    {
+                                        MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(未知设备)");
+                                 
+                                    }
+                                    ScanBLENum++;
                                     ConnectBLEButton.Enabled = true;
+                                    button6.Enabled = true;
                                     ConnectBLEButton.Text = "设备已断开";
 
 
@@ -911,22 +970,43 @@ namespace MotionSensor
                                 string DisplayString = "搜索结束！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
+
+                                button6.Enabled = true;   //配对按钮
+                                ScanButton.Enabled = true;
                             }
                             #endregion
                             #region
                             else if (SerialReceiveData[1] == 0x06)
                             {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "心电补丁连接成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                if (SerialReceiveData[4] == 1)
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "心电补丁连接成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                BLEConnectFlag = 1;
+                                    BLEConnectFlag = 1;
 
-                                DataStoreButton.Enabled = true;
+                                    checkBox1.Enabled = false;
 
-                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.hex";
-                                File.Delete(filePath);
+                                    DataStoreButton.Enabled = true;
+
+                                    button6.Enabled = false;
+                                    IDValuebutton.Enabled = true;
+                                    button5.Enabled = true;
+                                    button1.Enabled = true;
+                                    PauseButton.Enabled = true;
+                                    StartEcgCaptureFlag = 0;
+                                    string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.hex";
+                                    File.Delete(filePath);
+                                }
+                                else
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "选择的设备与绑定的mac不符，无法连接！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                }
 
                                 // System.Threading.Thread.Sleep(500);
                                 //  ReceiveECGPatchIDSerialCommand();
@@ -946,6 +1026,8 @@ namespace MotionSensor
                                 //   button6.Enabled = false;   //定标按键
                                 ScanButton.Enabled = true;
                                 DataStoreButton.Enabled = false;
+
+                                checkBox1.Enabled = true;
 
                                 if (DisConnectBLEEnableFlag == 0)
                                 {
@@ -967,11 +1049,31 @@ namespace MotionSensor
                                 this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
                                     + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
 
-                                    + "  连接状态：心电补丁未连接";
+                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
+                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
+                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
 
                                 this.EcgPatchVersionLabel.Text = "";
                                 AmplificationValue.Text = "未定标或无法获取定标值";
                                 differenceValue.Text = "未定标或无法获取定标值";
+
+                                this.EcgPatchVersionLabel.Text = "";
+                              //  this.toolStripStatusLabel2.Text = "";
+                                EcgPatchVersionLabel.Text = "";
+                                toolStripStatusLabel5.Text = "";
+                                toolStripStatusLabel6.Text = "";
+                                toolStripStatusLabel7.Text = "";
+                                toolStripStatusLabel8.Text = "";
+                                BatteryValue.Text = "";
+                                Lead.Text = "";
+
+                                IDValuebutton.Enabled = false;
+                                button5.Enabled = false;
+                                button1.Enabled = false;
+                                button6.Enabled = true;
+                                PauseButton.Enabled = false;
+
+                                StartEcgCaptureFlag = 0;
 
                             }
                             #endregion
@@ -1042,7 +1144,7 @@ namespace MotionSensor
                                 {
                                     checkBox1.Checked = false;
                                 }
-                                System.Threading.Thread.Sleep(100);
+                               // System.Threading.Thread.Sleep(100);
                                 SetTestModeCommand();
 
                             }
@@ -1055,7 +1157,7 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                System.Threading.Thread.Sleep(100);
+                               // System.Threading.Thread.Sleep(100);
                                 ReceiveCentralMACCommand();
                             }
                             #endregion
@@ -1071,33 +1173,9 @@ namespace MotionSensor
                                     BLECentralMAC[i] = SerialReceiveData[4 + i];
                                 }
 
-                                System.Threading.Thread.Sleep(200);
-                                ReceiveECGPatchMACCommand();
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x1F)
-                            {
-                                if (SerialReceiveData[4] == 0 && (SerialReceiveData[5] == 0) && (SerialReceiveData[6] == 0) && (SerialReceiveData[7] == 0))
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "蓝牙心电补丁未连接，无法获取MAC\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                                else
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "获取心电补丁MAC成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                                for (int i = 0; i < 6; i++)
-                                {
-                                    ECGPatchMAC[i] = SerialReceiveData[4 + i];
-                                }
-                                System.Threading.Thread.Sleep(200);
+                               // System.Threading.Thread.Sleep(200);
                                 ReceivePairingStatusCCommand();
+                                
                             }
                             #endregion
                             #region
@@ -1115,10 +1193,46 @@ namespace MotionSensor
                                     ECGPairMAC[i] = SerialReceiveData[4 + i];
                                 }
 
-                                System.Threading.Thread.Sleep(200);
-                                ReceiveECGPatchIDSerialCommand();
+                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
+                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
+
+                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
+                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
+                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
+
+                               // System.Threading.Thread.Sleep(200);
+                                ReceiveECGPatchMACCommand();
                             }
                             #endregion
+                            #region
+                            else if (SerialReceiveData[1] == 0x1F)
+                            {
+                                if (SerialReceiveData[4] == 0 && (SerialReceiveData[5] == 0) && (SerialReceiveData[6] == 0) && (SerialReceiveData[7] == 0))
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "蓝牙心电补丁未连接，无法获取MAC\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                    ScanButton.Enabled = true;
+                                    //AutoConnectBLESerialCommand();
+                                }
+                                else
+                                {
+                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                    string DisplayString = "获取心电补丁MAC成功！\r\n";
+                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                    for (int i = 0; i < 6; i++)
+                                    {
+                                        ECGPatchMAC[i] = SerialReceiveData[4 + i];
+                                    }
+                                   // System.Threading.Thread.Sleep(200);
+                                    ReceiveECGPatchIDSerialCommand();
+                                }
+                                
+                            }
+                            #endregion
+                            
                             #region
                             else if (SerialReceiveData[1] == 0x19)
                             {
@@ -1149,7 +1263,7 @@ namespace MotionSensor
                                     ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
                                     ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
 
-                                System.Threading.Thread.Sleep(100);
+                                //System.Threading.Thread.Sleep(100);
                                 calibration0mvSerialCommand();
                             }
                             #endregion
@@ -1162,8 +1276,8 @@ namespace MotionSensor
                                     string DisplayString = "设备未连接,无法设置成功！\r\n";
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
-                                    System.Threading.Thread.Sleep(100);
-                                    AutoConnectBLESerialCommand();
+                                   // System.Threading.Thread.Sleep(100);
+                                    //AutoConnectBLESerialCommand();
                                 }
                                 else if (SerialReceiveData[4] == 1)
                                 {
@@ -1179,6 +1293,8 @@ namespace MotionSensor
                                    // LostPackageNum++;
                                     this.toolStripStatusLabel5.Text = "上位机丢包数：" + LostPackageNum.ToString();
                                     this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
+
+                                    StartEcgCaptureFlag = 1;
                                 }
 
 
@@ -1196,7 +1312,7 @@ namespace MotionSensor
                                 {
                                     difference_Value = 500;
                                 }
-                                System.Threading.Thread.Sleep(200);
+                               // System.Threading.Thread.Sleep(200);
                                 calibration1mvSerialCommand();
                             }
                             #endregion
@@ -1212,7 +1328,7 @@ namespace MotionSensor
                                 {
                                     amplification = 60;
                                 }
-                                System.Threading.Thread.Sleep(200);
+                               // System.Threading.Thread.Sleep(200);
                                 GetHardWareVersionSerialCommand();
                             }
                             #endregion
@@ -1223,11 +1339,11 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                for(int i = 0;i<4;i++)
+                                for(int i = 0;i<5;i++)
                                 {
                                     HardVersion[i] = SerialReceiveData[4 + i];
                                 }
-                                System.Threading.Thread.Sleep(300);
+                                //System.Threading.Thread.Sleep(300);
                                 GetSoftWareVersionSerialCommand();
                             }
                             #endregion
@@ -1238,11 +1354,11 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                for (int i = 0; i < 4; i++)
+                                for (int i = 0; i < 12; i++)
                                 {
                                     SoftVersion[i] = SerialReceiveData[4 + i];
                                 }
-                                System.Threading.Thread.Sleep(200);
+                               // System.Threading.Thread.Sleep(200);
                                 ReceiveECGDataSerialCommand();
                             }
                             #endregion
@@ -1254,7 +1370,7 @@ namespace MotionSensor
                                     string DisplayString = "设置0mv校准值成功！\r\n";
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
-                                    System.Threading.Thread.Sleep(200);
+                                  //  System.Threading.Thread.Sleep(200);
                                     calibration1mvSerialCommand();
                                 }
                             }
@@ -1331,282 +1447,285 @@ namespace MotionSensor
                             #region
                             else if (SerialReceiveData[1] == 0x09)
                             {
-                                EcgReceiveFlagTimer++;
-                                if (EcgReceiveFlagTimer >= 20)
+                                if (StartEcgCaptureFlag == 1)
                                 {
-                                    EcgReceiveFlagTimer = 0;
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "正在接收心电数据！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    if (ScalingFlag == 1)
+                                    EcgReceiveFlagTimer++;
+                                    if (EcgReceiveFlagTimer >= 20)
                                     {
-                                        System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
-                                        string DisplayString2 = "正在1mv定标...\r\n";
-                                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
+                                        EcgReceiveFlagTimer = 0;
+                                        System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                        string DisplayString = "正在接收心电数据！\r\n";
+                                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                         OutMsg(MonitorText, DisplayString, Color.Red);
-                                        AmplificationValue.Text = "正在1mv定标...";
-                                        differenceValue.Text = "正在1mv定标...";
+                                        if (ScalingFlag == 1)
+                                        {
+                                            System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
+                                            string DisplayString2 = "正在1mv定标...\r\n";
+                                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
+                                            OutMsg(MonitorText, DisplayString, Color.Red);
+                                            AmplificationValue.Text = "正在1mv定标...";
+                                            differenceValue.Text = "正在1mv定标...";
+                                        }
+                                        else if (ScalingFlag == 11)
+                                        {
+                                            System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
+                                            string DisplayString3 = "正在0mv校准...\r\n";
+                                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+                                            OutMsg(MonitorText, DisplayString, Color.Red);
+                                            AmplificationValue.Text = "正在0mv校准...";
+                                            differenceValue.Text = "正在0mv校准...";
+                                        }
+                                        else
+                                        {
+                                            AmplificationValue.Text = "获取的1mv定标值为：" + Convert.ToString(amplification);
+                                            differenceValue.Text = "获取的0mv校准值为：" + Convert.ToString(difference_Value);
+                                        }
                                     }
-                                    else if (ScalingFlag == 11)
+
+                                    //Rectangle rect = new Rectangle();
+                                    //rect = Screen.GetWorkingArea(this);
+
+
+                                    if (LastPackageNum != -1)  //不是第一次  
                                     {
-                                        System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
-                                        string DisplayString3 = "正在0mv校准...\r\n";
-                                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-                                        OutMsg(MonitorText, DisplayString, Color.Red);
-                                        AmplificationValue.Text = "正在0mv校准...";
-                                        differenceValue.Text = "正在0mv校准...";
+                                        int buffer = LastPackageNum + 1;
+                                        if (buffer == 256)
+                                        {
+                                            buffer = 0;
+                                        }
+                                        if (SerialReceiveData[4] != buffer)
+                                        {
+                                            LostPackageNum++;
+                                        }
                                     }
-                                    else
+                                    LastPackageNum = SerialReceiveData[4];
+                                    // LostPackageNum++;
+                                    this.toolStripStatusLabel5.Text = "上位机丢包数：" + LostPackageNum.ToString();
+
+                                    ReceivePackageNum++;
+                                    this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
+
+                                    if (difference_Value < 0 || (difference_Value > 1000))
                                     {
-                                        AmplificationValue.Text ="获取的1mv定标值为：" + Convert.ToString(amplification);
-                                        differenceValue.Text ="获取的0mv校准值为：" + Convert.ToString(difference_Value);
+                                        difference_Value = 500;
                                     }
-                                }
-
-                                //Rectangle rect = new Rectangle();
-                                //rect = Screen.GetWorkingArea(this);
-
-
-                                if (LastPackageNum != -1)  //不是第一次  
-                                {
-                                    int buffer = LastPackageNum + 1;
-                                    if(buffer == 256)
+                                    if (amplification < 0 || (amplification > 1000))
                                     {
-                                        buffer = 0;
+                                        amplification = 60;
                                     }
-                                    if (SerialReceiveData[4] != buffer)
-                                    {
-                                        LostPackageNum++;
-                                    }
-                                }
-                                LastPackageNum = SerialReceiveData[4];
-                                // LostPackageNum++;
-                                this.toolStripStatusLabel5.Text = "上位机丢包数：" + LostPackageNum.ToString();
 
-                                ReceivePackageNum++;
-                                this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
-
-                                if (difference_Value < 0 || (difference_Value > 1000))
-                                {
-                                    difference_Value = 500;
-                                }
-                                if (amplification < 0 || (amplification > 100))
-                                {
-                                    amplification = 60;
-                                }
-
-                                XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[6]) + Convert.ToDouble((SerialReceiveData[10] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[7]) + Convert.ToDouble((SerialReceiveData[10] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[10] & 0x0c) << 6) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[10] & 0x03) << 8) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[15] & 0xc0) << 2) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[12]) + Convert.ToDouble((SerialReceiveData[15] & 0x30) << 4) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[15] & 0x0c) << 6) - difference_Value) * 100 / amplification + BaseLine;
-                                XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[15] & 0x03) << 8) - difference_Value) * 100 / amplification + BaseLine;
+                                    XdataV[EcgDataTimer * M + 0] = (Convert.ToDouble(SerialReceiveData[6]) + Convert.ToDouble((SerialReceiveData[10] & 0xc0) << 2) - difference_Value) * 1000 / amplification + BaseLine;
+                                    XdataV[EcgDataTimer * M + 1] = (Convert.ToDouble(SerialReceiveData[7]) + Convert.ToDouble((SerialReceiveData[10] & 0x30) << 4) - difference_Value) * 1000 / amplification + BaseLine;
+                                    XdataV[EcgDataTimer * M + 2] = (Convert.ToDouble(SerialReceiveData[8]) + Convert.ToDouble((SerialReceiveData[10] & 0x0c) << 6) - difference_Value) * 1000 / amplification + BaseLine;
+                                    XdataV[EcgDataTimer * M + 3] = (Convert.ToDouble(SerialReceiveData[9]) + Convert.ToDouble((SerialReceiveData[10] & 0x03) << 8) - difference_Value) * 1000 / amplification + BaseLine;
+                                    XdataV[EcgDataTimer * M + 4] = (Convert.ToDouble(SerialReceiveData[11]) + Convert.ToDouble((SerialReceiveData[15] & 0xc0) << 2) - difference_Value) * 1000 / amplification + BaseLine;
+                                    XdataV[EcgDataTimer * M + 5] = (Convert.ToDouble(SerialReceiveData[12]) + Convert.ToDouble((SerialReceiveData[15] & 0x30) << 4) - difference_Value) * 1000 / amplification + BaseLine;
+                                    XdataV[EcgDataTimer * M + 6] = (Convert.ToDouble(SerialReceiveData[13]) + Convert.ToDouble((SerialReceiveData[15] & 0x0c) << 6) - difference_Value) * 1000 / amplification + BaseLine;
+                                    XdataV[EcgDataTimer * M + 7] = (Convert.ToDouble(SerialReceiveData[14]) + Convert.ToDouble((SerialReceiveData[15] & 0x03) << 8) - difference_Value) * 1000 / amplification + BaseLine;
 
 
-                               // chart1.Series["数据个数"].Color = Color.Green;
+                                    // chart1.Series["数据个数"].Color = Color.Green;
 
-                             //   chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 8).Color = Color.Black;
+                                    //   chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 8).Color = Color.Black;
 
-                                //if (EcgDataTimer < 62)
-                                //{
-                                //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 4).Color = Color.Black;
-                                //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 5).Color = Color.Black;
-                                //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 6).Color = Color.Black;
-                                //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 7).Color = Color.Black;
+                                    //if (EcgDataTimer < 62)
+                                    //{
+                                    //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 4).Color = Color.Black;
+                                    //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 5).Color = Color.Black;
+                                    //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 6).Color = Color.Black;
+                                    //    chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 7).Color = Color.Black;
                                     //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 12).Color = Color.Black;
                                     //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 13).Color = Color.Black;
                                     //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 14).Color = Color.Black;
                                     //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 15).Color = Color.Black;
                                     //chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 16).Color = Color.Black;
-                                //}
+                                    //}
 
 
-                                //SerialEcgData.Add(XdataV[0]);
-                                //SerialEcgData.Add(XdataV[1]);
-                                //SerialEcgData.Add(XdataV[2]);
-                                //SerialEcgData.Add(XdataV[3]);
-                                //SerialEcgData.Add(XdataV[4]);
-                                //SerialEcgData.Add(XdataV[5]);
-                                //SerialEcgData.Add(XdataV[6]);
-                                //SerialEcgData.Add(XdataV[7]);
+                                    //SerialEcgData.Add(XdataV[0]);
+                                    //SerialEcgData.Add(XdataV[1]);
+                                    //SerialEcgData.Add(XdataV[2]);
+                                    //SerialEcgData.Add(XdataV[3]);
+                                    //SerialEcgData.Add(XdataV[4]);
+                                    //SerialEcgData.Add(XdataV[5]);
+                                    //SerialEcgData.Add(XdataV[6]);
+                                    //SerialEcgData.Add(XdataV[7]);
 
 
-                                FileStream fs = null;
-                                // string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
-                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.hex";
-                                try
-                                {
-                                    fs = File.OpenWrite(filePath);
-                                    fs.Position = fs.Length;
-                                    for (int i = 0; i < 8; i++)
+                                    FileStream fs = null;
+                                    // string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.txt";
+                                    string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.hex";
+                                    try
                                     {
-                                        int j = 0;
-                                        byte[] bytes = new byte[10];
-                                        short m_ecgdata = (short)XdataV[EcgDataTimer * M + i];
-                                        bytes[0] = (byte)m_ecgdata;
-                                        bytes[1] = (byte)(m_ecgdata / 256);
-                                        fs.Write(bytes, 0, 2);
-                                        //    if (m_ecgdata < 0)
-                                        //    {
-                                        //        bytes[j++] = 0x2D;
-                                        //        m_ecgdata = Math.Abs(m_ecgdata);
-                                        //    }
-                                        //    if (m_ecgdata >= 1000)
-                                        //    {
-                                        //        byte m1 = (byte)(m_ecgdata / 1000);
-                                        //        bytes[j++] = (byte)(0x30 + m1);
-                                        //    }
-                                        //    if (m_ecgdata >= 100)
-                                        //    {
-                                        //        byte m2 = (byte)(m_ecgdata / 100);
-                                        //        m2 = (byte)(m2 % 10);
-                                        //        bytes[j++] = (byte)(0x30 + m2);
-                                        //    }
-                                        //    if (m_ecgdata >= 10)
-                                        //    {
-                                        //        byte m3 = (byte)(m_ecgdata / 10);
-                                        //        m3 = (byte)(m3 % 10);
-                                        //        bytes[j++] = (byte)(0x30 + m3);
-                                        //    }
-                                        //    if (m_ecgdata >= 0)
-                                        //    {
-                                        //        byte m4 = (byte)(m_ecgdata % 10);
-                                        //        bytes[j++] = (byte)(0x30 + m4);
-                                        //    }
-                                        //    if (m_ecgdata == 0)
-                                        //    {
-                                        //        m_ecgdata = 0;
-                                        //    }
-                                        //    bytes[j++] = 0x0d;
-                                        //    bytes[j] = 0x0a;
-                                        //    fs.Write(bytes, 0, j + 1);
+                                        fs = File.OpenWrite(filePath);
+                                        fs.Position = fs.Length;
+                                        for (int i = 0; i < 8; i++)
+                                        {
+                                            int j = 0;
+                                            byte[] bytes = new byte[10];
+                                            short m_ecgdata = (short)XdataV[EcgDataTimer * M + i];
+                                            bytes[0] = (byte)m_ecgdata;
+                                            bytes[1] = (byte)(m_ecgdata / 256);
+                                            fs.Write(bytes, 0, 2);
+                                            //    if (m_ecgdata < 0)
+                                            //    {
+                                            //        bytes[j++] = 0x2D;
+                                            //        m_ecgdata = Math.Abs(m_ecgdata);
+                                            //    }
+                                            //    if (m_ecgdata >= 1000)
+                                            //    {
+                                            //        byte m1 = (byte)(m_ecgdata / 1000);
+                                            //        bytes[j++] = (byte)(0x30 + m1);
+                                            //    }
+                                            //    if (m_ecgdata >= 100)
+                                            //    {
+                                            //        byte m2 = (byte)(m_ecgdata / 100);
+                                            //        m2 = (byte)(m2 % 10);
+                                            //        bytes[j++] = (byte)(0x30 + m2);
+                                            //    }
+                                            //    if (m_ecgdata >= 10)
+                                            //    {
+                                            //        byte m3 = (byte)(m_ecgdata / 10);
+                                            //        m3 = (byte)(m3 % 10);
+                                            //        bytes[j++] = (byte)(0x30 + m3);
+                                            //    }
+                                            //    if (m_ecgdata >= 0)
+                                            //    {
+                                            //        byte m4 = (byte)(m_ecgdata % 10);
+                                            //        bytes[j++] = (byte)(0x30 + m4);
+                                            //    }
+                                            //    if (m_ecgdata == 0)
+                                            //    {
+                                            //        m_ecgdata = 0;
+                                            //    }
+                                            //    bytes[j++] = 0x0d;
+                                            //    bytes[j] = 0x0a;
+                                            //    fs.Write(bytes, 0, j + 1);
+
+                                        }
 
                                     }
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("鏂囦欢鎵撳紑澶辫触{0}", ex.ToString());
-                                }
-                                finally
-                                {
-                                    fs.Close();
-                                }
-                                DataStoreButton.Enabled = true;
-
-                                if ((ScalingFlag == 1) || (ScalingFlag == 11))   //校准或定标
-                                {
-                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 0]);
-                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 1]);
-                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 2]);
-                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 3]);
-                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 4]);
-                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 5]);
-                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 6]);
-                                    calibration_Value.Add(XdataV[EcgDataTimer * M + 7]);
-                                    calibration_Num += 8;
-                                    if (calibration_Num >= 1024)
+                                    catch (Exception ex)
                                     {
-                                        if (ScalingFlag == 1)
+                                        Console.WriteLine("鏂囦欢鎵撳紑澶辫触{0}", ex.ToString());
+                                    }
+                                    finally
+                                    {
+                                        fs.Close();
+                                    }
+                                    DataStoreButton.Enabled = true;
+
+                                    if ((ScalingFlag == 1) || (ScalingFlag == 11))   //校准或定标
+                                    {
+                                        calibration_Value.Add(XdataV[EcgDataTimer * M + 0]);
+                                        calibration_Value.Add(XdataV[EcgDataTimer * M + 1]);
+                                        calibration_Value.Add(XdataV[EcgDataTimer * M + 2]);
+                                        calibration_Value.Add(XdataV[EcgDataTimer * M + 3]);
+                                        calibration_Value.Add(XdataV[EcgDataTimer * M + 4]);
+                                        calibration_Value.Add(XdataV[EcgDataTimer * M + 5]);
+                                        calibration_Value.Add(XdataV[EcgDataTimer * M + 6]);
+                                        calibration_Value.Add(XdataV[EcgDataTimer * M + 7]);
+                                        calibration_Num += 8;
+                                        if (calibration_Num >= 1024)
                                         {
-                                            for (int i = 0; i < 8; i++)
+                                            if (ScalingFlag == 1)
                                             {
-                                                ScalingEcgMin[i] = 5000;
-                                            }
-                                            for (int i = 0; i < 8; i++)
-                                            {
-                                                ScalingEcgMax[i] = -5000;
-                                            }
-                                            for (int j = 0; j < 8; j++)
-                                            {
-                                                for (int i = 200; i < 1024; i++)
+                                                for (int i = 0; i < 8; i++)
                                                 {
-                                                    if (ScalingEcgMin[j] > calibration_Value[i])
+                                                    ScalingEcgMin[i] = 50000;
+                                                }
+                                                for (int i = 0; i < 8; i++)
+                                                {
+                                                    ScalingEcgMax[i] = -50000;
+                                                }
+                                                for (int j = 0; j < 8; j++)
+                                                {
+                                                    for (int i = 200; i < 1024; i++)
                                                     {
-                                                        if (j > 0)
+                                                        if (ScalingEcgMin[j] > calibration_Value[i])
                                                         {
-                                                            if (ScalingEcgMin[j - 1] < calibration_Value[i])
+                                                            if (j > 0)
+                                                            {
+                                                                if (ScalingEcgMin[j - 1] < calibration_Value[i])
+                                                                {
+                                                                    ScalingEcgMin[j] = calibration_Value[i];
+                                                                }
+                                                            }
+                                                            else
                                                             {
                                                                 ScalingEcgMin[j] = calibration_Value[i];
                                                             }
                                                         }
-                                                        else
+                                                        if (ScalingEcgMax[j] < calibration_Value[i])
                                                         {
-                                                            ScalingEcgMin[j] = calibration_Value[i];
-                                                        }
-                                                    }
-                                                    if (ScalingEcgMax[j] < calibration_Value[i])
-                                                    {
-                                                        if (j > 0)
-                                                        {
-                                                            if (ScalingEcgMax[j - 1] > calibration_Value[i])
+                                                            if (j > 0)
+                                                            {
+                                                                if (ScalingEcgMax[j - 1] > calibration_Value[i])
+                                                                {
+                                                                    ScalingEcgMax[j] = calibration_Value[i];
+                                                                }
+                                                            }
+                                                            else
                                                             {
                                                                 ScalingEcgMax[j] = calibration_Value[i];
                                                             }
-                                                        }
-                                                        else
-                                                        {
-                                                            ScalingEcgMax[j] = calibration_Value[i];
-                                                        }
 
+                                                        }
                                                     }
                                                 }
-                                            }
-                                            for (int i = 1; i < 4; i++)
-                                            {
-                                                ScalingEcgMax[0] += ScalingEcgMax[i];
-                                                ScalingEcgMin[0] += ScalingEcgMin[i];
-                                            }
-                                            amplification = (Int16)((ScalingEcgMax[0] - ScalingEcgMin[0]) / 4);
-                                            difference_Value = difference_Value_Back;
+                                                for (int i = 1; i < 4; i++)
+                                                {
+                                                    ScalingEcgMax[0] += ScalingEcgMax[i];
+                                                    ScalingEcgMin[0] += ScalingEcgMin[i];
+                                                }
+                                                amplification = (Int16)((ScalingEcgMax[0] - ScalingEcgMin[0]) / 4);
+                                                difference_Value = difference_Value_Back;
 
-                                            calibration_Value.RemoveRange(0, 1024);
-                                            Setcalibration1mvSerialCommand();
-                                            ScalingFlag = 2;   //完成1mv定标
-                                            calibration_Num = 0;
-                                        }
-                                        else if (ScalingFlag == 11)
-                                        {
-                                            double m_value = 0;
-                                            for (int i = 0; i < 1024; i++)
-                                            {
-                                                m_value += calibration_Value[i];
+                                                calibration_Value.RemoveRange(0, 1024);
+                                                Setcalibration1mvSerialCommand();
+                                                ScalingFlag = 2;   //完成1mv定标
+                                                calibration_Num = 0;
                                             }
-                                            difference_Value = (Int16)(m_value / 1024);
-                                            amplification = amplification_Back;
-                                            calibration_Value.RemoveRange(0, 1024);
-                                            Setcalibration0mvSerialCommand();
-                                            ScalingFlag = 12;   //完成0mv校准
-                                            calibration_Num = 0;
+                                            else if (ScalingFlag == 11)
+                                            {
+                                                double m_value = 0;
+                                                for (int i = 0; i < 1024; i++)
+                                                {
+                                                    m_value += calibration_Value[i];
+                                                }
+                                                difference_Value = (Int16)(m_value / 1024);
+                                                amplification = amplification_Back;
+                                                calibration_Value.RemoveRange(0, 1024);
+                                                Setcalibration0mvSerialCommand();
+                                                ScalingFlag = 12;   //完成0mv校准
+                                                calibration_Num = 0;
+                                            }
+                                            // BaseLine = 500;
                                         }
-                                        BaseLine = 500;
                                     }
+
+                                    EcgDataTimer++;
+                                    if (EcgDataTimer >= (chartlenMax / M))
+                                    {
+                                        EcgDataTimer = (chartlenMin / 8);
+                                    }
+
+                                    //if (SerialEcgData.Count > 512)
+                                    //{
+                                    //    SerialEcgData.RemoveRange(0, SerialEcgData.Count - 512);//从接收列表中删除包
+                                    //    double* ecgbuffer = stackalloc double[512];            //求导数数据区
+                                    //    for (int i = 0; i < 512; i++)
+                                    //    {
+                                    //        ecgbuffer[i] = SerialEcgData[i];
+                                    //    }
+                                    //    int t = rhythmcount(ecgbuffer);
+                                    //}
+
+                                    DataTransmissionFlag = 1;
+
+                                    LeadOffStatus = Convert.ToInt16(SerialReceiveData[5]) >> 7;
+                                    Vbat = Convert.ToInt16(SerialReceiveData[5] & 0x7f);
                                 }
-
-                                EcgDataTimer++;
-                                if (EcgDataTimer >= (chartlenMax / M))
-                                {
-                                    EcgDataTimer = (chartlenMin / 8);
-                                }
- 
-                                //if (SerialEcgData.Count > 512)
-                                //{
-                                //    SerialEcgData.RemoveRange(0, SerialEcgData.Count - 512);//从接收列表中删除包
-                                //    double* ecgbuffer = stackalloc double[512];            //求导数数据区
-                                //    for (int i = 0; i < 512; i++)
-                                //    {
-                                //        ecgbuffer[i] = SerialEcgData[i];
-                                //    }
-                                //    int t = rhythmcount(ecgbuffer);
-                                //}
-
-                                DataTransmissionFlag = 1;
-
-                                LeadOffStatus = Convert.ToInt16(SerialReceiveData[5])>>7;
-                                Vbat = Convert.ToInt16(SerialReceiveData[5]&0x7f);
                             }
                             #endregion
                             
@@ -1635,7 +1754,7 @@ namespace MotionSensor
                     DataTransmissionFlag = 0;
                     ConnectBLEButton.Text = "设备已连接";
                     ConnectBLEButton.Enabled = true;
-                    button6.Enabled = true;   //定标按键
+                    button6.Enabled = false;   //定标按键
                     PauseButton.Enabled = true;
                     ScanButton.Enabled = false;
 
@@ -1746,6 +1865,14 @@ namespace MotionSensor
                             chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 6).Color = Color.Black;
                             chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 7).Color = Color.Black;
                         }
+                        for (int i = 1; i < 512; i++)
+                        {
+                            if ((XdataV[i] > 7000) || (XdataV[i] < -7000))
+                            {
+                                chart1.Series["Series_Ecg"].Points.ElementAt(i).Color = Color.Black;
+                                chart1.Series["Series_Ecg"].Points.ElementAt(i-1).Color = Color.Black;
+                            }
+                        }
                     }
                 }
             }
@@ -1765,17 +1892,24 @@ namespace MotionSensor
                 }
                 else
                 {
-                    Lead.Text = "导联脱落";
-                    Lead.SelectAll();
-                    Lead.SelectionColor = Color.Red;
+                    try
+                    {
+                        Lead.Text = "导联脱落";
+                        Lead.SelectAll();
+                        Lead.SelectionColor = Color.Red;
+                    }
+                    finally
+                    {
+                        ;
+                     }
                 }
             }
             else
             {
-                HeartRate.Text = "";
+             //   HeartRate.Text = "";
                 BatteryValue.Text = "";
                 Lead.Text = "";
-                BloodPressure.Text = "";
+             //   BloodPressure.Text = "";
             }
 
             Timer.Enabled = false;
@@ -1853,6 +1987,7 @@ namespace MotionSensor
                 MACComboBox.Enabled = false;
                 BLENUMlabel.Text = "";
                 ScanBLENum = 0;
+                button6.Enabled = false;
             }
             PauseButton.Enabled = false;
         }
@@ -1882,11 +2017,12 @@ namespace MotionSensor
         {
             if (ConnectBLEButton.Text == "设备已连接")
             {
-
+                checkBox1.Enabled = true;
                 DisconnectBLESerialCommand();
             }
             else
             {
+                checkBox1.Enabled = false;
                 ConnectBLESerialCommand();
             }
             
@@ -1970,15 +2106,31 @@ namespace MotionSensor
                 {
                     byte[] ssss = { 0x77, 0x05, 0x00, 0x01, 0x00 };
                     ssss[4] = (byte)MACComboBox.SelectedIndex;
-                    if (SerialPort.IsOpen)
+
+                    if (MACComboBox.SelectedIndex < 100)
                     {
-                        SerialPort.Write(ssss, 0, 5);
+
+                        if (ScanBleName[MACComboBox.SelectedIndex, 0] == 'B' && (ScanBleName[MACComboBox.SelectedIndex, 1] == 'D'))
+                        {
+                            if (SerialPort.IsOpen)
+                            {
+                                SerialPort.Write(ssss, 0, 5);
+                            }
+                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                            string DisplayString = "请求连接设备...\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+                            DisConnectBLEEnableFlag = 0;
+                        }
+                        else
+                        {
+                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                            string DisplayString = "所选设备不是心电补丁，请重新选择连接！！！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+                            checkBox1.Enabled = true;
+                        }
                     }
-                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                    string DisplayString = "请求连接设备...\r\n";
-                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                    OutMsg(MonitorText, DisplayString, Color.Red);
-                    DisConnectBLEEnableFlag = 0;
                 }
             }
         }
@@ -2020,6 +2172,8 @@ namespace MotionSensor
                     chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
                     BLEConnectFlag = 0;
+
+                    StartEcgCaptureFlag = 0;
                     return;
                 }
                 finally
@@ -2573,10 +2727,12 @@ namespace MotionSensor
             if (checkBox1.Checked == true)
             {
                 AutoConnectBLESerialCommand();
+                ScanButton.Enabled = false;
             }
             else
             {
                 DisAutoConnectBLESerialCommand();
+                ScanButton.Enabled = true;
             }
         }
 
@@ -2596,7 +2752,7 @@ namespace MotionSensor
             amplification_Back = amplification;
             difference_Value_Back = difference_Value;
             difference_Value = 0;
-            amplification = 100;
+            amplification = 1000;
             BaseLine = 0;
             System.Threading.Thread.Sleep(100);
         }
@@ -2667,7 +2823,7 @@ namespace MotionSensor
             amplification_Back = amplification;
             difference_Value_Back = difference_Value;
             difference_Value = 0;
-            amplification = 100;
+            amplification = 1000;
             BaseLine = 0;
             System.Threading.Thread.Sleep(100);
         }
@@ -2711,6 +2867,13 @@ namespace MotionSensor
 
                     this.EcgPatchVersionLabel.Text = "";
                     this.toolStripStatusLabel2.Text = "";
+                }
+                else
+                {
+                    if ((BLECentralMAC[0] == 0 )&& (BLECentralMAC[1] == 0) && (BLECentralMAC[2] == 0) && (BLECentralMAC[3] == 0) && (BLECentralMAC[4] == 0) && (BLECentralMAC[5] == 0))
+                    {
+                        SetTestModeCommand();
+                    }
                 }
             }
             else if (ComConnectFlag == 0)
@@ -2760,10 +2923,12 @@ namespace MotionSensor
             if (checkBox2.Checked)
             {
                 AutoComConnectFlag = 1;
+                SerialSetButton.Enabled = false;
             }
             else
             {
                 AutoComConnectFlag = 0;
+                SerialSetButton.Enabled = true;
             }
         }
 
@@ -2774,12 +2939,78 @@ namespace MotionSensor
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum =(int)( 600 / (double)(numericUpDown1.Value));
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum =(int)( -600 / (double)(numericUpDown1.Value));
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum =(int)( 6000 / (double)(numericUpDown1.Value));
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum =(int)( -6000 / (double)(numericUpDown1.Value));
             chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval =(int) chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum / 6;
             chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval*6;
             chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = -chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval*6;
             chart1.ChartAreas["ChartArea_Ecg"].AxisY.MinorGrid.Interval = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval / 5;
+        }
+
+        private void chart1_MouseDown(object sender, MouseEventArgs e)
+        {
+            label15.Text = "移动到需要测试的终点，放开鼠标按键";
+            this.chart1.Focus();
+            X_Start = e.X;
+            Y_Start = e.Y;
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+               // label17.Text = StoreDP.YValues[0].ToString();
+                label17.Text = string.Format("获取的第一个点的值:{0:F0}mV", StoreDP.YValues[0]);
+                StartStoreDP = StoreDP;
+            }
+            else if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                //label18.Text = StoreDP.YValues[0].ToString();
+                label18.Text = string.Format("获取的第二个点的值:{0:F0}mV", StoreDP.YValues[0]);
+                label19.Text = string.Format("高度差::{0:F0}mV", Math.Abs(StoreDP.YValues[0] - StartStoreDP.YValues[0]));
+            }
+        }
+
+        private void chart1_MouseMove(object sender, MouseEventArgs e)
+        {
+          // label15.Text =  e.X.ToString() + "--" + e.Y.ToString();
+            ////MessageBox.Show(chart1.Series[0].ToolTip.ToCharArray()[0].ToString());
+            //MessageBox.Show(chart1.Series["Series_Ecg"].ToolTip = "#VALX #VALY";
+            //MessageBox.Show(chart1.Series["Series_Ecg"].ToolTip.ToCharArray()[0].ToString());
+        }
+
+        private void chart1_MouseUp(object sender, MouseEventArgs e)
+        {
+            label15.Text = "所测试的宽度为:" + Math.Abs(e.X - X_Start).ToString() + "   所测试的高度为:" + Math.Abs(e.Y - Y_Start).ToString();
+           // label16.Text = chart1.Series["Series_Ecg"].Points[0].ToolTip.ToString();
+        }
+
+        private void chart1_GetToolTipText(object sender, ToolTipEventArgs e)
+        {
+            if (e.HitTestResult.ChartElementType == ChartElementType.DataPoint)
+            {
+                this.Cursor = Cursors.Hand;
+                int i = e.HitTestResult.PointIndex;
+                StoreDP = e.HitTestResult.Series.Points[i];
+                label16.Visible = true;
+                label16.Text = string.Format("当前点的心电电压值:{0:F0}mV", StoreDP.YValues[0]);
+            }
+            else
+            {
+                label16.Visible = false;
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+        private void chart1_MouseLeave(object sender, EventArgs e)
+        {
+            label16.Visible = false;
+        }
+
+        private void chart1_MouseEnter(object sender, EventArgs e)
+        {
+            label16.Visible = false;
+        }
+
+        private void chart1_MouseHover(object sender, EventArgs e)
+        {
+
         }
     }
 }

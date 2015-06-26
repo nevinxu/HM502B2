@@ -134,7 +134,7 @@ extern void _itoa(uint16 num, uint8 *buf, uint8 radix);
 /* sleep macros required by OSAL_PwrMgr.c */
 #define SLEEP_DEEP                  0             /* value not used */
 #define SLEEP_LITE                  0             /* value not used */
-#define MIN_SLEEP_TIME              14            /* minimum time to sleep */
+#define MIN_SLEEP_TIME              100            /* minimum time to sleep */
 #define OSAL_SET_CPU_INTO_SLEEP(m)  halSleep(m)   /* interface to HAL sleep */
 
 /* used by MTEL.c */

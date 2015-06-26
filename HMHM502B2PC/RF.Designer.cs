@@ -37,18 +37,16 @@
             this.label12 = new System.Windows.Forms.Label();
             this.Lead = new System.Windows.Forms.RichTextBox();
             this.BatteryValue = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.BloodPressure = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.HeartRate = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.label14 = new System.Windows.Forms.Label();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
@@ -103,18 +101,21 @@
             this.AmplificationValue = new System.Windows.Forms.Label();
             this.differenceValue = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.label14 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
             this.statusStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // Lea
@@ -123,21 +124,17 @@
             this.Lea.Controls.Add(this.label12);
             this.Lea.Controls.Add(this.Lead);
             this.Lea.Controls.Add(this.BatteryValue);
-            this.Lea.Controls.Add(this.label9);
-            this.Lea.Controls.Add(this.BloodPressure);
             this.Lea.Controls.Add(this.label3);
             this.Lea.Controls.Add(this.label8);
-            this.Lea.Controls.Add(this.label5);
-            this.Lea.Controls.Add(this.HeartRate);
             this.Lea.Location = new System.Drawing.Point(602, 12);
             this.Lea.Name = "Lea";
-            this.Lea.Size = new System.Drawing.Size(179, 131);
+            this.Lea.Size = new System.Drawing.Size(179, 104);
             this.Lea.TabIndex = 1;
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(48, 55);
+            this.label12.Location = new System.Drawing.Point(135, 23);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(11, 12);
             this.label12.TabIndex = 19;
@@ -147,7 +144,7 @@
             // Lead
             // 
             this.Lead.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.Lead.Location = new System.Drawing.Point(59, 87);
+            this.Lead.Location = new System.Drawing.Point(62, 56);
             this.Lead.Name = "Lead";
             this.Lead.Size = new System.Drawing.Size(100, 26);
             this.Lead.TabIndex = 18;
@@ -158,7 +155,7 @@
             // 
             this.BatteryValue.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.BatteryValue.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.BatteryValue.Location = new System.Drawing.Point(11, 48);
+            this.BatteryValue.Location = new System.Drawing.Point(90, 18);
             this.BatteryValue.Name = "BatteryValue";
             this.BatteryValue.ReadOnly = true;
             this.BatteryValue.Size = new System.Drawing.Size(37, 23);
@@ -166,33 +163,11 @@
             this.BatteryValue.TabStop = false;
             this.BatteryValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label9.Location = new System.Drawing.Point(123, 20);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(40, 16);
-            this.label9.TabIndex = 16;
-            this.label9.Text = "血压";
-            // 
-            // BloodPressure
-            // 
-            this.BloodPressure.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.BloodPressure.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.BloodPressure.Location = new System.Drawing.Point(117, 48);
-            this.BloodPressure.Name = "BloodPressure";
-            this.BloodPressure.ReadOnly = true;
-            this.BloodPressure.Size = new System.Drawing.Size(57, 23);
-            this.BloodPressure.TabIndex = 15;
-            this.BloodPressure.TabStop = false;
-            this.BloodPressure.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label3.Location = new System.Drawing.Point(7, 95);
+            this.label3.Location = new System.Drawing.Point(8, 66);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(40, 16);
             this.label3.TabIndex = 11;
@@ -202,33 +177,11 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label8.Location = new System.Drawing.Point(11, 20);
+            this.label8.Location = new System.Drawing.Point(17, 18);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(40, 16);
             this.label8.TabIndex = 10;
             this.label8.Text = "电量";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label5.Location = new System.Drawing.Point(68, 20);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(40, 16);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "心率";
-            // 
-            // HeartRate
-            // 
-            this.HeartRate.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.HeartRate.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.HeartRate.Location = new System.Drawing.Point(68, 48);
-            this.HeartRate.Name = "HeartRate";
-            this.HeartRate.ReadOnly = true;
-            this.HeartRate.Size = new System.Drawing.Size(48, 23);
-            this.HeartRate.TabIndex = 7;
-            this.HeartRate.TabStop = false;
-            this.HeartRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label1
             // 
@@ -281,10 +234,44 @@
             this.panel3.Controls.Add(this.trackBar1);
             this.panel3.Controls.Add(this.radioButton2);
             this.panel3.Controls.Add(this.radioButton1);
-            this.panel3.Location = new System.Drawing.Point(600, 350);
+            this.panel3.Location = new System.Drawing.Point(600, 313);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(181, 255);
             this.panel3.TabIndex = 5;
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(92, 213);
+            this.numericUpDown1.Maximum = new decimal(new int[] {
+            8,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(66, 21);
+            this.numericUpDown1.TabIndex = 29;
+            this.numericUpDown1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            this.numericUpDown1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.numericUpDown1_KeyPress);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(14, 217);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(53, 12);
+            this.label14.TabIndex = 27;
+            this.label14.Text = "放大倍数";
             // 
             // trackBar2
             // 
@@ -405,7 +392,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label4.Location = new System.Drawing.Point(668, 344);
+            this.label4.Location = new System.Drawing.Point(668, 307);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 14);
             this.label4.TabIndex = 6;
@@ -421,9 +408,9 @@
             this.panel4.Controls.Add(this.DataStoreButton);
             this.panel4.Controls.Add(this.label7);
             this.panel4.Controls.Add(this.label6);
-            this.panel4.Location = new System.Drawing.Point(600, 162);
+            this.panel4.Location = new System.Drawing.Point(600, 125);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(181, 169);
+            this.panel4.Size = new System.Drawing.Size(181, 170);
             this.panel4.TabIndex = 7;
             // 
             // checkBox2
@@ -601,7 +588,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(678, 156);
+            this.label2.Location = new System.Drawing.Point(662, 119);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(35, 14);
             this.label2.TabIndex = 3;
@@ -619,6 +606,7 @@
             // 
             // IDValuebutton
             // 
+            this.IDValuebutton.Enabled = false;
             this.IDValuebutton.Location = new System.Drawing.Point(965, 401);
             this.IDValuebutton.Name = "IDValuebutton";
             this.IDValuebutton.Size = new System.Drawing.Size(93, 23);
@@ -649,6 +637,7 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
+            this.checkBox1.Enabled = false;
             this.checkBox1.Location = new System.Drawing.Point(955, 268);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(96, 16);
@@ -659,6 +648,7 @@
             // 
             // button3
             // 
+            this.button3.Enabled = false;
             this.button3.Location = new System.Drawing.Point(794, 344);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(113, 23);
@@ -669,6 +659,7 @@
             // 
             // button5
             // 
+            this.button5.Enabled = false;
             this.button5.Location = new System.Drawing.Point(801, 429);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(93, 23);
@@ -679,6 +670,7 @@
             // 
             // button6
             // 
+            this.button6.Enabled = false;
             this.button6.Location = new System.Drawing.Point(965, 527);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(93, 23);
@@ -717,9 +709,9 @@
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel5,
             this.EcgPatchVersionLabel});
-            this.statusStrip2.Location = new System.Drawing.Point(576, 608);
+            this.statusStrip2.Location = new System.Drawing.Point(545, 608);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(487, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(518, 22);
             this.statusStrip2.SizingGrip = false;
             this.statusStrip2.TabIndex = 40;
             // 
@@ -775,12 +767,12 @@
             chartArea1.AxisX.MinorGrid.LineColor = System.Drawing.Color.Gray;
             chartArea1.AxisX.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
             chartArea1.AxisX.Title = "时间/ms";
-            chartArea1.AxisY.Interval = 100D;
+            chartArea1.AxisY.Interval = 1000D;
             chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisY.Maximum = 600D;
-            chartArea1.AxisY.Minimum = -600D;
+            chartArea1.AxisY.Maximum = 6000D;
+            chartArea1.AxisY.Minimum = -6000D;
             chartArea1.AxisY.MinorGrid.Enabled = true;
-            chartArea1.AxisY.MinorGrid.Interval = 20D;
+            chartArea1.AxisY.MinorGrid.Interval = 200D;
             chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
             chartArea1.AxisY.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.DashDotDot;
             chartArea1.AxisY.MinorTickMark.LineColor = System.Drawing.Color.White;
@@ -794,6 +786,7 @@
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
             series1.Color = System.Drawing.Color.Lime;
             series1.Name = "Series_Ecg";
+            dataPoint1.ToolTip = "#VAL";
             series1.Points.Add(dataPoint1);
             series1.ShadowColor = System.Drawing.Color.Red;
             series1.YValuesPerPoint = 2;
@@ -801,9 +794,17 @@
             this.chart1.Size = new System.Drawing.Size(594, 556);
             this.chart1.TabIndex = 41;
             this.chart1.Text = "chart1";
+            this.chart1.GetToolTipText += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.ToolTipEventArgs>(this.chart1_GetToolTipText);
+            this.chart1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseDown);
+            this.chart1.MouseEnter += new System.EventHandler(this.chart1_MouseEnter);
+            this.chart1.MouseLeave += new System.EventHandler(this.chart1_MouseLeave);
+            this.chart1.MouseHover += new System.EventHandler(this.chart1_MouseHover);
+            this.chart1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseMove);
+            this.chart1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseUp);
             // 
             // button1
             // 
+            this.button1.Enabled = false;
             this.button1.Location = new System.Drawing.Point(801, 464);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(93, 23);
@@ -837,39 +838,51 @@
             this.timer1.Enabled = true;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // label14
+            // label15
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(14, 217);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(53, 12);
-            this.label14.TabIndex = 27;
-            this.label14.Text = "放大倍数";
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(12, 575);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(47, 12);
+            this.label15.TabIndex = 45;
+            this.label15.Text = "label15";
             // 
-            // numericUpDown1
+            // label16
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(92, 213);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
-            8,
-            0,
-            0,
-            0});
-            this.numericUpDown1.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(66, 21);
-            this.numericUpDown1.TabIndex = 29;
-            this.numericUpDown1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.numericUpDown1.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
-            this.numericUpDown1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.numericUpDown1_KeyPress);
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(12, 593);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(47, 12);
+            this.label16.TabIndex = 46;
+            this.label16.Text = "label16";
+            this.label16.Visible = false;
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(286, 571);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(137, 12);
+            this.label17.TabIndex = 47;
+            this.label17.Text = "获取的第一个点的值:0mV";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(285, 593);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(137, 12);
+            this.label18.TabIndex = 48;
+            this.label18.Text = "获取的第二个点的值:0mV";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(473, 584);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(65, 12);
+            this.label19.TabIndex = 49;
+            this.label19.Text = "高度差:0mV";
             // 
             // RF
             // 
@@ -877,8 +890,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(1063, 652);
+            this.Controls.Add(this.label19);
+            this.Controls.Add(this.label18);
+            this.Controls.Add(this.label17);
+            this.Controls.Add(this.label16);
+            this.Controls.Add(this.label15);
             this.Controls.Add(this.differenceValue);
             this.Controls.Add(this.AmplificationValue);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.chart1);
             this.Controls.Add(this.statusStrip2);
@@ -901,7 +920,6 @@
             this.Controls.Add(this.MonitorText);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.panel3);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.Lea);
@@ -910,7 +928,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RF";
-            this.Text = "HM502B2心电数据显示软件V1.83(201506023)";
+            this.Text = "HM502B2心电数据显示软件V1.91(201506024)";
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();
@@ -918,6 +936,7 @@
             this.statusStrip1.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.panel4.ResumeLayout(false);
@@ -926,7 +945,6 @@
             this.statusStrip2.ResumeLayout(false);
             this.statusStrip2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -956,12 +974,8 @@
         private System.Timers.Timer Timer;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private Sunisoft.IrisSkin.SkinEngine skinEngine1;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox HeartRate;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox BloodPressure;
-        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ComboBox MACComboBox;
         private System.Windows.Forms.Button ScanButton;
         private System.Windows.Forms.Button DataStoreButton;
@@ -1006,6 +1020,11 @@
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label19;
     }
 }
 

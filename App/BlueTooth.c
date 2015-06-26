@@ -28,8 +28,8 @@ static lpuart_state_t s_bt_lpuart[2];
 
 extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列 
 
-uint8_t	HardWareVersion[4] = {"1.00"};
-uint8_t	SoftWareVersion[4] = {"1.03"};   //sdk1.0.0   2015.06.17
+uint8_t	HardWareVersion[5] = {"1.1.0"};
+uint8_t	SoftWareVersion[12] = {"1.0.2.150624"};   //sdk1.0.0   2015.06.17
 
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
