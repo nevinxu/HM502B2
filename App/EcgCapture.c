@@ -83,25 +83,12 @@ static void ecg_adc_isr_callback(void)
     {
 			if(GPIO_DRV_ReadPinInput(kGpioLEADOFF_CHECK) == 0)
 			{
-				ecgdatapackage.ecgdata[i/2] = ECGBASEVALUE;
-				Ecgbuffer[Ecg_Row][Ecg_Col] = ECGBASEVALUE;
+				Ecgbuffer[Ecg_Row][Ecg_Col++] = ECGBASEVALUE;
 			}
 			else
 			{
-        ecgdatapackage.ecgdata[i/2] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
-				Ecgbuffer[Ecg_Row][Ecg_Col] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+				Ecgbuffer[Ecg_Row][Ecg_Col++] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
 			}
-			
-			Ecg_Col++;
-			if(Ecg_Col >= 8)
-			{
-				Ecg_Col = 0;
-				Ecg_Row ++;				
-			}
-			
-
-			//	ecgdatapackage.ecgdata[i/2] = sinTab[j++];
-			//ecgdatapackage.ecgdata[i/2] = j++;
 			adcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
 			adcChnConfig.diffEnable = false;
 			adcChnConfig.intEnable = true;
@@ -127,31 +114,9 @@ static void ecg_adc_isr_callback(void)
         ADC_DRV_ConfigConvChn(0, ECGCHNGROUP, &adcChnConfig);
     }
 		i++;
-//		if(i == ECGNUMPACKAGE)
-//		{
-//			if(BTSendSuccessFlag == 0)
-//			{
-//						m_bttransmitpackage.code = ECGDATACODE;
-//						m_bttransmitpackage.size = sizeof(ecgdatapackage);
-//						ecgdatapackage.start = SERIAL_IDENTIFIER;
-//						ecgdatapackage.command = APP_CMD_ECGDATASEND;
-//						ecgdatapackage.status = SERIAL_STATUS_OK;
-//						ecgdatapackage.length = ECGDATASIZE;
-//						memcpy(m_bttransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-//					//	memcpy(m_bttransmitpackage.data,Ecgbuffer[BTSendNum],sizeof(ecgdatapackage));
-
-//						
-//				//压缩		
-//						EncodeData4WTo5B(ecgdatapackage.ecgdata,&m_bttransmitpackage.data[6],8);
-//						m_bttransmitpackage.size = m_bttransmitpackage.size-6;
-//						
-//						OSA_MsgQPut(hBTMsgQueue,&m_bttransmitpackage);  
-//			}
-//		}
-
-		if(i >= (ECGNUMPACKAGE<<1))
+		if(Ecg_Col >= 8)
 		{
-			i = 0;
+			Ecg_Col = 0;
 			BT_RunLedStatus = GPIO_DRV_ReadPinInput(kGpioBTPIO1);
 			if(BT_RunLedStatus == 0)  //  灭  代表有闪烁   蓝牙未连接
 			{
@@ -250,7 +215,7 @@ static void ecg_adc_isr_callback(void)
 						ecgdatapackage.command = APP_CMD_ECGDATASEND;
 						ecgdatapackage.status = SERIAL_STATUS_OK;
 						ecgdatapackage.length = ECGDATASIZE;
-					//	memcpy(ecgdatapackage.ecgdata,Ecgbuffer[BTSendNum++],16);
+						memcpy(ecgdatapackage.ecgdata,Ecgbuffer[Ecg_Row],16);
 						memcpy(m_bttransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
 
 						
@@ -268,6 +233,7 @@ static void ecg_adc_isr_callback(void)
 						OSA_MsgQPut(hPCMsgQueue,&m_pctransmitpackage);  
 				}
 			}
+			Ecg_Row++;
 		}
 }
 
