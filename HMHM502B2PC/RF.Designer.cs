@@ -83,7 +83,6 @@
             this.button2 = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.button3 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.textBox5 = new System.Windows.Forms.TextBox();
@@ -648,17 +647,6 @@
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // button3
-            // 
-            this.button3.Enabled = false;
-            this.button3.Location = new System.Drawing.Point(794, 344);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(113, 23);
-            this.button3.TabIndex = 34;
-            this.button3.Text = "接收心电数据";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click_1);
-            // 
             // button5
             // 
             this.button5.Enabled = false;
@@ -694,9 +682,9 @@
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(844, 500);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(155, 12);
+            this.label13.Size = new System.Drawing.Size(143, 12);
             this.label13.TabIndex = 39;
-            this.label13.Text = "需要配对的心电补丁MAC地址";
+            this.label13.Text = "设置配对心电补丁MAC地址";
             // 
             // statusStrip2
             // 
@@ -711,9 +699,9 @@
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel5,
             this.EcgPatchVersionLabel});
-            this.statusStrip2.Location = new System.Drawing.Point(576, 608);
+            this.statusStrip2.Location = new System.Drawing.Point(1015, 608);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(487, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(48, 22);
             this.statusStrip2.SizingGrip = false;
             this.statusStrip2.TabIndex = 40;
             // 
@@ -730,32 +718,27 @@
             // toolStripStatusLabel8
             // 
             this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
-            this.toolStripStatusLabel8.Size = new System.Drawing.Size(90, 17);
-            this.toolStripStatusLabel8.Text = "主设备接收包:0";
+            this.toolStripStatusLabel8.Size = new System.Drawing.Size(0, 17);
             // 
             // toolStripStatusLabel7
             // 
             this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
-            this.toolStripStatusLabel7.Size = new System.Drawing.Size(90, 17);
-            this.toolStripStatusLabel7.Text = "主设备丢包数:0";
+            this.toolStripStatusLabel7.Size = new System.Drawing.Size(0, 17);
             // 
             // toolStripStatusLabel6
             // 
             this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
-            this.toolStripStatusLabel6.Size = new System.Drawing.Size(99, 17);
-            this.toolStripStatusLabel6.Text = "上位机接收包：0";
+            this.toolStripStatusLabel6.Size = new System.Drawing.Size(0, 17);
             // 
             // toolStripStatusLabel5
             // 
             this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
-            this.toolStripStatusLabel5.Size = new System.Drawing.Size(99, 17);
-            this.toolStripStatusLabel5.Text = "上位机丢包数：0";
+            this.toolStripStatusLabel5.Size = new System.Drawing.Size(0, 17);
             // 
             // EcgPatchVersionLabel
             // 
             this.EcgPatchVersionLabel.Name = "EcgPatchVersionLabel";
-            this.EcgPatchVersionLabel.Size = new System.Drawing.Size(92, 17);
-            this.EcgPatchVersionLabel.Text = "未连接心电补丁";
+            this.EcgPatchVersionLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // chart1
             // 
@@ -915,7 +898,6 @@
             this.Controls.Add(this.textBox5);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
-            this.Controls.Add(this.button3);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.button2);
@@ -1009,7 +991,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.TextBox textBox5;
