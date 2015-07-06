@@ -106,6 +106,7 @@
             this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -618,12 +619,13 @@
             // button2
             // 
             this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(965, 494);
+            this.button2.Location = new System.Drawing.Point(787, 570);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(93, 23);
             this.button2.TabIndex = 30;
             this.button2.Text = "程序下载";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // label10
             // 
@@ -690,7 +692,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(792, 499);
+            this.label13.Location = new System.Drawing.Point(844, 500);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(155, 12);
             this.label13.TabIndex = 39;
@@ -709,9 +711,9 @@
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel5,
             this.EcgPatchVersionLabel});
-            this.statusStrip2.Location = new System.Drawing.Point(545, 608);
+            this.statusStrip2.Location = new System.Drawing.Point(576, 608);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(518, 22);
+            this.statusStrip2.Size = new System.Drawing.Size(487, 22);
             this.statusStrip2.SizingGrip = false;
             this.statusStrip2.TabIndex = 40;
             // 
@@ -884,12 +886,20 @@
             this.label19.TabIndex = 49;
             this.label19.Text = "高度差:0mV";
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(902, 570);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(149, 23);
+            this.progressBar1.TabIndex = 50;
+            // 
             // RF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.ClientSize = new System.Drawing.Size(1063, 652);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label19);
             this.Controls.Add(this.label18);
             this.Controls.Add(this.label17);
@@ -928,7 +938,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RF";
-            this.Text = "HM502B2心电数据显示软件V1.91(201506024)";
+            this.Text = "HM502B2心电数据显示软件V1.00(20150706)";
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();
@@ -1025,6 +1035,7 @@
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 

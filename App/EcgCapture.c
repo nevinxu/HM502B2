@@ -22,7 +22,7 @@ uint8_t Ecg_Col = 0;
 uint8_t BTSendNum = 0;
 uint8_t BTSendSuccessFlag = 1;
 
-
+uint8_t CalibrationFlag = 0;
 
 
 /* SIM base address */
@@ -60,7 +60,7 @@ int EncodeData4WTo5B(uint16_t* pData,uint8_t* rtnData,int Count)
 		// if(W>1000)
 		// W= 1000;
 		rtnData[k] = (uint8_t)W;
-		B = B | ((W&0x0300)>>8)<<(6-j*2);//???????2?,??4?,???????
+		B = B | ((W&0x0300)>>8)<<(6-j*2);
 		k++;
 		}
 		rtnData[k] = B;//(BYTE)W;
@@ -77,6 +77,8 @@ static void ecg_adc_isr_callback(void)
 		uint16_t buffer = 0;
 		adc_chn_config_t adcChnConfig;
 		
+		static int a;
+		
 		static uint16_t batteryValue_Mv;
 	
     if(i % 2)  //心电采集
@@ -87,7 +89,19 @@ static void ecg_adc_isr_callback(void)
 			}
 			else
 			{
-				Ecgbuffer[Ecg_Row][Ecg_Col++] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+				if( CalibrationFlag == 1)   //正在校准
+				{
+					Ecgbuffer[Ecg_Row][Ecg_Col++] = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+				}
+				else  if( CalibrationFlag == 0) //已校准
+				{
+					a = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
+					a = a -flashdatapackage.difference_Value;
+					a = a*100;
+					a = a/60;
+					a = a+500;
+					Ecgbuffer[Ecg_Row][Ecg_Col++] = a;
+				}
 			}
 			adcChnConfig.chnNum = BATTERY_ADC_INPUT_CHAN;
 			adcChnConfig.diffEnable = false;
@@ -148,7 +162,9 @@ static void ecg_adc_isr_callback(void)
 				{
 					ecgdatapackage.leadoffstatus_battery &= 0x7F; 
 				}
-				ecgdatapackage.sequence++;
+				
+				ecgdatapackage.sequence = Ecg_Row;
+				
 				if(batterybuffer[15]>0)
 				{
 					for(uint8_t j = 0;j < 16; j++)
@@ -217,8 +233,7 @@ static void ecg_adc_isr_callback(void)
 						ecgdatapackage.length = ECGDATASIZE;
 						memcpy(ecgdatapackage.ecgdata,Ecgbuffer[Ecg_Row],16);
 						memcpy(m_bttransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-
-						
+	
 				//压缩		
 						EncodeData4WTo5B(ecgdatapackage.ecgdata,&m_bttransmitpackage.data[6],8);
 						m_bttransmitpackage.size = m_bttransmitpackage.size-6;
@@ -226,11 +241,11 @@ static void ecg_adc_isr_callback(void)
 						OSA_MsgQPut(hBTMsgQueue,&m_bttransmitpackage);   
 
 
-						m_pctransmitpackage.start = STARTHEAD;
-						m_pctransmitpackage.command = ECGDATACODE;
-						m_pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
-						memcpy(m_pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
-						OSA_MsgQPut(hPCMsgQueue,&m_pctransmitpackage);  
+//						m_pctransmitpackage.start = STARTHEAD;
+//						m_pctransmitpackage.command = ECGDATACODE;
+//						m_pctransmitpackage.size = sizeof(ecgdatapackage) + 3;
+//						memcpy(m_pctransmitpackage.data,&ecgdatapackage,sizeof(ecgdatapackage));
+//						OSA_MsgQPut(hPCMsgQueue,&m_pctransmitpackage);  
 				}
 			}
 			Ecg_Row++;

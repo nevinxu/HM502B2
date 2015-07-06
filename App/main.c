@@ -110,7 +110,7 @@ int32_t ReadData4Flash()
 	}
 	if(flashdatapackage.IDValue[0] != 'D')
 	{
-		memcpy(flashdatapackage.IDValue,"D88888888",10);
+		memcpy(flashdatapackage.IDValue,"D123456789",10);
 	}
 	
 }
@@ -119,8 +119,7 @@ int32_t ReadData4Flash()
 
 int main(void)
 {	
-	// Read the function address from the ROM API tree.
-runBootloaderAddress = **(uint32_t **)(0x1c00001c);
+	// Read the function address from the ROM API tree.runBootloaderAddress = **(uint32_t **)(0x1c00001c);
 runBootloader = (void (*)(void * arg))runBootloaderAddress;
 // Start the bootloader.
 //runBootloader(NULL);
@@ -152,7 +151,7 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
 	
 	hBTMsgQueue = OSA_MsgQCreate(mqBTData, BTPACKAGEDEEP, sizeof(bttransmitpackage));  //定义蓝牙发送传输队列 
 	hPCMsgQueue = OSA_MsgQCreate(mqPCData, PCPACKAGEDEEP, sizeof(pctransmitpackage));  //定义调试串口发送传输队列
-	
+	LED1_ON;
 	OSA_TaskCreate(task_bluetooth_tx,
                    (uint8_t*) "bluetooth_tx",
                     TASK_BLUETOOTH_STACK_SIZE,

@@ -212,7 +212,7 @@ FPROT3          EQU     nFPROT3:EOR:0xFF
 ;       <2=> Boot from ROM
 ;       <3=> Boot from ROM
 ;         <i> Boot source selection
-FOPT          EQU     0x3F
+FOPT          EQU     0x39
 ;   </h>
 ;   <h> Flash security byte (FSEC)
 ;     <i> WARNING: If SEC field is configured as "MCU security status is secure" and MEEN field is configured as "Mass erase is disabled",

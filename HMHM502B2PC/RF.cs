@@ -10,6 +10,7 @@ using System.IO;
 using System.IO.Ports;
 using Microsoft.Win32;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Threading;
 
 namespace MotionSensor
 {
@@ -99,12 +100,16 @@ namespace MotionSensor
         private int Ecgamplification = 1;
         private int StartEcgCaptureFlag = 0;
 
-        byte[,] ScanBleName = new byte[100,10];
+        byte[,] ScanBleName = new byte[100,11];
 
         int X_Start;
         int Y_Start;
         DataPoint StoreDP;
         DataPoint StartStoreDP;
+
+        private int UpgradeFlag = 1;  //升级标志
+
+        private int UpgradeNum = 0;
   //      DataPoint StartStoreDP;
 
 
@@ -151,7 +156,7 @@ namespace MotionSensor
         private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             int length;
-            System.Threading.Thread.Sleep(1);
+            System.Threading.Thread.Sleep(2);
             if (!SerialPort.IsOpen)   //检测串口是否关闭
             {
                 return;
@@ -556,6 +561,60 @@ namespace MotionSensor
             {
                 return;
             }
+            if (SerialReceiveData.Count == 10)
+            {
+                if (SerialReceiveData[0] == 0x5A && (SerialReceiveData[1] == 0xA7))
+                {
+                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                    string DisplayString = "串口连接成功，准备升级！\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+
+                    ComConnectFlag = 1;
+                    button2.Enabled = true;
+                }
+            }
+            if (UpgradeNum == 1)
+            {
+                if (SerialReceiveData[0] == 0x5a && (SerialReceiveData[1] == 0xa1))
+                {
+                    if (SerialReceiveData[2] == 0x5a && (SerialReceiveData[3] == 0xa4))
+                    {
+                        if (SerialReceiveData[12] == 0 && (SerialReceiveData[16] == 0x0D))
+                        {
+                            string DisplayString = "擦除flash成功！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+                            Upgrade_ACKCommand();
+                            Thread.Sleep(5);
+                            UpgradeNum = 2;
+                            Upgrade();
+                            
+                            return;
+                        }
+                        else if (SerialReceiveData[12] == 0 && (SerialReceiveData[16] == 0x01))
+                        {
+                            string DisplayString = "擦除flash成功！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+                            Upgrade_ACKCommand();
+                            Thread.Sleep(5);
+                            UpgradeNum = 2;
+                            Upgrade();
+
+                            return;
+                        }
+                    }
+                }
+            }
+            else if (UpgradeNum == 2)
+            {
+                if (SerialReceiveData.Count >0)
+                SerialReceiveData[0] = 0;
+            }
+
+
+
 
         if (DebugMode == 2)
         {
@@ -911,20 +970,20 @@ namespace MotionSensor
                                     
                                         if ((SerialReceiveData.Count - 0x10) >= 11)
                                         {
-                                            for (int j = 0; j < 10; j++)
+                                            for (int j = 0; j < 11; j++)
                                             {
                                                 ScanBleName[ScanBLENum,j] = SerialReceiveData[0x10 + j];
                                             }
                                         }
-                                        for (int j = 0; j < 10; j++)
+                                        for (int j = 0; j < 11; j++)
                                         {
                                             if (ScanBleName[ScanBLENum, j] == 0)
                                             {
                                                 ScanBleName[ScanBLENum, j] = 0x20;
                                             }
                                         }
-                                        byte[] m_blename = new byte[10];
-                                        for (int j = 0; j < 10; j++)
+                                        byte[] m_blename = new byte[11];
+                                        for (int j = 0; j < 11; j++)
                                         {
                                             m_blename[j] = ScanBleName[ScanBLENum, j];
                                         }
@@ -2024,6 +2083,7 @@ namespace MotionSensor
             {
                 checkBox1.Enabled = false;
                 ConnectBLESerialCommand();
+              //  Upgrade_PingPacketCommand();
             }
             
         }
@@ -2585,6 +2645,13 @@ namespace MotionSensor
                 OutMsg(MonitorText, DisplayString, Color.Red);
             }
         }
+        private void UpGradeCommand()
+        {
+            byte[] ssss = new byte[2];
+            ssss[0] = 0x5A;
+            ssss[1] = 0xA6;
+            SerialPort.Write(ssss, 0, 2);
+        }
 
         private void PauseButton_Click(object sender, EventArgs e)
         {
@@ -2870,9 +2937,12 @@ namespace MotionSensor
                 }
                 else
                 {
-                    if ((BLECentralMAC[0] == 0 )&& (BLECentralMAC[1] == 0) && (BLECentralMAC[2] == 0) && (BLECentralMAC[3] == 0) && (BLECentralMAC[4] == 0) && (BLECentralMAC[5] == 0))
+                    if (UpgradeFlag == 0)
                     {
-                        SetTestModeCommand();
+                        if ((BLECentralMAC[0] == 0) && (BLECentralMAC[1] == 0) && (BLECentralMAC[2] == 0) && (BLECentralMAC[3] == 0) && (BLECentralMAC[4] == 0) && (BLECentralMAC[5] == 0))
+                        {
+                            SetTestModeCommand();
+                        }
                     }
                 }
             }
@@ -2886,12 +2956,28 @@ namespace MotionSensor
                         ComConnectTimeOut = 0;
                         if (comboBoxCom.SelectedIndex < (comboBoxCom.Items.Count - 1))
                         {
-                            comboBoxCom.SelectedIndex++;
+                            if (UpgradeFlag == 1)
+                            {
+                                UpgradeFlag = 0;
+                            }
+                            else
+                            {
+                                UpgradeFlag = 1;
+                                comboBoxCom.SelectedIndex++;
+                            }
                         }
                         else if (comboBoxCom.SelectedIndex >= (comboBoxCom.Items.Count - 1))
                         {
-                            GetComList();    //获取当前所有的串口
-                            comboBoxCom.SelectedIndex = 0;
+                            if (UpgradeFlag == 1)
+                            {
+                                UpgradeFlag = 0;
+                            }
+                            else
+                            {
+                                UpgradeFlag = 1;
+                                GetComList();    //获取当前所有的串口
+                                comboBoxCom.SelectedIndex = 0;
+                            }
                         }
                         if (ComInit())
                         {
@@ -2902,14 +2988,22 @@ namespace MotionSensor
                             comboBoxCom.Enabled = false;
                             comboBoxPortel.Enabled = false;
                             SerialSetButton.Text = "关闭串口";
-                            ScanButton.Enabled = true;
 
-                            PauseFlag = 0;
-                            PauseButton.Text = "运行中";
+                            if (UpgradeFlag == 0)
+                            {
+                                ScanButton.Enabled = true;
 
-                            BLEConnectFlag = 1;  //假设设备正在通讯
+                                PauseFlag = 0;
+                                PauseButton.Text = "运行中";
 
-                            SendConnectSerialCommand();  //发生连接central端命令  
+                                BLEConnectFlag = 1;  //假设设备正在通讯
+
+                                SendConnectSerialCommand();  //发生连接central端命令  
+                            }
+                            else
+                            {
+                                UpGradeCommand();
+                            }
 
                         }
                     }
@@ -3012,5 +3106,512 @@ namespace MotionSensor
         {
 
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //byte[] sss = { 0x5a, 0xa4, 0x04, 0x00, 0x0d, 0x00, 0xcc, 0x00 };
+            //UInt16 crc_buffer = crc16_update(sss, 8);
+
+
+          //  FlashEraseAll_Command();
+            FlashEraseAllUnsecure_Command();
+         //   FlashEraseAll_Command();
+            UpgradeNum = 1;
+           // Upgrade();
+            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+            string DisplayString3 = "请求删除flash...\r\n";
+            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+            OutMsg(MonitorText, DisplayString3, Color.Red);
+
+        }
+        private void Upgrade_PingPacketCommand()
+        {
+            byte[] ssss = { 0x5a, 0xa6};
+            if (SerialPort.IsOpen)
+            {
+                SerialPort.Write(ssss, 0, 2);
+            }
+        }
+        private void Upgrade_ACKCommand()
+        {
+            byte[] ssss = { 0x5a, 0xa1 };
+            if (SerialPort.IsOpen)
+            {
+                SerialPort.Write(ssss, 0, 2);
+            }
+        }
+        //private void Upgrade_CommandPacketCommand(byte PacketType,short Length,byte CommandTag,)
+        //{
+        //    byte[] ssss = { 0x5a, 0xa6 };
+        //    if (SerialPort.IsOpen)
+        //    {
+        //        SerialPort.Write(ssss, 0, 2);
+        //    }
+        //}
+
+        private void FlashEraseAll_Command()
+        {
+            byte[] ssss = { 0x5a, 0xa4, 0x04, 0x00, 0xc4, 0x2e, 0x01, 0x00, 0x00, 0x00 };
+            if (SerialPort.IsOpen)
+            {
+                SerialPort.Write(ssss, 0, 10);
+            }
+        }
+
+        private void FlashEraseAllUnsecure_Command()
+        {
+            byte[] ssss = { 0x5a, 0xa4, 0x04, 0x00, 0xcf, 0x32, 0x0d, 0x00, 0xcc, 0x00 };
+            if (SerialPort.IsOpen)
+            {
+                SerialPort.Write(ssss, 0, 10);
+            }
+        }
+
+        private UInt16 crc16_update(byte[] Byte, UInt32 lengthInBytes)
+        {
+         UInt32 crc = 0;
+         UInt32 j;
+         for (j=0; j < lengthInBytes; ++j)
+         {
+         UInt32 i;
+         UInt32 bytes =(UInt32) Byte[j];
+         crc ^= bytes << 8;
+         for (i = 0; i < 8; ++i)
+         {
+         UInt32 temp = crc << 1;
+         if ((crc & 0x8000) == 0x8000)
+         {
+         temp ^= 0x1021;
+         }
+         crc = temp;
+         }
+        }
+         return (UInt16)crc;
+        }
+
+        private void WriteMemory_Command(Int32 StartAddress,Int32 ByteCount)
+        {
+            byte[] sss = { 0x5a, 0xa4, 0x0c, 0x00, 0x56, 0x2b, 0x04, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x20, 0x64, 0x00, 0x00, 0x00 };
+
+            sss[10] = (byte)(StartAddress);
+            sss[11] = (byte)(StartAddress >> 8);
+            sss[12] = (byte)(StartAddress >> 16);
+            sss[13] =(byte) (StartAddress >> 24);
+
+            sss[14] = (byte)(ByteCount);
+            sss[15] = (byte)(ByteCount >> 8);
+            sss[16] = (byte)(ByteCount >> 16);
+            sss[17] = (byte)(ByteCount >> 24);
+
+            byte[] ssss = new byte[16];
+            for (int i = 0; i < 4; i++)
+            {
+                ssss[i] = sss[i];
+            }
+            for (int i = 4; i < 16; i++)
+            {
+                ssss[i] = sss[i+2];
+            }
+
+            UInt16 crc_buffer =crc16_update(ssss, 16);
+
+            sss[4] = (byte)(crc_buffer);
+            sss[5] = (byte)(crc_buffer >> 8);
+
+            if (SerialPort.IsOpen)
+            {
+                SerialPort.Write(sss, 0, 18);
+            }
+        }
+        private void WriteMemoryData_Command(byte[] Byte, UInt16 Length)
+        {
+            byte[] ssss = new byte[100];
+            byte[] sss = new byte[100];
+
+            ssss[0] = 0x5A;
+            ssss[1] = 0xA5;
+            ssss[2] = (byte)Length;
+            ssss[3] = (byte)(Length >> 8);
+
+            for (int i = 0; i < Length; i++)
+            {
+                ssss[4 + i] = Byte[i];
+            }
+            UInt16 crc_buffer = crc16_update(ssss, (UInt32)4 + Length);
+
+            for (int i = 0; i < 4; i++)
+            {
+                sss[i] = ssss[i];
+            }
+            sss[4] = (byte)crc_buffer;
+            sss[5] = (byte)(crc_buffer>>8);
+            for (int i = 0; i < Length; i++)
+            {
+                sss[6 + i] = ssss[4 + i];
+            }
+
+            if (SerialPort.IsOpen)
+            {
+                SerialPort.Write(sss, 0, 6 + Length);
+            }
+        }
+
+        private void ReadMemory_Command(Int32 StartAddress, Int32 ByteCount)
+        {
+            byte[] sss = { 0x5a, 0xa4, 0x0c, 0x00, 0x56, 0x2b, 0x03, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x20, 0x64, 0x00, 0x00, 0x00 };
+
+            sss[10] = (byte)(StartAddress);
+            sss[11] = (byte)(StartAddress >> 8);
+            sss[12] = (byte)(StartAddress >> 16);
+            sss[13] = (byte)(StartAddress >> 24);
+
+            sss[14] = (byte)(ByteCount);
+            sss[15] = (byte)(ByteCount >> 8);
+            sss[16] = (byte)(ByteCount >> 16);
+            sss[17] = (byte)(ByteCount >> 24);
+
+            byte[] ssss = new byte[16];
+            for (int i = 0; i < 4; i++)
+            {
+                ssss[i] = sss[i];
+            }
+            for (int i = 4; i < 16; i++)
+            {
+                ssss[i] = sss[i + 2];
+            }
+
+            UInt16 crc_buffer = crc16_update(ssss, 16);
+
+            sss[4] = (byte)(crc_buffer);
+            sss[5] = (byte)(crc_buffer >> 8);
+
+            if (SerialPort.IsOpen)
+            {
+                SerialPort.Write(sss, 0, 18);
+            }
+        }
+
+
+        private void Upgrade()
+        {
+
+            List<byte> buffer1 = new List<byte>(999999);
+            int getlinelength = 0;
+            int packetlength = 0;
+            List<int> getlineaddr = new List<int>(9999);
+
+            string DisplayString = "正在打开升级文件。。。\r\n";
+            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+            OutMsg(MonitorText, DisplayString, Color.Red);
+
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "bin文件(*.hex)|*.hex";
+            openFileDialog.Title = "打开升级文件";
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+
+            progressBar1.Value = 0;
+
+            //ReadMemory_Command(0x0, 32);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+
+            //ReadMemory_Command(0x1520, 32);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+
+            //WriteMemory_Command(0x0, 64);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //byte[] buffer3 = {0x01,0x02,0x03,0x04,0x05 ,0x01,0x02,0x03,0x04,0x05 ,
+            //0x01,0x02,0x03,0x04,0x05,0x01,0x02,0x03,0x04,0x05,
+            //0x01,0x02,0x03,0x04,0x05,0x01,0x02,0x03,0x04,0x05,
+            //0x01,0x02};
+            //WriteMemoryData_Command(buffer3, 32);
+            //Thread.Sleep(100);
+            //WriteMemoryData_Command(buffer3, 32);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+
+            //ReadMemory_Command(0x520, 32);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+
+            //ReadMemory_Command(0x1520, 32);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100); Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Thread.Sleep(100);
+            //Upgrade_ACKCommand();
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                StreamReader sr = new StreamReader(openFileDialog.FileName.ToString());
+                string s;
+                string[] text = File.ReadAllLines(openFileDialog.FileName.ToString());
+                progressBar1.Maximum = text.Length/2;
+                progressBar1.Value = 0;
+                packetlength = 0;
+                buffer1.Clear();
+                while ((s = sr.ReadLine()) != null)
+                {
+                    byte[] bytes = System.Text.Encoding.ASCII.GetBytes(s);
+                    if (bytes[0] == 0x3A)    //:
+                    {
+                        if ((bytes[7] == 0x30) && (bytes[8] == 0x34))
+                        {
+                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                            string DisplayString3 = "一块程序开始下载。。。\r\n";
+                            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+                            OutMsg(MonitorText, DisplayString3, Color.Red);
+                            if (packetlength > 0)
+                            {
+                                WriteMemory_Command(getlineaddr[0], packetlength);
+                                Thread.Sleep(3);
+                                Upgrade_ACKCommand();
+                                while (packetlength >= 32)
+                                {
+                                    byte[] buffer = new byte[32];
+                                    for (int i = 0; i < 32; i++)
+                                    {
+                                        buffer[i] = buffer1[i];
+                                    }
+                                    WriteMemoryData_Command(buffer,32);
+                                    buffer1.RemoveRange(0,32);
+                                    packetlength -= 32;
+                                    Thread.Sleep(3);
+                                    if (packetlength == 0)
+                                    {
+                                        Upgrade_ACKCommand();
+                                    }
+                                    progressBar1.Value++;
+                                }
+                            }
+                            else if (packetlength > 0)
+                            {
+                                byte[] buffer = new byte[32];
+                                for (int i = 0; i < packetlength; i++)
+                                {
+                                    buffer[i] = buffer1[i];
+                                }
+                                WriteMemoryData_Command(buffer, (UInt16)packetlength);
+                                buffer1.RemoveRange(0, packetlength);
+                                packetlength -= packetlength;
+                                Thread.Sleep(3);
+                                Upgrade_ACKCommand();
+                                progressBar1.Value++;
+                            }
+                            packetlength = 0;
+                            buffer1.Clear();
+                            getlineaddr.Clear();
+                        }
+
+                        if ((bytes[7] == 0x30) && (bytes[8] == 0x31))
+                        {
+
+                            if (packetlength > 0)
+                            {
+                                WriteMemory_Command(getlineaddr[0], packetlength);
+                                Thread.Sleep(3);
+                                Upgrade_ACKCommand();
+                                while (packetlength >= 32)
+                                {
+                                    byte[] buffer = new byte[32];
+                                    for (int i = 0; i < 32; i++)
+                                    {
+                                        buffer[i] = buffer1[i];
+                                    }
+                                    WriteMemoryData_Command(buffer, 32);
+                                    buffer1.RemoveRange(0, 32);
+                                    packetlength -= 32;
+                                    Thread.Sleep(3);
+                                   // Upgrade_ACKCommand();
+                                    progressBar1.Value++;
+                                    if (packetlength == 0)
+                                    {
+                                        Upgrade_ACKCommand();
+                                    }
+                                }
+                                
+                                if (packetlength > 0)
+                                {
+                                    byte[] buffer = new byte[32];
+                                    for (int i = 0; i < packetlength; i++)
+                                    {
+                                        buffer[i] = buffer1[i];
+                                    }  
+                                    WriteMemoryData_Command(buffer, (UInt16)packetlength);
+                                    buffer1.RemoveRange(0, packetlength);
+                                    packetlength -= packetlength;
+                                    Thread.Sleep(3);
+                                    Upgrade_ACKCommand();
+                                    progressBar1.Value++;
+                                }
+
+                            }
+                            
+
+                            System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
+                            string DisplayString2 = "升级完成！\r\n";
+                            DisplayString2 = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
+                            OutMsg(MonitorText, DisplayString2, Color.Red);
+
+                            packetlength = 0;
+                            buffer1.Clear();
+                            getlineaddr.Clear();
+                        }
+
+
+                        else if (bytes[7] == 0x30 && (bytes[8] == 0x30))  //数据
+                        {
+                            int c, d, h, f, g;
+                            if (((int)bytes[2]) > 0x39)
+                            {
+                                c = 0x40 - 0x09;
+                            }
+                            else
+                            {
+                                c = 0x30;
+                            }
+                            if (((int)bytes[3]) > 0x39)
+                            {
+                                d = 0x40 - 0x09;
+                            }
+                            else
+                            {
+                                d = 0x30;
+                            }
+                            if (((int)bytes[4]) > 0x39)
+                            {
+                                h = 0x40 - 0x09;
+                            }
+                            else
+                            {
+                                h = 0x30;
+                            }
+                            if (((int)bytes[5]) > 0x39)
+                            {
+                                f = 0x40 - 0x09;
+                            }
+                            else
+                            {
+                                f = 0x30;
+                            }
+                            if (((int)bytes[6]) > 0x39)
+                            {
+                                g = 0x40 - 0x09;
+                            }
+                            else
+                            {
+                                g = 0x30;
+                            }
+                            getlinelength = ((bytes[1] - 0x30) << 4) + (bytes[2] - c);
+                            getlineaddr.Add(((bytes[3] - d) << 12) + ((bytes[4] - h) << 8) + ((bytes[5] - f) << 4) + (bytes[6] - g));
+                            for (int i = 0; i < getlinelength; i++)
+                            {
+                                int a, b;
+                                if (((int)bytes[(i << 1) + 9]) > 0x39)
+                                {
+                                    a = 0x40 - 0x09;
+                                }
+                                else
+                                {
+                                    a = 0x30;
+                                }
+                                if (((int)bytes[(i << 1) + 10]) > 0x39)
+                                {
+                                    b = 0x40 - 0x09;
+                                }
+                                else
+                                {
+                                    b = 0x30;
+                                }
+
+                                //buffer1[i + packetlength] = (byte)(int)(((bytes[(i << 1) + 9] - a) << 4) + (bytes[(i << 1) + 10] - b));
+                                buffer1.Add((byte)(int)(((bytes[(i << 1) + 9] - a) << 4) + (bytes[(i << 1) + 10] - b)));
+                            }
+                            packetlength += getlinelength;
+
+                        }
+                    }
+                 //   WriteMemory_Command(0x20000400,0x64);
+                    
+                }
+
+            }
+        }
+
     }
 }

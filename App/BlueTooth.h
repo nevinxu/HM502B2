@@ -70,6 +70,9 @@
 
 #define APP_CMD_ECGDATAOKREQ                    0x37    //????????
 
+#define APP_CMD_STARTSET1MVVALUE               				0x50
+#define APP_CMD_STARTSET0MVVALUE               				0x51
+
 
                      
 #define     GETATOB                     "AT+ATOB?"                      //查询/设置模块三通模式
