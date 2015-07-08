@@ -151,7 +151,7 @@ runBootloader = (void (*)(void * arg))runBootloaderAddress;
 	
 	hBTMsgQueue = OSA_MsgQCreate(mqBTData, BTPACKAGEDEEP, sizeof(bttransmitpackage));  //定义蓝牙发送传输队列 
 	hPCMsgQueue = OSA_MsgQCreate(mqPCData, PCPACKAGEDEEP, sizeof(pctransmitpackage));  //定义调试串口发送传输队列
-	//LED1_ON;
+	LED1_ON;
 	OSA_TaskCreate(task_bluetooth_tx,
                    (uint8_t*) "bluetooth_tx",
                     TASK_BLUETOOTH_STACK_SIZE,

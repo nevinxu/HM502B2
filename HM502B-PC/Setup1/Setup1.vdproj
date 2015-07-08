@@ -128,6 +128,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0,Profile=Client"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4 Client Profile (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
         "Release"
@@ -514,13 +527,13 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:HM502B2"
         "ProductCode" = "8:{9B6DADB2-914F-4FD9-8640-2003D4EA5C73}"
-        "PackageCode" = "8:{B087FAE6-6653-4EBA-BDDD-5F1E33740D57}"
+        "PackageCode" = "8:{DC63A269-8E92-4A49-A8A4-25D6AE734EAC}"
         "UpgradeCode" = "8:{02BCB675-1F17-4755-9E0D-E8C609DA4337}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "InstallAllUsers" = "11:FALSE"
+        "InstallAllUsers" = "11:TRUE"
         "ProductVersion" = "8:1.0.0"
         "Manufacturer" = "8:Helowin"
         "ARPHELPTELEPHONE" = "8:"
