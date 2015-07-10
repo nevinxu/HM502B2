@@ -22,7 +22,7 @@ namespace MotionSensor
         string[] Xdata = new string[M * N];
         double[] XdataV = new double[M * N];
 
-        byte[] ECGData = new byte[M*2];
+        byte[] ECGData = new byte[M * 2];
 
         int chartlenMin = 0;    //chart 显示最大点数
         int chartlenMax = N * M;
@@ -44,13 +44,16 @@ namespace MotionSensor
         private byte PauseFlag = 1;  //初始化时暂停的
 
         private List<byte> SerialReceiveData = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
+        private List<byte> SerialReceiveData2 = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
+        private List<byte> SerialReceiveData3 = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
+        private List<byte> SerialReceiveData4 = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
         private List<double> SerialEcgData = new List<double>(512);//默认分配1页内存，并始终限制不允许超
 
         private byte EcgCaptureFlag = 0;
         private byte BLEConnectFlag = 0;
 
         private int ScanBLENum = 0;
-        private byte[,] ScanBLEMAC = new byte[100,6];
+        private byte[,] ScanBLEMAC = new byte[100, 6];
 
         string StartStoreDataTime = "";
 
@@ -66,7 +69,7 @@ namespace MotionSensor
         byte[] ECGPatchID = new byte[15];
         byte[] ECGPatchMAC = new byte[6];
         byte[] BLECentralMAC = new byte[6];
-        
+
         private int PairingFlag = 1;
         byte[] ECGPairMAC = new byte[6];
         private int EcgDataTimer = 0;
@@ -96,12 +99,15 @@ namespace MotionSensor
         private int DeviceConnectMode = 0;    //1 蓝牙  2 直接连接
 
         private int ComConnectFlag = 0;   //串口连接标志
-        private int[] ComConnectTimeOut = new int [20];
+        private int EcgComConnectFlag = 0;
+        private int[] UpDataComConnectFlag = new int[4];
+        private int UpDtatComConnectedNum = 0;
+        private int[] ComConnectTimeOut = new int[20];
         private int AutoComConnectFlag = 1;
         private int Ecgamplification = 1;
         private int StartEcgCaptureFlag = 0;
 
-        byte[,] ScanBleName = new byte[100,11];
+        byte[,] ScanBleName = new byte[100, 11];
 
         int X_Start;
         int Y_Start;
@@ -115,28 +121,247 @@ namespace MotionSensor
         SerialCommand serialcommand = new SerialCommand();
         private int ConnectUartNum = 0;
         private string[] ConnectUartName = new string[20];
-        private int DownLoadFlag = 0;
+        private int[] DownLoadFlag = new int[4];
+        private int ScanUpDataComFlag = 0;
+
+        Thread ScanUpdataThread;
+        Thread UpDataThread1;
+        Thread UpDataThread2;
+        Thread UpDataThread3;
+        Thread UpDataThread4;
+        private int DowmLoadNum = 0;
 
 
         public RF()
         {
             InitializeComponent();
-            skinEngine1.SkinFile = Application.StartupPath + @"\gu.hw";
+        }
+
+        void ScanEcgUartFunction()
+        { 
+        
+        }
+
+        void UpDataComUpDataConnectReq(SerialPort serialport)
+        {
+            if (ComInit(serialport))
+            {
+                serialcommand.UpGradeCommand(serialport);
+            }
+        }
+        void ScanUpdataUartFunction()
+        {
+            GetComList();    //获取当前所有的串口
+            comboBoxCom.Invoke(new EventHandler(delegate
+            {
+                comboBoxCom.SelectedIndex = 0;
+            }));
+           // UpDtatComConnectedNum = 0;//当前连接的串口数
+            while (true)
+            {
+                //if (ScanUpDataComFlag == 1)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (UpDataComConnectFlag[i] == 1)   //判断是都断开
+                        {
+                            comboBoxCom.Invoke(new EventHandler(delegate
+                            {
+                                comboBoxCom.Text = ConnectUartName[i];
+                            }));
+                        }
+                        else                                //搜索为连接的设备
+                        {
+                            comboBoxCom.Invoke(new EventHandler(delegate
+                             {
+                                 if (comboBoxCom.SelectedIndex < (comboBoxCom.Items.Count - 1))
+                                 {
+                                     comboBoxCom.SelectedIndex++;
+                                 }
+                                 else if (comboBoxCom.SelectedIndex >= (comboBoxCom.Items.Count - 1))
+                                 {
+                                     GetComList();    //获取当前所有的串口
+                                     comboBoxCom.SelectedIndex = 0;
+                                 }
+                                 for (int j = 0; j < 4; j++)
+                                 {
+                                     if (comboBoxCom.Text == ConnectUartName[j])
+                                     {
+                                         if (comboBoxCom.SelectedIndex < (comboBoxCom.Items.Count - 1))
+                                         {
+                                             comboBoxCom.SelectedIndex++;
+                                         }
+                                         else if (comboBoxCom.SelectedIndex >= (comboBoxCom.Items.Count - 1))
+                                         {
+                                             GetComList();    //获取当前所有的串口
+                                             comboBoxCom.SelectedIndex = 0;
+                                         }
+                                     }
+                                 }
+                                 ConnectUartName[i] = comboBoxCom.Text;
+
+                             }));
+                        }
+
+                        System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                        string DisplayString = "升级串口：请求连接" + ConnectUartName[i] + "...\r\n";
+                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                        OutMsg(MonitorText, DisplayString, Color.Red);
+                        DownLoadFlag[i] = 13;
+                        if (i == 0)
+                        {
+                            UpDataComUpDataConnectReq(serialPort1);
+                        }
+                        else if (i == 1)
+                        {
+                            UpDataComUpDataConnectReq(serialPort2);
+                        }
+                        else if (i == 2)
+                        {
+                            UpDataComUpDataConnectReq(serialPort3);
+                        }
+                        else if (i == 3)
+                        {
+                            UpDataComUpDataConnectReq(serialPort4);
+                        }
+                        Thread.Sleep(500);
+                        if (DownLoadFlag[i] == 14)
+                        {
+                            converter = new System.Text.ASCIIEncoding();
+                            DisplayString = "升级串口：" + ConnectUartName[i] + "连接成功！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+
+                            tabControl1.Invoke(new EventHandler(delegate
+                            {
+                                tabControl1.SelectedIndex = 1;
+                            }));
+                            if (i == 0)
+                            {
+                                checkBox3.Invoke(new EventHandler(delegate
+                                {
+                                    checkBox3.Text = ConnectUartName[i] + "已连接";
+                                    checkBox3.Checked = true;
+                                }));
+                            }
+                            else if (i == 1)
+                            {
+                                checkBox4.Invoke(new EventHandler(delegate
+                                {
+                                    checkBox4.Text = ConnectUartName[i] + "已连接";
+                                    checkBox4.Checked = true;
+                                }));
+                            }
+                            else if (i == 2)
+                            {
+                                checkBox5.Invoke(new EventHandler(delegate
+                                {
+                                    checkBox5.Text = ConnectUartName[i] + "已连接";
+                                    checkBox5.Checked = true;
+                                }));
+                            }
+                            else if (i == 3)
+                            {
+                                checkBox6.Invoke(new EventHandler(delegate
+                                {
+                                    checkBox6.Text = ConnectUartName[i] + "已连接";
+                                    checkBox6.Checked = true;
+                                }));
+                            }
+                            UpDataComConnectFlag[i] = 1;
+                        }
+                        else
+                        {
+                            converter = new System.Text.ASCIIEncoding();
+                            DisplayString = "升级串口：" + ConnectUartName[i] + "连接失败！\r\n";
+                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                            OutMsg(MonitorText, DisplayString, Color.Red);
+
+                            ConnectUartName[i] = "";
+
+                            if (i == 0)
+                            {
+                                checkBox3.Invoke(new EventHandler(delegate
+                                {
+                                    checkBox3.Text = "未连接";
+                                    checkBox3.Checked = false;
+                                }));
+                            }
+                            else if (i == 1)
+                            {
+                                checkBox4.Invoke(new EventHandler(delegate
+                                {
+                                    checkBox4.Text = "未连接";
+                                    checkBox4.Checked = false;
+                                }));
+                            }
+                            else if (i == 2)
+                            {
+                                checkBox5.Invoke(new EventHandler(delegate
+                                {
+                                    checkBox5.Text = "未连接";
+                                    checkBox5.Checked = false;
+                                }));
+                            }
+                            else if (i == 3)
+                            {
+                                checkBox6.Invoke(new EventHandler(delegate
+                                {
+                                    checkBox6.Text = "未连接";
+                                    checkBox6.Checked = false;
+                                }));
+                            }
+
+                            if (i == 0)
+                            {
+                                serialPort1.Close();
+                            }
+                            else if (i == 1)
+                            {
+                                serialPort2.Close();
+                            }
+                            else if (i == 2)
+                            {
+                                serialPort3.Close();
+                            }
+                            else if (i == 3)
+                            {
+                                serialPort4.Close();
+                            }
+
+
+                            UpDataComConnectFlag[i] = 0;
+                        }
+                    }
+                }
+                //else
+                //{
+                //    Thread.Sleep(1000);
+                //}
+                if (checkBox3.Checked == true || (checkBox4.Checked == true) || (checkBox5.Checked == true) || (checkBox6.Checked == true))
+                {
+                    UpDataButton.Invoke(new EventHandler(delegate
+                    {
+                        UpDataButton.Enabled = true;
+                        tabControl1.TabPages[1].Text = "程序下载（可升级）";
+                    }));
+                }
+            }
         }
 
         private void OutMsg(RichTextBox rtb, string msg, Color color)
         {
-            rtb.Invoke(new EventHandler(delegate
-            {
-                rtb.SelectAll();
-                rtb.SelectionColor = Color.Black;
-                //  richTextBox.Text = rtb.Text.Insert(0, msg+ Environment.NewLine);
-                rtb.SelectionStart = rtb.Text.Length;//设置插入符位置为文本框末
-                rtb.SelectionColor = color;//设置文本颜色
-                //  rtb.Text = richTextBox.Text;
-                rtb.AppendText(msg);//输出文本，换行
-                rtb.ScrollToCaret();//滚动条滚到到最新插入行
-            }));
+            if (rtb.IsDisposed || !rtb.IsHandleCreated) return;
+                rtb.Invoke(new EventHandler(delegate
+                {
+                    rtb.SelectAll();
+                    rtb.SelectionColor = Color.Black;
+                    rtb.Text = rtb.Text.Insert(0, msg);
+                    rtb.Select(0, msg.Length - 1);
+                    rtb.SelectionColor = color;//设置文本颜色
+                    //  rtb.AppendText(msg);//输出文本，换行
+                    rtb.ScrollToCaret();//滚动条滚到到最新插入行
+                }));
         }
 
 
@@ -147,117 +372,138 @@ namespace MotionSensor
             if (keyCom != null)
             {
                 string[] sSubKeys = keyCom.GetValueNames();
-                this.comboBoxCom.Items.Clear();
+                comboBoxCom.Invoke(new EventHandler(delegate
+                {
+                    this.comboBoxCom.Items.Clear();
+                }));
                 foreach (string sName in sSubKeys)
                 {
                     string sValue = (string)keyCom.GetValue(sName);
-                    this.comboBoxCom.Items.Add(sValue);
+                    comboBoxCom.Invoke(new EventHandler(delegate
+                    {
+                        this.comboBoxCom.Items.Add(sValue);
+                    }));
                 }
             }
         }
         #endregion
 
 
-        void UpdataReceiveDataProcess(List<byte> ReceiveDataList)
+        void UpdataReceiveDataProcess(int i,List<byte> ReceiveDataList)
         {
-            if (ReceiveDataList[0] == 0x5a && (ReceiveDataList[1] == 0xa1))
+            if (ReceiveDataList.Count >= 2)
             {
-                if (DownLoadFlag == 1)
+                if (ReceiveDataList[0] == 0x5a && (ReceiveDataList[1] == 0xa7))
                 {
-                    if(ReceiveDataList.Count >= 20)
+                    if (DownLoadFlag[i] == 13)
                     {
-                        if (ReceiveDataList[2] == 0x5a && (ReceiveDataList[3] == 0xa4))
+                        DownLoadFlag[i] = 14;
+                    }
+                    else
+                    {
+                        DownLoadFlag[i] = 15;
+                    }
+                    ReceiveDataList.Clear();
+                }
+                else if (ReceiveDataList[0] == 0x5a && (ReceiveDataList[1] == 0xa1))
+                {
+                    if (DownLoadFlag[i] == 1)
+                    {
+                        if (ReceiveDataList.Count >= 20)
                         {
+                            if (ReceiveDataList[2] == 0x5a && (ReceiveDataList[3] == 0xa4))
+                            {
                                 if (ReceiveDataList[12] == 0 && (ReceiveDataList[16] == 0x0D))
                                 {
-                                    DownLoadFlag = 2;
+                                    DownLoadFlag[i] = 2;
                                 }
                                 else if (ReceiveDataList[12] == 0 && (ReceiveDataList[16] == 0x01))
                                 {
-                                    DownLoadFlag = 2;
+                                    DownLoadFlag[i] = 2;
                                 }
                                 else
                                 {
-                                    DownLoadFlag = 3;
+                                    DownLoadFlag[i] = 3;
                                 }
-                        }
-                        else
-                        {
-                                DownLoadFlag = 3;
-                        }
-                        ReceiveDataList.Clear();
-                    }
-                }
-                else if(DownLoadFlag == 4)
-                {
-                    if(ReceiveDataList.Count >= 20)
-                    {
-                        if (ReceiveDataList[2] == 0x5a && (ReceiveDataList[3] == 0xa4))
-                        {
-                            if (ReceiveDataList[12] == 0 && (ReceiveDataList[16] == 0x04))
-                            {
-                                DownLoadFlag = 5;
                             }
                             else
                             {
-                                DownLoadFlag = 6;
+                                DownLoadFlag[i] = 3;
                             }
+                            ReceiveDataList.Clear();
                         }
-                        else
-                        {
-                            DownLoadFlag = 6;
-                        }
-                        ReceiveDataList.Clear();
                     }
-                }
-                else if (DownLoadFlag == 7)
-                {
-                    if(ReceiveDataList.Count >= 2)
+                    else if (DownLoadFlag[i] == 4)
                     {
-                        if (ReceiveDataList[0] == 0x5a && (ReceiveDataList[1] == 0xa1))
-                        {
-                            DownLoadFlag = 8;
-                        }
-                        else
-                        {
-                            DownLoadFlag = 9;
-                        }
-                        ReceiveDataList.Clear();
-                    }
-                }
-                else if (DownLoadFlag == 10)
-                {
-                    if(ReceiveDataList.Count >= 20)
-                    {
-                        if (ReceiveDataList[0] == 0x5a && (ReceiveDataList[1] == 0xa1))
+                        if (ReceiveDataList.Count >= 20)
                         {
                             if (ReceiveDataList[2] == 0x5a && (ReceiveDataList[3] == 0xa4))
                             {
                                 if (ReceiveDataList[12] == 0 && (ReceiveDataList[16] == 0x04))
                                 {
-                                    DownLoadFlag = 11;
+                                    DownLoadFlag[i] = 5;
                                 }
                                 else
                                 {
-                                    DownLoadFlag = 12;
+                                    DownLoadFlag[i] = 6;
                                 }
                             }
                             else
                             {
-                                DownLoadFlag = 12;
+                                DownLoadFlag[i] = 6;
                             }
+                            ReceiveDataList.Clear();
                         }
-                        else
+                    }
+                    else if (DownLoadFlag[i] == 7)
+                    {
+                        if (ReceiveDataList.Count >= 2)
                         {
-                            DownLoadFlag = 12;
+                            if (ReceiveDataList[0] == 0x5a && (ReceiveDataList[1] == 0xa1))
+                            {
+                                DownLoadFlag[i] = 8;
+                            }
+                            else
+                            {
+                                DownLoadFlag[i] = 9;
+                            }
+                            ReceiveDataList.Clear();
                         }
-                        ReceiveDataList.Clear();
+                    }
+                    else if (DownLoadFlag[i] == 10)
+                    {
+                        if (ReceiveDataList.Count >= 20)
+                        {
+                            if (ReceiveDataList[0] == 0x5a && (ReceiveDataList[1] == 0xa1))
+                            {
+                                if (ReceiveDataList[2] == 0x5a && (ReceiveDataList[3] == 0xa4))
+                                {
+                                    if (ReceiveDataList[12] == 0 && (ReceiveDataList[16] == 0x04))
+                                    {
+                                        DownLoadFlag[i] = 11;
+                                    }
+                                    else
+                                    {
+                                        DownLoadFlag[i] = 12;
+                                    }
+                                }
+                                else
+                                {
+                                    DownLoadFlag[i] = 12;
+                                }
+                            }
+                            else
+                            {
+                                DownLoadFlag[i] = 12;
+                            }
+                            ReceiveDataList.Clear();
+                        }
                     }
                 }
-            }
-            else
-            {
-                ReceiveDataList.RemoveAt(0);
+                else
+                {
+                    ReceiveDataList.RemoveAt(0);
+                }
             }
         }
 
@@ -265,18 +511,19 @@ namespace MotionSensor
         private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             int length;
-            System.Threading.Thread.Sleep(10);
+            int SerialReceiveLength;
+            System.Threading.Thread.Sleep(2);
             if (!serialPort1.IsOpen)   //检测串口是否关闭
             {
                 return;
             }
-/********************************************串口接收**************************************************/
+            /********************************************串口接收**************************************************/
             length = serialPort1.BytesToRead;
             if (length == 0)
             {
                 return;
             }
-            
+
             if ((length > 0) && (length < 5000))
             {
                 SerialReceiveLength = length;
@@ -290,15 +537,9 @@ namespace MotionSensor
             byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
             serialPort1.Read(buf, 0, SerialReceiveLength);
             SerialReceiveData.AddRange(buf);
-            if (DownLoadFlag > 0)
-            {
-                UpdataReceiveDataProcess(SerialReceiveData);
-            }
-            else
-            {
-                WriteTheWin();
-            }
-    
+
+            UpdataReceiveDataProcess(0,SerialReceiveData);
+
         }
         #endregion
 
@@ -306,7 +547,7 @@ namespace MotionSensor
         {
             int length;
             int SerialReceiveLength;
-            System.Threading.Thread.Sleep(10);
+            System.Threading.Thread.Sleep(2);
             if (!serialPort2.IsOpen)   //检测串口是否关闭
             {
                 return;
@@ -331,71 +572,75 @@ namespace MotionSensor
             byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
             serialPort2.Read(buf, 0, SerialReceiveLength);
 
-            if (SerialReceiveLength == 10)
-            {
-                if (buf[0] == 0x5A && (buf[1] == 0xA7))
-                {
-                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                    string DisplayString = ConnectUartName[1] + "连接成功，准备升级！\r\n";
-                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                    OutMsg(MonitorText, DisplayString, Color.Red);
+            SerialReceiveData2.AddRange(buf);
 
-                    if (checkBox4.Text == "未连接")
-                    {
-                        checkBox4.Invoke(new EventHandler(delegate
-                        {
-                            checkBox4.Text = ConnectUartName[1] + "已连接";
-                            checkBox4.Checked = true;
-                        }));
-                    }
-                    ComConnectTimeOut[1] = 0;
-                    if (ConnectUartNum < 2)
-                    {
-                        ConnectUartNum = 2;
-                       
-                    }
-                }
-            }
-            if (length > 17)
-            {
-                if (buf[0] == 0x5a && (buf[1] == 0xa1))
-                {
-                    if (buf[2] == 0x5a && (buf[3] == 0xa4))
-                    {
-                        if (buf[12] == 0 && (buf[16] == 0x0D))
-                        {
-                            string DisplayString = ConnectUartName[1] + ":擦除flash成功！\r\n";
-                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                            OutMsg(MonitorText, DisplayString, Color.Red);
-                            serialcommand.Upgrade_ACKCommand(serialPort2);
-                            Thread.Sleep(5);
-                            UpgradeNum = 2;
-                            // Upgrade();                        
-                            return;
-                        }
-                        else if (buf[12] == 0 && (buf[16] == 0x01))
-                        {
-                            string DisplayString = ConnectUartName[1] + ":擦除flash成功！\r\n";
-                            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                            OutMsg(MonitorText, DisplayString, Color.Red);
-                            serialcommand.Upgrade_ACKCommand(serialPort2);
-                            Thread.Sleep(5);
-                            UpgradeNum = 2;
-                            // Upgrade();
-                            return;
-                        }
-                    }
-                }
-            }
-
+            UpdataReceiveDataProcess(1,SerialReceiveData2);
         }
         private void serialPort3_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            int length;
+            int SerialReceiveLength;
+            System.Threading.Thread.Sleep(2);
+            if (!serialPort3.IsOpen)   //检测串口是否关闭
+            {
+                return;
+            }
+            /********************************************串口接收**************************************************/
+            length = serialPort3.BytesToRead;
+            if (length == 0)
+            {
+                return;
+            }
 
+            if ((length > 0) && (length < 5000))
+            {
+                SerialReceiveLength = length;
+            }
+            else
+            {
+                serialPort3.DiscardInBuffer();
+                return;
+            }
+
+            byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
+            serialPort3.Read(buf, 0, SerialReceiveLength);
+
+            SerialReceiveData3.AddRange(buf);
+
+            UpdataReceiveDataProcess(2,SerialReceiveData3);
         }
         private void serialPort4_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            int length;
+            int SerialReceiveLength;
+            System.Threading.Thread.Sleep(2);
+            if (!serialPort4.IsOpen)   //检测串口是否关闭
+            {
+                return;
+            }
+            /********************************************串口接收**************************************************/
+            length = serialPort4.BytesToRead;
+            if (length == 0)
+            {
+                return;
+            }
 
+            if ((length > 0) && (length < 5000))
+            {
+                SerialReceiveLength = length;
+            }
+            else
+            {
+                serialPort4.DiscardInBuffer();
+                return;
+            }
+
+            byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
+            serialPort4.Read(buf, 0, SerialReceiveLength);
+
+            SerialReceiveData4.AddRange(buf);
+
+            UpdataReceiveDataProcess(3,SerialReceiveData4);
         }
 
 
@@ -408,8 +653,16 @@ namespace MotionSensor
             }
             try
             {
-                comName = comboBoxCom.Text;
-                comBaudRate = int.Parse(comboBoxPortel.Text);
+                comboBoxCom.Invoke(new EventHandler(delegate
+                {
+                    comName = comboBoxCom.Text;
+                }));
+
+                comboBoxPortel.Invoke(new EventHandler(delegate
+                {
+                    comBaudRate = int.Parse(comboBoxPortel.Text);
+                }));
+
                 serialport.PortName = comName; //port name COM1
                 serialport.BaudRate = comBaudRate;  //BaudRate 115200bps
                 serialport.Parity = Parity.None; //Parity none
@@ -417,7 +670,8 @@ namespace MotionSensor
                 serialport.DataBits = comDataBits;        // DataBits 8bit
                 serialport.ReadTimeout = 1000;  // ReadTimeout 2 second
                 serialport.Open();//打开串口
-                this.toolStripStatusLabel1.Text = "已经打开串口：" + comName;
+               // this.toolStripStatusLabel1.Text = "已经打开串口：" + comName;
+                serialport.ReceivedBytesThreshold = 2;
 
                 if (serialport == serialPort1)
                 {
@@ -436,14 +690,14 @@ namespace MotionSensor
                     serialport.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort4_DataReceived);
                 }
 
-                serialport.ReceivedBytesThreshold = 2;
+                
                 return true;
             }
             catch (System.Exception)
             {
-               // MessageBox.Show("不能打开当前串口", "系统初始化失败", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                // MessageBox.Show("不能打开当前串口", "系统初始化失败", MessageBoxButtons.OK, MessageBoxIcon.Question);
                 System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                string DisplayString = "不能打开当前串口！\r\n";
+                string DisplayString = "不能打开"+comName+"！\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                 OutMsg(MonitorText, DisplayString, Color.Red);
                 return false;
@@ -479,7 +733,7 @@ namespace MotionSensor
 
             for (int i = 0; i < (N * M); i++)
             {
-                Xdata[i] = ((i+1)*1000/128).ToString();
+                Xdata[i] = ((i + 1) * 1000 / 128).ToString();
             }
             chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
             chart1.Series["Series_Ecg"].Color = Color.Black;
@@ -489,10 +743,26 @@ namespace MotionSensor
                 chart1.Series["Series_Ecg"].Points[i].ToolTip = "#VALX,#VALY";
             }
 
-            textBox1.Text = (chartlenMin*1000/128).ToString();
-            textBox2.Text = (chartlenMax*1000/128).ToString();
+            textBox1.Text = (chartlenMin * 1000 / 128).ToString();
+            textBox2.Text = (chartlenMax * 1000 / 128).ToString();
 
             numericUpDown1.Value = Ecgamplification;
+
+            ScanUpDataComFlag = 1;
+
+            Thread ScanEcgUartThread = new Thread(new ThreadStart(ScanEcgUartFunction));
+            ScanEcgUartThread.Start();
+            ScanUpdataThread = new Thread(new ThreadStart(ScanUpdataUartFunction));
+            ScanUpdataThread.Start();
+
+            UpDataThread1 = new Thread(new ParameterizedThreadStart(Upgrade2));
+            UpDataThread1.Name = "Thread A:";
+            UpDataThread2 = new Thread(new ParameterizedThreadStart(Upgrade2));
+            UpDataThread2.Name = "Thread B:";
+            UpDataThread3 = new Thread(new ParameterizedThreadStart(Upgrade2));
+            UpDataThread3.Name = "Thread C:";
+            UpDataThread4 = new Thread(new ParameterizedThreadStart(Upgrade2));
+            UpDataThread4.Name = "Thread D:";
 
         }
         #endregion
@@ -509,8 +779,8 @@ namespace MotionSensor
                 trackBar1.Maximum = chartlenMax - 128;
                 chartlenMin = trackBar1.Value;
             }
-            textBox1.Text = (chartlenMin*1000/128).ToString();
-            textBox2.Text = (chartlenMax*1000/128).ToString();
+            textBox1.Text = (chartlenMin * 1000 / 128).ToString();
+            textBox2.Text = (chartlenMax * 1000 / 128).ToString();
             chart1.ChartAreas["ChartArea_Ecg"].AxisX.Maximum = chartlenMax;
             chart1.ChartAreas["ChartArea_Ecg"].AxisX.Minimum = chartlenMin;
             chart1.ChartAreas["ChartArea_Ecg"].AxisX.Interval = (chartlenMax - chartlenMin) / 4;
@@ -608,11 +878,11 @@ namespace MotionSensor
             toolStripStatusLabel7.Text = "";
             toolStripStatusLabel8.Text = "";
             BatteryValue.Text = "";
-            Lead.Text = "";          
+            Lead.Text = "";
         }
 
-    #region 定时器处理函数
-    unsafe private void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        #region 定时器处理函数
+        unsafe private void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             int EcgMaxValue, EcgMinValue;
 
@@ -637,7 +907,7 @@ namespace MotionSensor
                     }
 
                     ComConnectFlag = 1;
-                    button2.Enabled = true;
+                    UpDataButton.Enabled = true;
                     ComConnectTimeOut[0] = 0;
                     if (ConnectUartNum < 1)
                     {
@@ -648,21 +918,21 @@ namespace MotionSensor
 
             else if (UpgradeNum == 2)
             {
-                if (SerialReceiveData.Count >0)
-                SerialReceiveData[0] = 0;
+                if (SerialReceiveData.Count > 0)
+                    SerialReceiveData[0] = 0;
                 return;
             }
 
 
-        if (DebugMode == 2)
-        {
-                    while (SerialReceiveData.Count >= 1 && (SerialReceiveData[0] != 0x77))
-                    {
-                        SerialReceiveData.RemoveAt(0);
-                    }
-        }
+            if (DebugMode == 2)
+            {
+                while (SerialReceiveData.Count >= 1 && (SerialReceiveData[0] != 0x77))
+                {
+                    SerialReceiveData.RemoveAt(0);
+                }
+            }
 
-            while (SerialReceiveData.Count >= 4 && ((SerialReceiveData[3]+4) <= SerialReceiveData.Count))
+            while (SerialReceiveData.Count >= 4 && ((SerialReceiveData[3] + 4) <= SerialReceiveData.Count))
             {
                 #region
                 if (DebugMode == 1)
@@ -677,7 +947,7 @@ namespace MotionSensor
                                 string DisplayString = "GAP_DeviceInitDone！\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
-                               // TGAP_GEN_DISC_SCANCommand(1000);
+                                // TGAP_GEN_DISC_SCANCommand(1000);
 
                                 if (EcgCaptureFlag == 1)
                                 {
@@ -1018,53 +1288,53 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
                                 int[] macbuffer = new int[6];
-                                    for(int j = 0;j<6;j++)
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    macbuffer[j] = SerialReceiveData[4 + j];
+                                    ScanBLEMAC[ScanBLENum, j] = SerialReceiveData[4 + j];
+                                }
+
+                                if ((SerialReceiveData.Count - 0x10) >= 11)
+                                {
+                                    for (int j = 0; j < 11; j++)
                                     {
-                                        macbuffer[j] = SerialReceiveData[4+j];
-                                        ScanBLEMAC[ScanBLENum, j] = SerialReceiveData[4 + j];
+                                        ScanBleName[ScanBLENum, j] = SerialReceiveData[0x10 + j];
                                     }
-                                    
-                                        if ((SerialReceiveData.Count - 0x10) >= 11)
-                                        {
-                                            for (int j = 0; j < 11; j++)
-                                            {
-                                                ScanBleName[ScanBLENum,j] = SerialReceiveData[0x10 + j];
-                                            }
-                                        }
-                                        for (int j = 0; j < 11; j++)
-                                        {
-                                            if (ScanBleName[ScanBLENum, j] == 0)
-                                            {
-                                                ScanBleName[ScanBLENum, j] = 0x20;
-                                            }
-                                        }
-                                        byte[] m_blename = new byte[11];
-                                        for (int j = 0; j < 11; j++)
-                                        {
-                                            m_blename[j] = ScanBleName[ScanBLENum, j];
-                                        }
-                                        string aa = Encoding.UTF8.GetString(m_blename);
-                                    if (ScanBleName[ScanBLENum, 0] == 'B' && (ScanBleName[ScanBLENum, 1] == 'D'))
+                                }
+                                for (int j = 0; j < 11; j++)
+                                {
+                                    if (ScanBleName[ScanBLENum, j] == 0)
                                     {
-                                        MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(心电补丁)");
-                                
+                                        ScanBleName[ScanBLENum, j] = 0x20;
                                     }
-                                    else if (ScanBleName[ScanBLENum, 0] == 'B' && (ScanBleName[ScanBLENum, 1] == 'G'))
-                                    {
-                                        MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(血压计)");
-                                    }
-                                    else
-                                    {
-                                        MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(未知设备)");
-                                 
-                                    }
-                                    ScanBLENum++;
-                                    ConnectBLEButton.Enabled = true;
-                                    button6.Enabled = true;
-                                    ConnectBLEButton.Text = "设备已断开";                  
-                                    MACComboBox.SelectedIndex = 0;
-                                    ScanButton.Enabled = true;
-                                    MACComboBox.Enabled = true;
+                                }
+                                byte[] m_blename = new byte[11];
+                                for (int j = 0; j < 11; j++)
+                                {
+                                    m_blename[j] = ScanBleName[ScanBLENum, j];
+                                }
+                                string aa = Encoding.UTF8.GetString(m_blename);
+                                if (ScanBleName[ScanBLENum, 0] == 'B' && (ScanBleName[ScanBLENum, 1] == 'D'))
+                                {
+                                    MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(心电补丁)");
+
+                                }
+                                else if (ScanBleName[ScanBLENum, 0] == 'B' && (ScanBleName[ScanBLENum, 1] == 'G'))
+                                {
+                                    MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(血压计)");
+                                }
+                                else
+                                {
+                                    MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(未知设备)");
+
+                                }
+                                ScanBLENum++;
+                                ConnectBLEButton.Enabled = true;
+                                button6.Enabled = true;
+                                ConnectBLEButton.Text = "设备已断开";
+                                MACComboBox.SelectedIndex = 0;
+                                ScanButton.Enabled = true;
+                                MACComboBox.Enabled = true;
                             }
                             #endregion
                             #region
@@ -1280,7 +1550,7 @@ namespace MotionSensor
                                 DisplayString = "请求获取配对状态\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
-                                
+
                             }
                             #endregion
                             #region
@@ -1338,21 +1608,21 @@ namespace MotionSensor
                                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                     OutMsg(MonitorText, DisplayString, Color.Red);
                                 }
-                                
+
                             }
                             #endregion
-                            
+
                             #region
                             else if (SerialReceiveData[1] == 0x19)
                             {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "心电补丁ID获取成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    for (int i = 0; i < SerialReceiveData[3]; i++)
-                                    {
-                                        ECGPatchID[i] = SerialReceiveData[4 + i];
-                                    }
+                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                                string DisplayString = "心电补丁ID获取成功！\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
+                                for (int i = 0; i < SerialReceiveData[3]; i++)
+                                {
+                                    ECGPatchID[i] = SerialReceiveData[4 + i];
+                                }
 
                                 this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
                                     + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
@@ -1442,7 +1712,7 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                for(int i = 0;i<5;i++)
+                                for (int i = 0; i < 5; i++)
                                 {
                                     HardVersion[i] = SerialReceiveData[4 + i];
                                 }
@@ -1502,7 +1772,7 @@ namespace MotionSensor
                             #region
                             else if (SerialReceiveData[1] == 0x35)
                             {
-                               // if (SerialReceiveData[4] == 1)
+                                // if (SerialReceiveData[4] == 1)
                                 {
                                     for (int i = 0; i < 10; i++)
                                     {
@@ -1542,17 +1812,17 @@ namespace MotionSensor
                             #region
                             else if (SerialReceiveData[1] == 0x36)
                             {
-                                    string DisplayString = "正在接收主设备接收心电包数...\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
+                                string DisplayString = "正在接收主设备接收心电包数...\r\n";
+                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                                OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                    double CentralReceivePackage = SerialReceiveData[4] + (SerialReceiveData[5]<<8) + (SerialReceiveData[6]<<16) + (SerialReceiveData[7]<<24);
+                                double CentralReceivePackage = SerialReceiveData[4] + (SerialReceiveData[5] << 8) + (SerialReceiveData[6] << 16) + (SerialReceiveData[7] << 24);
 
-                                    this.toolStripStatusLabel8.Text = "主设备接收包：" + CentralReceivePackage.ToString();
+                                this.toolStripStatusLabel8.Text = "主设备接收包：" + CentralReceivePackage.ToString();
 
-                                    double CentralLostPackage = SerialReceiveData[8] + (SerialReceiveData[9] << 8) + (SerialReceiveData[10] << 16) + (SerialReceiveData[11] << 24);
+                                double CentralLostPackage = SerialReceiveData[8] + (SerialReceiveData[9] << 8) + (SerialReceiveData[10] << 16) + (SerialReceiveData[11] << 24);
 
-                                    this.toolStripStatusLabel7.Text = "主设备丢包：" + CentralLostPackage.ToString();
+                                this.toolStripStatusLabel7.Text = "主设备丢包：" + CentralLostPackage.ToString();
                             }
                             #endregion
 
@@ -1766,24 +2036,24 @@ namespace MotionSensor
                                 }
                             }
                             #endregion
-                            
+
                             SerialReceiveData.RemoveRange(0, SerialReceiveData[3] + 4);//从接收列表中删除包
                         }
                         else
                         {
                             //这里是很重要的，如果数据开始不是头，则删除数据  
-                            SerialReceiveData.RemoveAt(0); 
+                            SerialReceiveData.RemoveAt(0);
                         }
-                        
+
                     }
                     else
                     {
                         //这里是很重要的，如果数据开始不是头，则删除数据  
                         SerialReceiveData.RemoveAt(0);
-                    }                   
-                }   
+                    }
+                }
             }
-            
+
 
             if (BLEConnectFlag == 1)
             {
@@ -1851,7 +2121,7 @@ namespace MotionSensor
                         if (PairingFlag == 0)
                         {
                             str3 = "未配对";
-                            
+
                         }
                         else
                         {
@@ -1867,7 +2137,7 @@ namespace MotionSensor
                             + ":" + ECGPatchMAC[1].ToString("X2") + ":" + ECGPatchMAC[0].ToString("X2")
                             + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  " + str2 + str3;
 
-                        this.EcgPatchVersionLabel.Text = "心电补丁已连接 硬件版本:"+ Encoding.UTF8.GetString(HardVersion) + "   软件版本:" + Encoding.UTF8.GetString(SoftVersion);
+                        this.EcgPatchVersionLabel.Text = "心电补丁已连接 硬件版本:" + Encoding.UTF8.GetString(HardVersion) + "   软件版本:" + Encoding.UTF8.GetString(SoftVersion);
                         try
                         {
                             chart1.Series["Series_Ecg"].Color = Color.FromArgb(0, 192, 0);
@@ -1879,10 +2149,10 @@ namespace MotionSensor
                             DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                             OutMsg(MonitorText, DisplayString, Color.Red);
                         }
-                       
+
                         chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
 
-                        if (EcgDataTimer < 63 && (EcgDataTimer >=0))
+                        if (EcgDataTimer < 63 && (EcgDataTimer >= 0))
                         {
                             chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 2).Color = Color.Black;
                             chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 3).Color = Color.Black;
@@ -1896,7 +2166,7 @@ namespace MotionSensor
                             if ((XdataV[i] > 7000) || (XdataV[i] < -7000))
                             {
                                 chart1.Series["Series_Ecg"].Points.ElementAt(i).Color = Color.Black;
-                                chart1.Series["Series_Ecg"].Points.ElementAt(i-1).Color = Color.Black;
+                                chart1.Series["Series_Ecg"].Points.ElementAt(i - 1).Color = Color.Black;
                             }
                         }
                     }
@@ -1906,10 +2176,10 @@ namespace MotionSensor
             {
                 //HeartRate.Text = rate.ToString();
                 BatteryValue.SelectAll();
-              //  double batteryValue = 3300 *4 * Vbat /1024 ;
+                //  double batteryValue = 3300 *4 * Vbat /1024 ;
                 double batteryValue = Vbat;
                 BatteryValue.Text = batteryValue.ToString();
-              //  BloodPressure.Text = "";
+                //  BloodPressure.Text = "";
                 if ((LeadOffStatus & 0x01) == 0x01)
                 {
                     Lead.Text = "连接正常";
@@ -1927,7 +2197,7 @@ namespace MotionSensor
                     finally
                     {
                         ;
-                     }
+                    }
                 }
             }
             else
@@ -1962,7 +2232,7 @@ namespace MotionSensor
             saveFileDialog1.Title = "保存心电数据";
             saveFileDialog1.FilterIndex = 1;
             saveFileDialog1.RestoreDirectory = true;
-            string FileName = "ecg_data"+"  " + StartStoreDataTime +"--"+ DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + ".hex"; // 
+            string FileName = "ecg_data" + "  " + StartStoreDataTime + "--" + DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + ".hex"; // 
             saveFileDialog1.FileName = FileName;
             saveFileDialog1.AddExtension = true;
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
@@ -2005,7 +2275,7 @@ namespace MotionSensor
                 ScanButton.Enabled = false;
                 ConnectBLEButton.Enabled = false;
                 MACComboBox.Enabled = false;
-                BLENUMlabel.Text = "";
+                // BLENUMlabel.Text = "";
                 ScanBLENum = 0;
                 button6.Enabled = false;
             }
@@ -2018,7 +2288,7 @@ namespace MotionSensor
         {
             ChoiceBLE = (byte)MACComboBox.SelectedIndex;
             textBox5.Text = ScanBLEMAC[ChoiceBLE, 5].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 4].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 3].ToString("X2")
-        + ":" + ScanBLEMAC[ChoiceBLE, 2].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 1].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 0].ToString("X2"); 
+        + ":" + ScanBLEMAC[ChoiceBLE, 2].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 1].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 0].ToString("X2");
         }
         #endregion
 
@@ -2052,7 +2322,7 @@ namespace MotionSensor
 
                     if (ScanBleName[MACComboBox.SelectedIndex, 0] == 'B' && (ScanBleName[MACComboBox.SelectedIndex, 1] == 'D'))
                     {
-                        serialcommand.ConnectBLESerialCommand(serialPort1,(byte)MACComboBox.SelectedIndex);
+                        serialcommand.ConnectBLESerialCommand(serialPort1, (byte)MACComboBox.SelectedIndex);
                         System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                         string DisplayString = "请求连接设备...\r\n";
                         DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2069,7 +2339,7 @@ namespace MotionSensor
                     }
                 }
             }
-            
+
         }
         #endregion
 
@@ -2106,16 +2376,16 @@ namespace MotionSensor
 
         private void textBoxScan_KeyPress(object sender, KeyPressEventArgs e)
         {
-             if (e.KeyChar.Equals('\r'))
+            if (e.KeyChar.Equals('\r'))
             {
                 try
                 {
                     if ((textBoxScan.Text.Length == 15)/* && (textBoxScan.Text.Length >=9)*/)
                     {
-                      //  textBoxID.Text = textBoxScan.Text.Substring(textBoxScan.Text.Length - 9, 9);
+                        //  textBoxID.Text = textBoxScan.Text.Substring(textBoxScan.Text.Length - 9, 9);
                         textBoxScan.SelectAll();
                         textBoxScan.Focus();
-                        string DisplayString = DateTime.Now.ToLongTimeString() + ": "+"条码扫描：" + textBoxScan.Text.ToString() + "\r\n";
+                        string DisplayString = DateTime.Now.ToLongTimeString() + ": " + "条码扫描：" + textBoxScan.Text.ToString() + "\r\n";
                         OutMsg(MonitorText, DisplayString, Color.Red);
                     }
                     else
@@ -2219,50 +2489,50 @@ namespace MotionSensor
         private void textBox5_TextChanged(object sender, EventArgs e)
         {
             string InputChar;
-                try
+            try
+            {
+                InputChar = textBox5.Text.Substring(textBox5.Text.Length - 1, 1);
+                char[] cc = InputChar.ToCharArray();
+                if ((textBox5.Text.Length <= 17))
                 {
-                    InputChar = textBox5.Text.Substring(textBox5.Text.Length - 1, 1);
-                    char[] cc = InputChar.ToCharArray();
-                    if ((textBox5.Text.Length <= 17))
+                    if ((cc[0] >= '0') && (cc[0] <= '9') || (cc[0] >= 'a') && (cc[0] <= 'f') || (cc[0] >= 'A') && (cc[0] <= 'F') || (cc[0] <= ':'))
                     {
-                        if ((cc[0] >= '0') && (cc[0] <= '9') || (cc[0] >= 'a') && (cc[0] <= 'f') || (cc[0] >= 'A') && (cc[0] <= 'F') || (cc[0] <= ':'))
+                        string s = textBox5.Text.ToUpper();
+                        this.textBox5.Text = s;
+                        textBox5.Text = s;
+                        //   this.textBox5.SelectionStart = this.textBox5.Text.Length;
+                        //   this.textBox5.Focus();
+                        if (((this.textBox5.Text.Length + 1) % 3) == 0 && (this.textBox5.Text.Length < 17))
                         {
-                            string s = textBox5.Text.ToUpper();
-                            this.textBox5.Text = s;
-                            textBox5.Text = s;
-                         //   this.textBox5.SelectionStart = this.textBox5.Text.Length;
-                         //   this.textBox5.Focus();
-                            if (((this.textBox5.Text.Length + 1) % 3) == 0 && (this.textBox5.Text.Length < 17))
-                            {
-                                string ss = textBox5.Text;
-                                int idx = textBox5.SelectionStart;
-                                ss = ss.Insert(idx, ":");
-                                textBox5.Text = ss;
-                                textBox5.SelectionStart = idx + 1;
-                                textBox5.Focus();
-                            }
-                        }
-                        else
-                        {
-                            string strNew = this.textBox5.Text.Substring(0, this.textBox5.Text.Length - 1);
-                            this.textBox5.Text = strNew;
-                           // this.textBox5.SelectionStart = this.textBox5.Text.Length;
-                           // this.textBox5.Focus();
-                            MessageBox.Show("超出输入范围", "MAC地址输入异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            string ss = textBox5.Text;
+                            int idx = textBox5.SelectionStart;
+                            ss = ss.Insert(idx, ":");
+                            textBox5.Text = ss;
+                            textBox5.SelectionStart = idx + 1;
+                            textBox5.Focus();
                         }
                     }
                     else
                     {
                         string strNew = this.textBox5.Text.Substring(0, this.textBox5.Text.Length - 1);
                         this.textBox5.Text = strNew;
-                        this.textBox5.SelectionStart = this.textBox5.Text.Length;
-                        this.textBox5.Focus();
+                        // this.textBox5.SelectionStart = this.textBox5.Text.Length;
+                        // this.textBox5.Focus();
+                        MessageBox.Show("超出输入范围", "MAC地址输入异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                catch (ArgumentOutOfRangeException)
+                else
                 {
-                   // MessageBox.Show("条码长度大于15位或者小于9位，可能导致数据截取错误！", "条码扫描异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    string strNew = this.textBox5.Text.Substring(0, this.textBox5.Text.Length - 1);
+                    this.textBox5.Text = strNew;
+                    this.textBox5.SelectionStart = this.textBox5.Text.Length;
+                    this.textBox5.Focus();
                 }
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // MessageBox.Show("条码长度大于15位或者小于9位，可能导致数据截取错误！", "条码扫描异常", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
         }
         private void button6_Click(object sender, EventArgs e)
@@ -2280,7 +2550,7 @@ namespace MotionSensor
                     cc[i] = (char)(cc[i] - 'A' + 10);
                 }
             }
-            serialcommand.PairingCommand(serialPort1,cc);
+            serialcommand.PairingCommand(serialPort1, cc);
             System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
             string DisplayString = "请求设置配对心电补丁的MAC\r\n";
             DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2357,7 +2627,7 @@ namespace MotionSensor
                         if (ComConnectTimeOut[0] >= 5)
                         {
                             serialcommand.UpGradeCommand(serialPort1);
-                            if(ConnectUartNum >= 1)
+                            if (ConnectUartNum >= 1)
                             {
                                 if (ConnectUartNum == 1)
                                 {
@@ -2519,11 +2789,11 @@ namespace MotionSensor
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum =(int)( 6000 / (double)(numericUpDown1.Value));
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum =(int)( -6000 / (double)(numericUpDown1.Value));
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval =(int) chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum / 6;
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval*6;
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = -chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval*6;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = (int)(6000 / (double)(numericUpDown1.Value));
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = (int)(-6000 / (double)(numericUpDown1.Value));
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval = (int)chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum / 6;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval * 6;
+            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = -chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval * 6;
             chart1.ChartAreas["ChartArea_Ecg"].AxisY.MinorGrid.Interval = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval / 5;
         }
 
@@ -2535,7 +2805,7 @@ namespace MotionSensor
             Y_Start = e.Y;
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-               // label17.Text = StoreDP.YValues[0].ToString();
+                // label17.Text = StoreDP.YValues[0].ToString();
                 label17.Text = string.Format("获取的第一个点的值:{0:F0}mV", StoreDP.YValues[0]);
                 StartStoreDP = StoreDP;
             }
@@ -2580,20 +2850,34 @@ namespace MotionSensor
 
         private void button2_Click(object sender, EventArgs e)
         {
-            timer1.Enabled = false;
+            int num = 0;
+            ScanUpdataThread.Abort();
 
-            UpgradeNum = 1;
             System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
             string DisplayString3 = "请求删除flash...\r\n";
             DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
             OutMsg(MonitorText, DisplayString3, Color.Red);
 
-            if (ConnectUartNum >= 1)
+            if (checkBox3.Checked == true)
             {
-                DownLoadFlag = 1;
+                DownLoadFlag[0] = 1;
                 serialcommand.FlashEraseAllUnsecure_Command(serialPort1);
-                while (DownLoadFlag == 1);
-                if (DownLoadFlag == 2)
+                num = 0;
+                while (DownLoadFlag[0] == 1)
+                {
+                    Thread.Sleep(10);
+                    num++;
+                    if (num>100)
+                    {
+                        num = 0;
+                        string DisplayString = ConnectUartName[0] + ":擦除flash无响应！\r\n请重新升级!\r\n";
+                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                        OutMsg(MonitorText, DisplayString, Color.Red);
+                        checkBox3.Checked = false;
+                        break;
+                    }
+                }
+                if (DownLoadFlag[0] == 2)
                 {
                     string DisplayString = ConnectUartName[0] + ":擦除flash成功！\r\n";
                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2601,36 +2885,725 @@ namespace MotionSensor
 
                     serialcommand.Upgrade_ACKCommand(serialPort1);
                 }
-                else if (DownLoadFlag == 3)
+                else if (DownLoadFlag[0] == 3)
                 {
-                    string DisplayString = ConnectUartName[0] + ":擦除flash失败！\r\n";
+                    string DisplayString = ConnectUartName[0] + ":擦除flash失败！\r\n请重新升级!\r\n";
                     DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                     OutMsg(MonitorText, DisplayString, Color.Red);
+                    checkBox3.Checked = false;
                 }
-               
+
                 Thread.Sleep(5);
 
 
             }
-            if (ConnectUartNum >= 2)
+            if (checkBox4.Checked == true)
             {
+                DownLoadFlag[1] = 1;
                 serialcommand.FlashEraseAllUnsecure_Command(serialPort2);
+                num = 0;
+                while (DownLoadFlag[1] == 1)
+                {
+                    Thread.Sleep(10);
+                    num++;
+                    if (num > 100)
+                    {
+                        num = 0;
+                        string DisplayString = ConnectUartName[1] + ":擦除flash无响应！\r\n请重新升级!\r\n";
+                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                        OutMsg(MonitorText, DisplayString, Color.Red);
+                        checkBox4.Checked = false;
+                        break;
+                    }
+                }
+                if (DownLoadFlag[1] == 2)
+                {
+                    string DisplayString = ConnectUartName[1] + ":擦除flash成功！\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+
+                    serialcommand.Upgrade_ACKCommand(serialPort2);
+                }
+                else if (DownLoadFlag[1] == 3)
+                {
+                    string DisplayString = ConnectUartName[1] + ":擦除flash失败！\r\n请重新升级!\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                    checkBox4.Checked = false;
+                }
+
+                Thread.Sleep(5);
             }
-            if (ConnectUartNum >= 1)
+            if (checkBox5.Checked == true)
             {
+                DownLoadFlag[2] = 1;
                 serialcommand.FlashEraseAllUnsecure_Command(serialPort3);
+                num = 0;
+                while (DownLoadFlag[2] == 1)
+                {
+                    Thread.Sleep(10);
+                    num++;
+                    if (num > 100)
+                    {
+                        num = 0;
+                        string DisplayString = ConnectUartName[2] + ":擦除flash无响应！\r\n请重新升级!\r\n";
+                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                        OutMsg(MonitorText, DisplayString, Color.Red);
+                        checkBox5.Checked = false;
+                        break;
+                    }
+                }
+                if (DownLoadFlag[2] == 2)
+                {
+                    string DisplayString = ConnectUartName[2] + ":擦除flash成功！\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+
+                    serialcommand.Upgrade_ACKCommand(serialPort3);
+                }
+                else if (DownLoadFlag[2] == 3)
+                {
+                    string DisplayString = ConnectUartName[2] + ":擦除flash失败！\r\n请重新升级!\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                    checkBox5.Checked = false;
+                }
+
+                Thread.Sleep(5);
             }
-            if (ConnectUartNum >= 2)
+            if (checkBox6.Checked == true)
             {
+                DownLoadFlag[3] = 1;
                 serialcommand.FlashEraseAllUnsecure_Command(serialPort4);
+                num = 0;
+                while (DownLoadFlag[3] == 1)
+                {
+                    Thread.Sleep(10);
+                    num++;
+                    if (num > 100)
+                    {
+                        num = 0;
+                        string DisplayString = ConnectUartName[3] + ":擦除flash无响应！\r\n请重新升级!\r\n";
+                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                        OutMsg(MonitorText, DisplayString, Color.Red);
+                        checkBox6.Checked = false;
+                        break;
+                    }
+                }
+                if (DownLoadFlag[3] == 2)
+                {
+                    string DisplayString = ConnectUartName[3] + ":擦除flash成功！\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+
+                    serialcommand.Upgrade_ACKCommand(serialPort4);
+                }
+                else if (DownLoadFlag[3] == 3)
+                {
+                    string DisplayString = ConnectUartName[3] + ":擦除flash失败！\r\n请重新升级!\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                    checkBox6.Checked = false;
+                }
+
+                Thread.Sleep(5);
             }
 
-            
+            Upgrade();
 
-            Upgrade(); 
         }
 
         private void Upgrade()
+        {
+            string[] text = File.ReadAllLines(textBox3.Text);
+                progressBar1.Maximum = text.Length / 2;
+                progressBar1.Value = 0;
+                progressBar2.Maximum = text.Length / 2;
+                progressBar2.Value = 0;
+                progressBar3.Maximum = text.Length / 2;
+                progressBar3.Value = 0;
+                progressBar4.Maximum = text.Length / 2;
+                progressBar4.Value = 0;
+
+                if (checkBox3.Checked == true)
+                {
+                    if (UpDataThread1.IsAlive)
+                    {
+                        UpDataThread1.Abort();
+                    }
+                    UpDataThread1 = new Thread(new ParameterizedThreadStart(Upgrade2));
+                    UpDataThread1.Name = "Thread A:";
+                    UpDataThread1.Start(serialPort1);
+                    DowmLoadNum++;
+                }
+                if (checkBox4.Checked == true)
+                {
+                    if (UpDataThread2.IsAlive)
+                    {
+                        UpDataThread2.Abort();
+                    }
+                    UpDataThread2 = new Thread(new ParameterizedThreadStart(Upgrade2));
+                    UpDataThread2.Name = "Thread A:";
+                    UpDataThread2.Start(serialPort2);
+                    DowmLoadNum++;
+                }
+                if (checkBox5.Checked == true)
+                {
+                    if (UpDataThread3.IsAlive)
+                    {
+                        UpDataThread3.Abort();
+                    }
+                    UpDataThread3 = new Thread(new ParameterizedThreadStart(Upgrade2));
+                    UpDataThread3.Name = "Thread A:";
+                    UpDataThread3.Start(serialPort3);
+                    DowmLoadNum++;
+                }
+                if (checkBox6.Checked == true)
+                {
+                    if (UpDataThread4.IsAlive)
+                    {
+                        UpDataThread4.Abort();
+                    }
+                    UpDataThread4 = new Thread(new ParameterizedThreadStart(Upgrade2));
+                    UpDataThread4.Name = "Thread A:";
+                    UpDataThread4.Start(serialPort4);
+                    DowmLoadNum++;
+                }          
+        }
+
+        int WriteFlashACK(int i,SerialPort serialport, Int32 StartAddress, Int32 ByteCount)
+        {
+            int num = 0;
+            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+            string DisplayString3 = serialport.PortName + ":一块程序开始下载。。。\r\n" + "起始地址: 0x" + StartAddress.ToString("X4") +
+                "  数据大小：0x" + ByteCount.ToString("X4") + "\r\n";
+            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+            OutMsg(MonitorText, DisplayString3, Color.Red);
+
+            DownLoadFlag[i] = 4;
+            serialcommand.WriteMemory_Command(serialport, StartAddress, ByteCount);
+            num = 0;
+            while(DownLoadFlag[i] == 4)
+            {
+                Thread.Sleep(1);
+                num++;
+                if(num>100)
+                {
+                    num = 0;
+                    string DisplayString = serialport.PortName + ":写数据请求无响应！\r\n请重新升级!\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                    return -1;
+                }
+            }
+            if (DownLoadFlag[i] == 5)
+            {
+                string DisplayString = serialport.PortName + ":写数据请求成功！\r\n" + "数据正在下载中...\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+            }
+            else if (DownLoadFlag[i] == 6)
+            {
+                string DisplayString = serialport.PortName + ":写数据请求失败！\r\n";
+                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                OutMsg(MonitorText, DisplayString, Color.Red);
+                return -2;
+            }
+            serialcommand.Upgrade_ACKCommand(serialport);
+            return 0;
+        }
+
+        int WriteGeneralFlash(int i,SerialPort serialport, byte[] Byte)
+        {
+            int num = 0;
+            DownLoadFlag[i] = 7;
+            serialcommand.WriteMemoryData_Command(serialport, Byte, 32);
+
+            num = 0;
+            while (DownLoadFlag[i] == 7)
+            {
+                Thread.Sleep(1);
+                num++;
+                if (num > 100)
+                {
+                    num = 0;
+                    string DisplayString = serialport.PortName + ":写数据请求无响应！\r\n请重新升级!\r\n";
+                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                    OutMsg(MonitorText, DisplayString, Color.Red);
+                    return -1;
+                }
+            }
+
+            //if (DownLoadFlag == 8)
+            //{
+            //    converter = new System.Text.ASCIIEncoding();
+            //    DisplayString3 = ConnectUartName[0] + ":正确写入一段数据！\r\n";
+            //    DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+            //    OutMsg(MonitorText, DisplayString3, Color.Red);
+            //}
+            if (DownLoadFlag[i] == 9)
+            {
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString3 = serialport.PortName + ":数据写错误！\r\n";
+                DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+                OutMsg(MonitorText, DisplayString3, Color.Red);
+                return -2;
+            }
+            return 0;
+        }
+
+        int WriteLastFlash(int i,SerialPort serialport, byte[] Byte, UInt16 Length)
+        {
+            int num = 0;
+            DownLoadFlag[i] = 10;
+            serialcommand.WriteMemoryData_Command(serialport, Byte, Length);
+            
+            while (DownLoadFlag[i] == 10)
+            {
+                Thread.Sleep(1);
+                num++;
+                if (num > 100)
+                {
+                    num = 0;
+                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                    string DisplayString3 = serialport.PortName + ":一块程序下载完成无响应！\r\n请重新升级!\r\n";
+                    DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+                    OutMsg(MonitorText, DisplayString3, Color.Red);
+                    return -1;
+                }
+            }
+            if (DownLoadFlag[i] == 11)
+            {
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString3 = serialport.PortName + ":一块程序下载完成！\r\n";
+                DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+                OutMsg(MonitorText, DisplayString3, Color.Red);
+            }
+            else if (DownLoadFlag[i] == 12)
+            {
+                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                string DisplayString3 = serialport.PortName + ":一块程序下载失败！\r\n";
+                DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
+                OutMsg(MonitorText, DisplayString3, Color.Red);
+                return -2;
+            }
+            serialcommand.Upgrade_ACKCommand(serialport);
+            Thread.Sleep(10);
+            return 0;
+        }
+
+
+        void GetHexData(byte[] DataBuffer, List<byte> StoreDataList, List<int> StoreLineAddrList)
+        {
+            int getlinelength = 0;
+            int c, d, h, f, g;
+            if (((int)DataBuffer[2]) > 0x39)
+            {
+                c = 0x40 - 0x09;
+            }
+            else
+            {
+                c = 0x30;
+            }
+            if (((int)DataBuffer[3]) > 0x39)
+            {
+                d = 0x40 - 0x09;
+            }
+            else
+            {
+                d = 0x30;
+            }
+            if (((int)DataBuffer[4]) > 0x39)
+            {
+                h = 0x40 - 0x09;
+            }
+            else
+            {
+                h = 0x30;
+            }
+            if (((int)DataBuffer[5]) > 0x39)
+            {
+                f = 0x40 - 0x09;
+            }
+            else
+            {
+                f = 0x30;
+            }
+            if (((int)DataBuffer[6]) > 0x39)
+            {
+                g = 0x40 - 0x09;
+            }
+            else
+            {
+                g = 0x30;
+            }
+            getlinelength = ((DataBuffer[1] - 0x30) << 4) + (DataBuffer[2] - c);
+            StoreLineAddrList.Add(((DataBuffer[3] - d) << 12) + ((DataBuffer[4] - h) << 8) + ((DataBuffer[5] - f) << 4) + (DataBuffer[6] - g));
+            for (int i = 0; i < getlinelength; i++)
+            {
+                int a, b;
+                if (((int)DataBuffer[(i << 1) + 9]) > 0x39)
+                {
+                    a = 0x40 - 0x09;
+                }
+                else
+                {
+                    a = 0x30;
+                }
+                if (((int)DataBuffer[(i << 1) + 10]) > 0x39)
+                {
+                    b = 0x40 - 0x09;
+                }
+                else
+                {
+                    b = 0x30;
+                }
+                StoreDataList.Add((byte)(int)(((DataBuffer[(i << 1) + 9] - a) << 4) + (DataBuffer[(i << 1) + 10] - b)));
+            }
+        }
+        void List2Byte(List<byte> BufferList, byte[] buffer, int length)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                buffer[i] = BufferList[i];
+            }
+        }
+
+        int WritePageData2Flash(int i,SerialPort serialport, List<byte> StoreDataList, List<int> StoreLineAddrList)
+        {
+            byte[] buffer = new byte[32];
+            if (WriteFlashACK(i, serialport, StoreLineAddrList[0], StoreDataList.Count) != 0)
+            {
+                return -1;
+            }
+            while (StoreDataList.Count >= 32)
+            {
+                List2Byte(StoreDataList, buffer, 32);
+                if (WriteGeneralFlash(i, serialport, buffer) != 0)
+                {
+                    return -2;
+                }
+                StoreDataList.RemoveRange(0, 32);
+                if (StoreDataList.Count == 32)
+                {
+                    List2Byte(StoreDataList, buffer, 32);
+
+                    if (WriteLastFlash(i, serialport, buffer, 32) != 0)
+                    {
+                        return -3;
+                    }
+                    StoreDataList.RemoveRange(0, 32);
+                }
+                if (serialport == serialPort1)
+                {
+                    progressBar1.Invoke(new EventHandler(delegate
+                    {
+                        progressBar1.Value++;
+                    }));
+                    label9.Invoke(new EventHandler(delegate
+                    {
+                        int a = progressBar1.Value * 100 / progressBar1.Maximum;
+                        label9.Text = "正在下载中..." + a.ToString()+"%";
+                    }));
+                }
+                else if (serialport == serialPort2)
+                {
+                    progressBar2.Invoke(new EventHandler(delegate
+                    {
+                        progressBar2.Value++;
+                    }));
+                    label20.Invoke(new EventHandler(delegate
+                    {
+                        int a = progressBar2.Value * 100 / progressBar2.Maximum;
+                        label20.Text = "正在下载中..." + a.ToString() + "%";
+                    }));
+                }
+                else if (serialport == serialPort3)
+                {
+                    progressBar3.Invoke(new EventHandler(delegate
+                    {
+                        progressBar3.Value++;
+                    }));
+                    label21.Invoke(new EventHandler(delegate
+                    {
+                        int a = progressBar3.Value * 100 / progressBar3.Maximum;
+                        label21.Text = "正在下载中..." + a.ToString() + "%";
+                    }));
+                }
+                else if (serialport == serialPort4)
+                {
+                    progressBar4.Invoke(new EventHandler(delegate
+                    {
+                        progressBar4.Value++;
+                    }));
+                    label22.Invoke(new EventHandler(delegate
+                    {
+                        int a = progressBar4.Value * 100 / progressBar4.Maximum;
+                        label22.Text = "正在下载中..." + a.ToString() + "%";
+                    }));
+                }
+
+            }
+            if (StoreDataList.Count > 0)
+            {
+                List2Byte(StoreDataList, buffer, StoreDataList.Count);
+                if (WriteLastFlash(i, serialport, buffer, (UInt16)StoreDataList.Count) != 0)
+                {
+                    return -4;
+                }
+                StoreDataList.RemoveRange(0, StoreDataList.Count);
+                if (serialport == serialPort1)
+                {
+                    progressBar1.Invoke(new EventHandler(delegate
+                    {
+                        progressBar1.Value++;
+                    }));
+                    label9.Invoke(new EventHandler(delegate
+                    {
+                        int a = progressBar1.Value * 100 / progressBar1.Maximum;
+                        label9.Text = "正在下载中..." + a.ToString() + "%";
+                    }));
+                }
+                else if (serialport == serialPort2)
+                {
+                    progressBar2.Invoke(new EventHandler(delegate
+                    {
+                        progressBar2.Value++;
+                    }));
+                    label20.Invoke(new EventHandler(delegate
+                    {
+                        int a = progressBar2.Value * 100 / progressBar2.Maximum;
+                        label20.Text = "正在下载中..." + a.ToString() + "%";
+                    }));
+                }
+                else if (serialport == serialPort3)
+                {
+                    progressBar3.Invoke(new EventHandler(delegate
+                    {
+                        progressBar3.Value++;
+                    }));
+                    label21.Invoke(new EventHandler(delegate
+                    {
+                        int a = progressBar3.Value * 100 / progressBar3.Maximum;
+                        label21.Text = "正在下载中..." + a.ToString() + "%";
+                    }));
+                }
+                else if (serialport == serialPort4)
+                {
+                    progressBar4.Invoke(new EventHandler(delegate
+                    {
+                        progressBar4.Value++;
+                    }));
+                    label22.Invoke(new EventHandler(delegate
+                    {
+                        int a = progressBar4.Value * 100 / progressBar4.Maximum;
+                        label22.Text = "正在下载中..." + a.ToString() + "%";
+                    }));
+                }
+            }
+            return 0;
+        }
+
+        void Upgrade2(object serialport)
+        {
+            int i = 0;
+            List<byte> DataBuffer = new List<byte>(999999);
+            List<int> LineAddr = new List<int>(9999);
+
+            SerialPort parameter = serialport as SerialPort;//类型转换 
+
+            if (parameter == serialPort1)
+            {
+                i = 0;
+            }
+            else if (parameter == serialPort2)
+            {
+                i = 1;
+            }
+            else if (parameter == serialPort3)
+            {
+                i = 2;
+            }
+            else if (parameter == serialPort4)
+            {
+                i = 3;
+            }
+
+            StreamReader sr = new StreamReader(textBox3.Text);
+            string s;
+            while ((s = sr.ReadLine()) != null)
+            {
+                byte[] bytes = System.Text.Encoding.ASCII.GetBytes(s);
+                if (bytes[0] == 0x3A)    //:
+                {
+                    if ((bytes[7] == 0x30) && (bytes[8] == 0x34))
+                    {
+                        if (DataBuffer.Count > 0)
+                        {
+                            if (WritePageData2Flash(i, parameter, DataBuffer, LineAddr) != 0)
+                            {
+                                if (serialport == serialPort1)
+                                {
+                                    label9.Invoke(new EventHandler(delegate
+                                    {
+                                        label9.Text = "升级失败，请重新升级!";
+                                    }));
+                                    DowmLoadNum--;
+                                }
+                                else if (serialport == serialPort2)
+                                {
+                                    label20.Invoke(new EventHandler(delegate
+                                    {
+                                        label20.Text = "升级失败，请重新升级!";
+                                    }));
+                                    DowmLoadNum--;
+                                }
+                                else if (serialport == serialPort3)
+                                {
+                                    label21.Invoke(new EventHandler(delegate
+                                    {
+                                        label21.Text = "升级失败，请重新升级!";
+                                    }));
+                                    DowmLoadNum--;
+                                }
+                                else if (serialport == serialPort4)
+                                {
+                                    label22.Invoke(new EventHandler(delegate
+                                    {
+                                        label22.Text = "升级失败，请重新升级!";
+                                    }));
+                                    DowmLoadNum--;
+                                }
+                                if(DowmLoadNum == 0)
+                                {
+                                    ScanUpdataThread = new Thread(new ThreadStart(ScanUpdataUartFunction));
+                                    ScanUpdataThread.Start();
+                                }
+                                return;
+                            }
+                        }
+                        LineAddr.Clear();
+                    }
+                    else if ((bytes[7] == 0x30) && (bytes[8] == 0x31))
+                    {
+                        if (DataBuffer.Count > 0)
+                        {
+                            if(WritePageData2Flash(i, parameter, DataBuffer, LineAddr) != 0)
+                            {
+                                if (serialport == serialPort1)
+                                {
+                                    label9.Invoke(new EventHandler(delegate
+                                    {
+                                        label9.Text = "升级失败，请重新升级!";
+                                    }));
+                                    DowmLoadNum--;
+                                }
+                                else if (serialport == serialPort2)
+                                {
+                                    label20.Invoke(new EventHandler(delegate
+                                    {
+                                        label20.Text = "升级失败，请重新升级!";
+                                    }));
+                                    DowmLoadNum--;
+                                }
+                                else if (serialport == serialPort3)
+                                {
+                                    label21.Invoke(new EventHandler(delegate
+                                    {
+                                        label21.Text = "升级失败，请重新升级!";
+                                    }));
+                                    DowmLoadNum--;
+                                }
+                                else if (serialport == serialPort4)
+                                {
+                                    label22.Invoke(new EventHandler(delegate
+                                    {
+                                        label22.Text = "升级失败，请重新升级!";
+                                    }));
+                                    DowmLoadNum--;
+                                }
+                                if(DowmLoadNum == 0)
+                                {
+                                    ScanUpdataThread = new Thread(new ThreadStart(ScanUpdataUartFunction));
+                                    ScanUpdataThread.Start();
+                                }
+                                return;
+                            }
+                        }
+                        System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
+                        string DisplayString2 = parameter.PortName + ":升级完成！\r\n";
+                        DisplayString2 = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
+                        OutMsg(MonitorText, DisplayString2, Color.Red);
+
+                        if (serialport == serialPort1)
+                        {
+                            label9.Invoke(new EventHandler(delegate
+                            {
+                                label9.Text = "下载完成!";
+                            }));
+                            DowmLoadNum--;
+                        }
+                        else if (serialport == serialPort2)
+                        {
+                            label20.Invoke(new EventHandler(delegate
+                            {
+                                label20.Text = "下载完成";
+                            }));
+                            DowmLoadNum--;
+                        }
+                        else if (serialport == serialPort3)
+                        {
+                            label21.Invoke(new EventHandler(delegate
+                            {
+                                label21.Text = "下载完成";
+                            }));
+                            DowmLoadNum--;
+                        }
+                        else if (serialport == serialPort4)
+                        {
+                            label22.Invoke(new EventHandler(delegate
+                            {
+                                label22.Text = "下载完成";
+                            }));
+                            DowmLoadNum--;
+                        }
+                        if(DowmLoadNum == 0)
+                        {
+                            ScanUpdataThread = new Thread(new ThreadStart(ScanUpdataUartFunction));
+                            ScanUpdataThread.Start();
+                        }
+
+                    }
+                    else if (bytes[7] == 0x30 && (bytes[8] == 0x30))  //数据
+                    {
+                        GetHexData(bytes, DataBuffer, LineAddr);
+                    }
+                }
+            }
+        }
+
+        private void RF_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            ScanUpdataThread.Abort();
+            if (UpDataThread1.IsAlive)
+            {
+                UpDataThread1.Abort();
+            }
+            if (UpDataThread2.IsAlive)
+            {
+                UpDataThread2.Abort();
+            }
+            if (UpDataThread3.IsAlive)
+            {
+                UpDataThread3.Abort();
+            }
+            if (UpDataThread4.IsAlive)
+            {
+                UpDataThread4.Abort();
+            }
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
         {
             string DisplayString = "正在打开升级文件。。。\r\n";
             DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2642,478 +3615,12 @@ namespace MotionSensor
             openFileDialog.Title = "打开升级文件";
             openFileDialog.FilterIndex = 1;
             openFileDialog.RestoreDirectory = true;
-
-            progressBar1.Value = 0;
-
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            DialogResult dialogresult = openFileDialog.ShowDialog();
+            if (dialogresult == DialogResult.OK)
             {
-                
-                string[] text = File.ReadAllLines(openFileDialog.FileName.ToString());
-                progressBar1.Maximum = text.Length/2;
-                progressBar1.Value = 0;
-                progressBar2.Maximum = text.Length / 2;
-                progressBar2.Value = 0;
-
-                if (ConnectUartNum >= 1)
-                {
-                    Thread parameterThread1 = new Thread(new ParameterizedThreadStart(Upgrade2));
-                    parameterThread1.Name = "Thread A:";
-                    parameterThread1.Start(openFileDialog);
-                }
-                if (ConnectUartNum >= 2)
-                {
-                    Thread parameterThread2 = new Thread(new ParameterizedThreadStart(Upgrade3));
-                    parameterThread2.Name = "Thread B:";
-                    parameterThread2.Start(openFileDialog);
-                }
-            }
-        }
-
-    void WriteFlashACK(SerialPort serialport, Int32 StartAddress, Int32 ByteCount)
-    {
-        System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-        string DisplayString3 = ConnectUartName[0] + ":一块程序开始下载。。。\r\n" + "起始地址: 0x" + StartAddress.ToString("X4") +
-            "  数据大小：0x" + ByteCount.ToString("X4") + "\r\n";
-        DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-        OutMsg(MonitorText, DisplayString3, Color.Red);
-
-        DownLoadFlag = 4;
-        serialcommand.WriteMemory_Command(serialport, StartAddress, ByteCount);
-        while (DownLoadFlag == 4) ;
-        if (DownLoadFlag == 5)
-        {
-            string DisplayString = ConnectUartName[0] + ":写数据请求成功！\r\n" + "数据正在下载中...\r\n";
-            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-            OutMsg(MonitorText, DisplayString, Color.Red);
-        }
-        else if (DownLoadFlag == 6)
-        {
-            string DisplayString = ConnectUartName[0] + ":写数据请求失败！\r\n";
-            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-            OutMsg(MonitorText, DisplayString, Color.Red);
-        }
-        serialcommand.Upgrade_ACKCommand(serialPort1);
-    }
-
-    void WriteGeneralFlash(SerialPort serialport, byte[] Byte)
-    {
-        DownLoadFlag = 7;
-        serialcommand.WriteMemoryData_Command(serialport, Byte, 32);
-        while (DownLoadFlag == 7) ;
-        //if (DownLoadFlag == 8)
-        //{
-        //    converter = new System.Text.ASCIIEncoding();
-        //    DisplayString3 = ConnectUartName[0] + ":正确写入一段数据！\r\n";
-        //    DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-        //    OutMsg(MonitorText, DisplayString3, Color.Red);
-        //}
-        if (DownLoadFlag == 9)
-        {
-            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-            string DisplayString3 = ConnectUartName[0] + ":数据写错误！\r\n";
-            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-            OutMsg(MonitorText, DisplayString3, Color.Red);
-        }    
-    }
-
-    void WriteLastFlash(SerialPort serialport, byte[] Byte, UInt16 Length)
-    {
-        DownLoadFlag = 10;
-        serialcommand.WriteMemoryData_Command(serialport, Byte, Length);
-        while (DownLoadFlag == 10) ;
-        if (DownLoadFlag == 11)
-        {
-            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-            string DisplayString3 = ConnectUartName[0] + ":一块程序下载完成！\r\n";
-            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-            OutMsg(MonitorText, DisplayString3, Color.Red);
-        }
-        else if (DownLoadFlag == 12)
-        {
-            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-            string DisplayString3 = ConnectUartName[0] + ":一块程序下载失败！\r\n";
-            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-            OutMsg(MonitorText, DisplayString3, Color.Red);
-        }
-        serialcommand.Upgrade_ACKCommand(serialport);
-        Thread.Sleep(10);
-    }
-
-
-    void GetHexData(byte[] DataBuffer,List<byte> StoreDataList,List<int> StoreLineAddrList)
-    {
-        int getlinelength = 0;
-        int c, d, h, f, g;
-        if (((int)DataBuffer[2]) > 0x39)
-        {
-            c = 0x40 - 0x09;
-        }
-        else
-        {
-            c = 0x30;
-        }
-        if (((int)DataBuffer[3]) > 0x39)
-        {
-             d = 0x40 - 0x09;
-        }
-        else
-        {
-             d = 0x30;
-        }
-        if (((int)DataBuffer[4]) > 0x39)
-        {
-             h = 0x40 - 0x09;
-        }
-        else
-        {
-            h = 0x30;
-        }
-        if (((int)DataBuffer[5]) > 0x39)
-        {
-            f = 0x40 - 0x09;
-        }
-        else
-        {
-            f = 0x30;
-        }
-        if (((int)DataBuffer[6]) > 0x39)
-        {
-            g = 0x40 - 0x09;
-        }
-        else
-        {
-            g = 0x30;
-        }
-        getlinelength = ((DataBuffer[1] - 0x30) << 4) + (DataBuffer[2] - c);
-        StoreLineAddrList.Add(((DataBuffer[3] - d) << 12) + ((DataBuffer[4] - h) << 8) + ((DataBuffer[5] - f) << 4) + (DataBuffer[6] - g));
-        for (int i = 0; i < getlinelength; i++)
-        {
-            int a, b;
-            if (((int)DataBuffer[(i << 1) + 9]) > 0x39)
-            {
-                a = 0x40 - 0x09;
-            }
-            else
-            {
-                a = 0x30;
-            }
-            if (((int)DataBuffer[(i << 1) + 10]) > 0x39)
-            {
-                b = 0x40 - 0x09;
-            }
-            else
-            {
-                b = 0x30;
-            }
-            StoreDataList.Add((byte)(int)(((DataBuffer[(i << 1) + 9] - a) << 4) + (DataBuffer[(i << 1) + 10] - b)));
-        }
-    }
-    void List2Byte(List<byte> BufferList,byte[] buffer,int length)
-    {
-        for (int i = 0; i < length; i++)
-        {
-            buffer[i] = BufferList[i];
-        }
-    }
-
-    void WritePageData2Flash(SerialPort serialport,List<byte> StoreDataList,List<int> StoreLineAddrList)
-    { 
-        byte[] buffer = new byte[32];
-        WriteFlashACK(serialport, StoreLineAddrList[0], StoreDataList.Count);
-        while (StoreDataList.Count >= 32)
-        {
-            List2Byte(StoreDataList, buffer,32);                                    
-            WriteGeneralFlash(serialport, buffer);
-            StoreDataList.RemoveRange(0, 32);
-            if (StoreDataList.Count == 32)
-            {
-                List2Byte(StoreDataList, buffer, 32);
-                WriteLastFlash(serialport, buffer,32);
-                StoreDataList.RemoveRange(0, 32);                                          
-            }
-            progressBar1.Invoke(new EventHandler(delegate
-            {
-                progressBar1.Value++;
-            }));
-  
-        }
-        if (StoreDataList.Count > 0)
-        {
-            List2Byte(StoreDataList, buffer, StoreDataList.Count);
-            WriteLastFlash(serialPort1, buffer, (UInt16)StoreDataList.Count);
-            StoreDataList.RemoveRange(0, StoreDataList.Count);
-            progressBar1.Invoke(new EventHandler(delegate
-            {
-                progressBar1.Value++;
-            }));
-        }
-    }
-
-    void Upgrade2(object openFileDialog)
-    {
-        List<byte> DataBuffer = new List<byte>(999999);
-        List<int> LineAddr = new List<int>(9999);
-        
-        OpenFileDialog parameter = openFileDialog as OpenFileDialog;//类型转换 
-
-        StreamReader sr = new StreamReader(parameter.FileName.ToString());
-        string s;
-        while ((s = sr.ReadLine()) != null)
-        {
-            byte[] bytes = System.Text.Encoding.ASCII.GetBytes(s);
-            if (bytes[0] == 0x3A)    //:
-            {
-                if ((bytes[7] == 0x30) && (bytes[8] == 0x34))
-                {
-                    if (DataBuffer.Count > 0)
-                    {
-                        WritePageData2Flash(serialPort1, DataBuffer, LineAddr);
-                    }
-                    LineAddr.Clear();
-                }
-                else if ((bytes[7] == 0x30) && (bytes[8] == 0x31))
-                {
-                    if (DataBuffer.Count > 0)
-                    {
-                        WritePageData2Flash(serialPort1, DataBuffer, LineAddr);
-                    }
-                    System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
-                    string DisplayString2 = ConnectUartName[0] + ":升级完成！\r\n";
-                    DisplayString2 = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
-                    OutMsg(MonitorText, DisplayString2, Color.Red);
-                    timer1.Enabled = true;
-
-                }
-                else if (bytes[7] == 0x30 && (bytes[8] == 0x30))  //数据
-                {
-                    GetHexData(bytes, DataBuffer, LineAddr);
-                }
+                textBox3.Text = openFileDialog.FileName.ToString();
             }
         }
     }
 
-
-    void Upgrade3(object openFileDialog)
-    {
-        List<byte> buffer1 = new List<byte>(999999);
-        int getlinelength = 0;
-        int packetlength = 0;
-        List<int> getlineaddr = new List<int>(9999);
-        buffer1.Clear();
-
-        OpenFileDialog parameter = openFileDialog as OpenFileDialog;//类型转换 
-
-        StreamReader sr = new StreamReader(parameter.FileName.ToString());
-        string s;
-        while ((s = sr.ReadLine()) != null)
-        {
-            byte[] bytes = System.Text.Encoding.ASCII.GetBytes(s);
-            if (bytes[0] == 0x3A)    //:
-            {
-                if ((bytes[7] == 0x30) && (bytes[8] == 0x34))
-                {
-                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                    string DisplayString3 = ConnectUartName[1] + ":一块程序正在下载。。。\r\n";
-                    DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-                    OutMsg(MonitorText, DisplayString3, Color.Red);
-                    if (packetlength > 0)
-                    {
-                        serialcommand.WriteMemory_Command(serialPort2, getlineaddr[0], packetlength);
-                        Thread.Sleep(21);
-                        serialcommand.Upgrade_ACKCommand(serialPort2);
-                        while (packetlength >= 32)
-                        {
-                            byte[] buffer = new byte[32];
-                            for (int i = 0; i < 32; i++)
-                            {
-                                buffer[i] = buffer1[i];
-                            }
-                            serialcommand.WriteMemoryData_Command(serialPort2, buffer, 32);
-                            buffer1.RemoveRange(0, 32);
-                            packetlength -= 32;
-                            Thread.Sleep(21);
-                            if (packetlength == 0)
-                            {
-                                serialcommand.Upgrade_ACKCommand(serialPort2);
-                                Thread.Sleep(10);
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString3 = ConnectUartName[1] + ":一块程序下载完成！\r\n";
-                                DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-                                OutMsg(MonitorText, DisplayString3, Color.Red);
-                            }
-                            progressBar2.Invoke(new EventHandler(delegate
-                            {
-                                progressBar2.Value++;
-                            }));
-
-                        }
-                    }
-                    else if (packetlength > 0)
-                    {
-                        byte[] buffer = new byte[32];
-                        for (int i = 0; i < packetlength; i++)
-                        {
-                            buffer[i] = buffer1[i];
-                        }
-                        serialcommand.WriteMemoryData_Command(serialPort2, buffer, (UInt16)packetlength);
-                        buffer1.RemoveRange(0, packetlength);
-                        packetlength -= packetlength;
-                        Thread.Sleep(21);
-                        serialcommand.Upgrade_ACKCommand(serialPort2);
-                      //  Thread.Sleep(10);
-                        converter = new System.Text.ASCIIEncoding();
-                        DisplayString3 = ConnectUartName[1] + ":一块程序下载完成！\r\n";
-                        DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-                        OutMsg(MonitorText, DisplayString3, Color.Red);
-                        progressBar2.Invoke(new EventHandler(delegate
-                        {
-                            progressBar2.Value++;
-                        }));
-                    }
-                    packetlength = 0;
-                    buffer1.Clear();
-                    getlineaddr.Clear();
-                }
-
-                if ((bytes[7] == 0x30) && (bytes[8] == 0x31))
-                {
-
-                    if (packetlength > 0)
-                    {
-                        serialcommand.WriteMemory_Command(serialPort2, getlineaddr[0], packetlength);
-                        Thread.Sleep(22);
-                        serialcommand.Upgrade_ACKCommand(serialPort2);
-                        while (packetlength >= 32)
-                        {
-                            byte[] buffer = new byte[32];
-                            for (int i = 0; i < 32; i++)
-                            {
-                                buffer[i] = buffer1[i];
-                            }
-                            serialcommand.WriteMemoryData_Command(serialPort2, buffer, 32);
-                            buffer1.RemoveRange(0, 32);
-                            packetlength -= 32;
-                            Thread.Sleep(22);
-                            progressBar2.Invoke(new EventHandler(delegate
-                            {
-                                progressBar2.Value++;
-                            }));
-                            if (packetlength == 0)
-                            {
-                                serialcommand.Upgrade_ACKCommand(serialPort2);
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString3 = ConnectUartName[1] + ":一块程序下载完成！\r\n";
-                                DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-                                OutMsg(MonitorText, DisplayString3, Color.Red);
-                            }
-                        }
-
-                        if (packetlength > 0)
-                        {
-                            byte[] buffer = new byte[32];
-                            for (int i = 0; i < packetlength; i++)
-                            {
-                                buffer[i] = buffer1[i];
-                            }
-                            serialcommand.WriteMemoryData_Command(serialPort2, buffer, (UInt16)packetlength);
-                            buffer1.RemoveRange(0, packetlength);
-                            packetlength -= packetlength;
-                            Thread.Sleep(22);
-                            serialcommand.Upgrade_ACKCommand(serialPort2);
-                            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                            string DisplayString3 = ConnectUartName[1] + ":一块程序下载完成！\r\n";
-                            DisplayString3 = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
-                            OutMsg(MonitorText, DisplayString3, Color.Red);
-                            progressBar2.Invoke(new EventHandler(delegate
-                            {
-                                progressBar2.Value++;
-                            }));
-                        }
-
-                    }
-                    System.Text.ASCIIEncoding converter2 = new System.Text.ASCIIEncoding();
-                    string DisplayString2 = ConnectUartName[1] + ":升级完成！\r\n";
-                    DisplayString2 = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
-                    OutMsg(MonitorText, DisplayString2, Color.Red);
-
-                    timer1.Enabled = true;
-
-                    packetlength = 0;
-                    buffer1.Clear();
-                    getlineaddr.Clear();
-                }
-                else if (bytes[7] == 0x30 && (bytes[8] == 0x30))  //数据
-                {
-                    int c, d, h, f, g;
-                    if (((int)bytes[2]) > 0x39)
-                    {
-                        c = 0x40 - 0x09;
-                    }
-                    else
-                    {
-                        c = 0x30;
-                    }
-                    if (((int)bytes[3]) > 0x39)
-                    {
-                        d = 0x40 - 0x09;
-                    }
-                    else
-                    {
-                        d = 0x30;
-                    }
-                    if (((int)bytes[4]) > 0x39)
-                    {
-                        h = 0x40 - 0x09;
-                    }
-                    else
-                    {
-                        h = 0x30;
-                    }
-                    if (((int)bytes[5]) > 0x39)
-                    {
-                        f = 0x40 - 0x09;
-                    }
-                    else
-                    {
-                        f = 0x30;
-                    }
-                    if (((int)bytes[6]) > 0x39)
-                    {
-                        g = 0x40 - 0x09;
-                    }
-                    else
-                    {
-                        g = 0x30;
-                    }
-                    getlinelength = ((bytes[1] - 0x30) << 4) + (bytes[2] - c);
-                    getlineaddr.Add(((bytes[3] - d) << 12) + ((bytes[4] - h) << 8) + ((bytes[5] - f) << 4) + (bytes[6] - g));
-                    for (int i = 0; i < getlinelength; i++)
-                    {
-                        int a, b;
-                        if (((int)bytes[(i << 1) + 9]) > 0x39)
-                        {
-                            a = 0x40 - 0x09;
-                        }
-                        else
-                        {
-                            a = 0x30;
-                        }
-                        if (((int)bytes[(i << 1) + 10]) > 0x39)
-                        {
-                            b = 0x40 - 0x09;
-                        }
-                        else
-                        {
-                            b = 0x30;
-                        }
-                        buffer1.Add((byte)(int)(((bytes[(i << 1) + 9] - a) << 4) + (bytes[(i << 1) + 10] - b)));
-                    }
-                    packetlength += getlinelength;
-                }
-            }
-        }
-    }
-
-    }
 }

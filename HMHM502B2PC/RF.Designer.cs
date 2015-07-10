@@ -54,13 +54,14 @@
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.label4 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.comboBoxPortel = new System.Windows.Forms.ComboBox();
             this.comboBoxCom = new System.Windows.Forms.ComboBox();
             this.SerialSetButton = new System.Windows.Forms.Button();
             this.DataStoreButton = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.Timer = new System.Timers.Timer();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.skinEngine1 = new Sunisoft.IrisSkin.SkinEngine(((System.ComponentModel.Component)(this)));
@@ -69,26 +70,16 @@
             this.MACComboBox = new System.Windows.Forms.ComboBox();
             this.ConnectBLEButton = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
-            this.BLENUMlabel = new System.Windows.Forms.Label();
             this.PauseButton = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
             this.textBoxScan = new System.Windows.Forms.TextBox();
             this.IDValuebutton = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.UpDataButton = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
-            this.statusStrip2 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.EcgPatchVersionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button1 = new System.Windows.Forms.Button();
             this.AmplificationValue = new System.Windows.Forms.Label();
@@ -111,6 +102,25 @@
             this.progressBar2 = new System.Windows.Forms.ProgressBar();
             this.progressBar3 = new System.Windows.Forms.ProgressBar();
             this.progressBar4 = new System.Windows.Forms.ProgressBar();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.statusStrip2 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.EcgPatchVersionLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -118,8 +128,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
-            this.statusStrip2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
+            this.statusStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // Lea
@@ -130,9 +143,10 @@
             this.Lea.Controls.Add(this.BatteryValue);
             this.Lea.Controls.Add(this.label3);
             this.Lea.Controls.Add(this.label8);
-            this.Lea.Location = new System.Drawing.Point(602, 12);
+            this.Lea.Controls.Add(this.label1);
+            this.Lea.Location = new System.Drawing.Point(408, 31);
             this.Lea.Name = "Lea";
-            this.Lea.Size = new System.Drawing.Size(179, 104);
+            this.Lea.Size = new System.Drawing.Size(144, 142);
             this.Lea.TabIndex = 1;
             // 
             // label12
@@ -190,7 +204,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label1.Location = new System.Drawing.Point(677, 6);
+            this.label1.Location = new System.Drawing.Point(59, -1);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(35, 14);
             this.label1.TabIndex = 1;
@@ -204,7 +218,7 @@
             this.toolStripStatusLabel2});
             this.statusStrip1.Location = new System.Drawing.Point(0, 630);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1063, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1108, 22);
             this.statusStrip1.SizingGrip = false;
             this.statusStrip1.TabIndex = 3;
             // 
@@ -232,7 +246,7 @@
             this.panel3.Controls.Add(this.trackBar1);
             this.panel3.Controls.Add(this.radioButton2);
             this.panel3.Controls.Add(this.radioButton1);
-            this.panel3.Location = new System.Drawing.Point(600, 313);
+            this.panel3.Location = new System.Drawing.Point(371, 209);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(181, 255);
             this.panel3.TabIndex = 5;
@@ -332,7 +346,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label4.Location = new System.Drawing.Point(668, 307);
+            this.label4.Location = new System.Drawing.Point(126, 182);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 14);
             this.label4.TabIndex = 6;
@@ -341,30 +355,17 @@
             // panel4
             // 
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel4.Controls.Add(this.checkBox2);
             this.panel4.Controls.Add(this.comboBoxPortel);
             this.panel4.Controls.Add(this.comboBoxCom);
             this.panel4.Controls.Add(this.SerialSetButton);
             this.panel4.Controls.Add(this.DataStoreButton);
             this.panel4.Controls.Add(this.label7);
             this.panel4.Controls.Add(this.label6);
-            this.panel4.Location = new System.Drawing.Point(600, 125);
+            this.panel4.Controls.Add(this.label2);
+            this.panel4.Location = new System.Drawing.Point(628, 31);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(181, 170);
+            this.panel4.Size = new System.Drawing.Size(231, 208);
             this.panel4.TabIndex = 7;
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Checked = true;
-            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox2.Location = new System.Drawing.Point(43, 138);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(96, 16);
-            this.checkBox2.TabIndex = 18;
-            this.checkBox2.Text = "串口自动连接";
-            this.checkBox2.UseVisualStyleBackColor = true;
-            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
             // 
             // comboBoxPortel
             // 
@@ -374,7 +375,7 @@
             this.comboBoxPortel.Items.AddRange(new object[] {
             "9600",
             "57600"});
-            this.comboBoxPortel.Location = new System.Drawing.Point(80, 57);
+            this.comboBoxPortel.Location = new System.Drawing.Point(67, 57);
             this.comboBoxPortel.Name = "comboBoxPortel";
             this.comboBoxPortel.Size = new System.Drawing.Size(86, 24);
             this.comboBoxPortel.TabIndex = 17;
@@ -434,6 +435,29 @@
             this.label6.TabIndex = 15;
             this.label6.Text = "波特率";
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Location = new System.Drawing.Point(98, 172);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(35, 14);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "设置";
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Checked = true;
+            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox2.Location = new System.Drawing.Point(526, 180);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(96, 16);
+            this.checkBox2.TabIndex = 18;
+            this.checkBox2.Text = "串口自动连接";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            // 
             // Timer
             // 
             this.Timer.Interval = 0.1D;
@@ -447,9 +471,9 @@
             // 
             // MonitorText
             // 
-            this.MonitorText.Location = new System.Drawing.Point(787, 12);
+            this.MonitorText.Location = new System.Drawing.Point(837, 23);
             this.MonitorText.Name = "MonitorText";
-            this.MonitorText.Size = new System.Drawing.Size(271, 248);
+            this.MonitorText.Size = new System.Drawing.Size(271, 604);
             this.MonitorText.TabIndex = 8;
             this.MonitorText.Text = "";
             this.MonitorText.TextChanged += new System.EventHandler(this.richTextBox3_TextChanged_1);
@@ -458,7 +482,7 @@
             // 
             this.ScanButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.ScanButton.Enabled = false;
-            this.ScanButton.Location = new System.Drawing.Point(880, 316);
+            this.ScanButton.Location = new System.Drawing.Point(598, 310);
             this.ScanButton.Name = "ScanButton";
             this.ScanButton.Size = new System.Drawing.Size(93, 23);
             this.ScanButton.TabIndex = 10;
@@ -472,7 +496,7 @@
             this.MACComboBox.FormattingEnabled = true;
             this.MACComboBox.Items.AddRange(new object[] {
             "无设备"});
-            this.MACComboBox.Location = new System.Drawing.Point(794, 290);
+            this.MACComboBox.Location = new System.Drawing.Point(558, 284);
             this.MACComboBox.Name = "MACComboBox";
             this.MACComboBox.Size = new System.Drawing.Size(257, 20);
             this.MACComboBox.TabIndex = 11;
@@ -482,7 +506,7 @@
             // 
             this.ConnectBLEButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.ConnectBLEButton.Enabled = false;
-            this.ConnectBLEButton.Location = new System.Drawing.Point(965, 345);
+            this.ConnectBLEButton.Location = new System.Drawing.Point(723, 310);
             this.ConnectBLEButton.Name = "ConnectBLEButton";
             this.ConnectBLEButton.Size = new System.Drawing.Size(93, 23);
             this.ConnectBLEButton.TabIndex = 18;
@@ -493,26 +517,17 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(792, 270);
+            this.label11.Location = new System.Drawing.Point(579, 263);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(125, 12);
             this.label11.TabIndex = 21;
             this.label11.Text = "搜索到的蓝牙设备MAC:";
             // 
-            // BLENUMlabel
-            // 
-            this.BLENUMlabel.AutoSize = true;
-            this.BLENUMlabel.ForeColor = System.Drawing.Color.Blue;
-            this.BLENUMlabel.Location = new System.Drawing.Point(932, 344);
-            this.BLENUMlabel.Name = "BLENUMlabel";
-            this.BLENUMlabel.Size = new System.Drawing.Size(0, 12);
-            this.BLENUMlabel.TabIndex = 22;
-            // 
             // PauseButton
             // 
             this.PauseButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.PauseButton.Enabled = false;
-            this.PauseButton.Location = new System.Drawing.Point(965, 374);
+            this.PauseButton.Location = new System.Drawing.Point(722, 339);
             this.PauseButton.Name = "PauseButton";
             this.PauseButton.Size = new System.Drawing.Size(93, 23);
             this.PauseButton.TabIndex = 24;
@@ -520,19 +535,9 @@
             this.PauseButton.UseVisualStyleBackColor = false;
             this.PauseButton.Click += new System.EventHandler(this.PauseButton_Click);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(662, 119);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 14);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "设置";
-            // 
             // textBoxScan
             // 
-            this.textBoxScan.Location = new System.Drawing.Point(797, 401);
+            this.textBoxScan.Location = new System.Drawing.Point(563, 379);
             this.textBoxScan.MaxLength = 10;
             this.textBoxScan.Name = "textBoxScan";
             this.textBoxScan.Size = new System.Drawing.Size(157, 21);
@@ -543,7 +548,7 @@
             // IDValuebutton
             // 
             this.IDValuebutton.Enabled = false;
-            this.IDValuebutton.Location = new System.Drawing.Point(965, 401);
+            this.IDValuebutton.Location = new System.Drawing.Point(722, 379);
             this.IDValuebutton.Name = "IDValuebutton";
             this.IDValuebutton.Size = new System.Drawing.Size(93, 23);
             this.IDValuebutton.TabIndex = 29;
@@ -551,21 +556,21 @@
             this.IDValuebutton.UseVisualStyleBackColor = true;
             this.IDValuebutton.Click += new System.EventHandler(this.IDValuebutton_Click);
             // 
-            // button2
+            // UpDataButton
             // 
-            this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(486, 581);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(93, 23);
-            this.button2.TabIndex = 30;
-            this.button2.Text = "程序下载";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.UpDataButton.Enabled = false;
+            this.UpDataButton.Location = new System.Drawing.Point(100, 181);
+            this.UpDataButton.Name = "UpDataButton";
+            this.UpDataButton.Size = new System.Drawing.Size(93, 23);
+            this.UpDataButton.TabIndex = 30;
+            this.UpDataButton.Text = "程序下载";
+            this.UpDataButton.UseVisualStyleBackColor = true;
+            this.UpDataButton.Click += new System.EventHandler(this.button2_Click);
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(795, 377);
+            this.label10.Location = new System.Drawing.Point(566, 344);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(137, 12);
             this.label10.TabIndex = 31;
@@ -575,7 +580,7 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Enabled = false;
-            this.checkBox1.Location = new System.Drawing.Point(955, 268);
+            this.checkBox1.Location = new System.Drawing.Point(722, 262);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(96, 16);
             this.checkBox1.TabIndex = 33;
@@ -586,7 +591,7 @@
             // button5
             // 
             this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(801, 429);
+            this.button5.Location = new System.Drawing.Point(579, 406);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(93, 23);
             this.button5.TabIndex = 36;
@@ -597,7 +602,7 @@
             // button6
             // 
             this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(965, 527);
+            this.button6.Location = new System.Drawing.Point(709, 529);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(93, 23);
             this.button6.TabIndex = 37;
@@ -607,7 +612,7 @@
             // 
             // textBox5
             // 
-            this.textBox5.Location = new System.Drawing.Point(794, 527);
+            this.textBox5.Location = new System.Drawing.Point(538, 529);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(165, 21);
             this.textBox5.TabIndex = 38;
@@ -616,11 +621,333 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(844, 500);
+            this.label13.Location = new System.Drawing.Point(577, 500);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(143, 12);
             this.label13.TabIndex = 39;
             this.label13.Text = "设置配对心电补丁MAC地址";
+            // 
+            // chart1
+            // 
+            chartArea1.AxisX.Interval = 128D;
+            chartArea1.AxisX.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
+            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea1.AxisX.Maximum = 512D;
+            chartArea1.AxisX.Minimum = 0D;
+            chartArea1.AxisX.MinorGrid.Enabled = true;
+            chartArea1.AxisX.MinorGrid.Interval = 16D;
+            chartArea1.AxisX.MinorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea1.AxisX.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
+            chartArea1.AxisX.Title = "时间/ms";
+            chartArea1.AxisY.Interval = 1000D;
+            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea1.AxisY.Maximum = 6000D;
+            chartArea1.AxisY.Minimum = -6000D;
+            chartArea1.AxisY.MinorGrid.Enabled = true;
+            chartArea1.AxisY.MinorGrid.Interval = 200D;
+            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
+            chartArea1.AxisY.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.DashDotDot;
+            chartArea1.AxisY.MinorTickMark.LineColor = System.Drawing.Color.White;
+            chartArea1.AxisY.Title = "心电数据/1uv";
+            chartArea1.BackColor = System.Drawing.Color.Black;
+            chartArea1.Name = "ChartArea_Ecg";
+            this.chart1.ChartAreas.Add(chartArea1);
+            this.chart1.Location = new System.Drawing.Point(39, 14);
+            this.chart1.Name = "chart1";
+            series1.ChartArea = "ChartArea_Ecg";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series1.Color = System.Drawing.Color.Lime;
+            series1.Name = "Series_Ecg";
+            dataPoint1.ToolTip = "#VAL";
+            series1.Points.Add(dataPoint1);
+            series1.ShadowColor = System.Drawing.Color.Red;
+            series1.YValuesPerPoint = 2;
+            this.chart1.Series.Add(series1);
+            this.chart1.Size = new System.Drawing.Size(242, 319);
+            this.chart1.TabIndex = 41;
+            this.chart1.Text = "chart1";
+            this.chart1.GetToolTipText += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.ToolTipEventArgs>(this.chart1_GetToolTipText);
+            this.chart1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseDown);
+            this.chart1.MouseEnter += new System.EventHandler(this.chart1_MouseEnter);
+            this.chart1.MouseLeave += new System.EventHandler(this.chart1_MouseLeave);
+            this.chart1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseUp);
+            // 
+            // button1
+            // 
+            this.button1.Enabled = false;
+            this.button1.Location = new System.Drawing.Point(579, 441);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(93, 23);
+            this.button1.TabIndex = 42;
+            this.button1.Text = "0Mv校准";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // AmplificationValue
+            // 
+            this.AmplificationValue.AutoSize = true;
+            this.AmplificationValue.Location = new System.Drawing.Point(678, 411);
+            this.AmplificationValue.Name = "AmplificationValue";
+            this.AmplificationValue.Size = new System.Drawing.Size(137, 12);
+            this.AmplificationValue.TabIndex = 43;
+            this.AmplificationValue.Text = "未定标或无法获取定标值";
+            this.AmplificationValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // differenceValue
+            // 
+            this.differenceValue.AutoSize = true;
+            this.differenceValue.Location = new System.Drawing.Point(678, 447);
+            this.differenceValue.Name = "differenceValue";
+            this.differenceValue.Size = new System.Drawing.Size(137, 12);
+            this.differenceValue.TabIndex = 44;
+            this.differenceValue.Text = "未定标或无法获取定标值";
+            this.differenceValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(7, 541);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(47, 12);
+            this.label15.TabIndex = 45;
+            this.label15.Text = "label15";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(7, 559);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(47, 12);
+            this.label16.TabIndex = 46;
+            this.label16.Text = "label16";
+            this.label16.Visible = false;
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(214, 540);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(137, 12);
+            this.label17.TabIndex = 47;
+            this.label17.Text = "获取的第一个点的值:0mV";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(214, 559);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(137, 12);
+            this.label18.TabIndex = 48;
+            this.label18.Text = "获取的第二个点的值:0mV";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(392, 559);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(65, 12);
+            this.label19.TabIndex = 49;
+            this.label19.Text = "高度差:0mV";
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(307, 173);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(130, 17);
+            this.progressBar1.TabIndex = 50;
+            // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(216, 173);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(60, 16);
+            this.checkBox3.TabIndex = 51;
+            this.checkBox3.Text = "未连接";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            // 
+            // checkBox4
+            // 
+            this.checkBox4.AutoSize = true;
+            this.checkBox4.Location = new System.Drawing.Point(216, 195);
+            this.checkBox4.Name = "checkBox4";
+            this.checkBox4.Size = new System.Drawing.Size(60, 16);
+            this.checkBox4.TabIndex = 52;
+            this.checkBox4.Text = "未连接";
+            this.checkBox4.UseVisualStyleBackColor = true;
+            // 
+            // checkBox5
+            // 
+            this.checkBox5.AutoSize = true;
+            this.checkBox5.Location = new System.Drawing.Point(216, 221);
+            this.checkBox5.Name = "checkBox5";
+            this.checkBox5.Size = new System.Drawing.Size(60, 16);
+            this.checkBox5.TabIndex = 53;
+            this.checkBox5.Text = "未连接";
+            this.checkBox5.UseVisualStyleBackColor = true;
+            // 
+            // checkBox6
+            // 
+            this.checkBox6.AutoSize = true;
+            this.checkBox6.Location = new System.Drawing.Point(216, 243);
+            this.checkBox6.Name = "checkBox6";
+            this.checkBox6.Size = new System.Drawing.Size(60, 16);
+            this.checkBox6.TabIndex = 54;
+            this.checkBox6.Text = "未连接";
+            this.checkBox6.UseVisualStyleBackColor = true;
+            // 
+            // progressBar2
+            // 
+            this.progressBar2.Location = new System.Drawing.Point(307, 196);
+            this.progressBar2.Name = "progressBar2";
+            this.progressBar2.Size = new System.Drawing.Size(130, 17);
+            this.progressBar2.TabIndex = 55;
+            // 
+            // progressBar3
+            // 
+            this.progressBar3.Location = new System.Drawing.Point(307, 219);
+            this.progressBar3.Name = "progressBar3";
+            this.progressBar3.Size = new System.Drawing.Size(130, 17);
+            this.progressBar3.TabIndex = 56;
+            // 
+            // progressBar4
+            // 
+            this.progressBar4.Location = new System.Drawing.Point(307, 242);
+            this.progressBar4.Name = "progressBar4";
+            this.progressBar4.Size = new System.Drawing.Size(130, 17);
+            this.progressBar4.TabIndex = 57;
+            // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Location = new System.Drawing.Point(0, 23);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(831, 604);
+            this.tabControl1.TabIndex = 59;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.checkBox2);
+            this.tabPage1.Controls.Add(this.chart1);
+            this.tabPage1.Controls.Add(this.label18);
+            this.tabPage1.Controls.Add(this.label19);
+            this.tabPage1.Controls.Add(this.label17);
+            this.tabPage1.Controls.Add(this.panel4);
+            this.tabPage1.Controls.Add(this.label16);
+            this.tabPage1.Controls.Add(this.Lea);
+            this.tabPage1.Controls.Add(this.label15);
+            this.tabPage1.Controls.Add(this.label11);
+            this.tabPage1.Controls.Add(this.panel3);
+            this.tabPage1.Controls.Add(this.label4);
+            this.tabPage1.Controls.Add(this.MACComboBox);
+            this.tabPage1.Controls.Add(this.checkBox1);
+            this.tabPage1.Controls.Add(this.ScanButton);
+            this.tabPage1.Controls.Add(this.PauseButton);
+            this.tabPage1.Controls.Add(this.ConnectBLEButton);
+            this.tabPage1.Controls.Add(this.textBoxScan);
+            this.tabPage1.Controls.Add(this.IDValuebutton);
+            this.tabPage1.Controls.Add(this.label10);
+            this.tabPage1.Controls.Add(this.differenceValue);
+            this.tabPage1.Controls.Add(this.button5);
+            this.tabPage1.Controls.Add(this.AmplificationValue);
+            this.tabPage1.Controls.Add(this.button6);
+            this.tabPage1.Controls.Add(this.button1);
+            this.tabPage1.Controls.Add(this.textBox5);
+            this.tabPage1.Controls.Add(this.label13);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(823, 578);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "心电补丁测试";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.label22);
+            this.tabPage2.Controls.Add(this.label21);
+            this.tabPage2.Controls.Add(this.label20);
+            this.tabPage2.Controls.Add(this.label9);
+            this.tabPage2.Controls.Add(this.button2);
+            this.tabPage2.Controls.Add(this.textBox3);
+            this.tabPage2.Controls.Add(this.statusStrip2);
+            this.tabPage2.Controls.Add(this.UpDataButton);
+            this.tabPage2.Controls.Add(this.progressBar4);
+            this.tabPage2.Controls.Add(this.progressBar1);
+            this.tabPage2.Controls.Add(this.progressBar3);
+            this.tabPage2.Controls.Add(this.checkBox3);
+            this.tabPage2.Controls.Add(this.progressBar2);
+            this.tabPage2.Controls.Add(this.checkBox4);
+            this.tabPage2.Controls.Add(this.checkBox6);
+            this.tabPage2.Controls.Add(this.checkBox5);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(823, 578);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "程序下载";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(477, 247);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(53, 12);
+            this.label22.TabIndex = 65;
+            this.label22.Text = "等待下载";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(477, 225);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(53, 12);
+            this.label21.TabIndex = 64;
+            this.label21.Text = "等待下载";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(477, 199);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(53, 12);
+            this.label20.TabIndex = 63;
+            this.label20.Text = "等待下载";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(477, 173);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(53, 12);
+            this.label9.TabIndex = 62;
+            this.label9.Text = "等待下载";
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(182, 101);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(109, 23);
+            this.button2.TabIndex = 60;
+            this.button2.Text = "选择下载文件";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(310, 101);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(273, 21);
+            this.textBox3.TabIndex = 59;
+            this.textBox3.Text = "D:\\HM502B2.hex";
             // 
             // statusStrip2
             // 
@@ -635,11 +962,11 @@
             this.toolStripStatusLabel6,
             this.toolStripStatusLabel5,
             this.EcgPatchVersionLabel});
-            this.statusStrip2.Location = new System.Drawing.Point(1046, 608);
+            this.statusStrip2.Location = new System.Drawing.Point(367, 411);
             this.statusStrip2.Name = "statusStrip2";
             this.statusStrip2.Size = new System.Drawing.Size(17, 22);
             this.statusStrip2.SizingGrip = false;
-            this.statusStrip2.TabIndex = 40;
+            this.statusStrip2.TabIndex = 58;
             // 
             // toolStripStatusLabel3
             // 
@@ -676,253 +1003,39 @@
             this.EcgPatchVersionLabel.Name = "EcgPatchVersionLabel";
             this.EcgPatchVersionLabel.Size = new System.Drawing.Size(0, 17);
             // 
-            // chart1
+            // tabPage3
             // 
-            chartArea1.AxisX.Interval = 128D;
-            chartArea1.AxisX.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
-            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisX.Maximum = 512D;
-            chartArea1.AxisX.Minimum = 0D;
-            chartArea1.AxisX.MinorGrid.Enabled = true;
-            chartArea1.AxisX.MinorGrid.Interval = 16D;
-            chartArea1.AxisX.MinorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisX.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dot;
-            chartArea1.AxisX.Title = "时间/ms";
-            chartArea1.AxisY.Interval = 1000D;
-            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisY.Maximum = 6000D;
-            chartArea1.AxisY.Minimum = -6000D;
-            chartArea1.AxisY.MinorGrid.Enabled = true;
-            chartArea1.AxisY.MinorGrid.Interval = 200D;
-            chartArea1.AxisY.MinorGrid.LineColor = System.Drawing.Color.Gray;
-            chartArea1.AxisY.MinorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.DashDotDot;
-            chartArea1.AxisY.MinorTickMark.LineColor = System.Drawing.Color.White;
-            chartArea1.AxisY.Title = "心电数据/1uv";
-            chartArea1.BackColor = System.Drawing.Color.Black;
-            chartArea1.Name = "ChartArea_Ecg";
-            this.chart1.ChartAreas.Add(chartArea1);
-            this.chart1.Location = new System.Drawing.Point(0, 12);
-            this.chart1.Name = "chart1";
-            series1.ChartArea = "ChartArea_Ecg";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series1.Color = System.Drawing.Color.Lime;
-            series1.Name = "Series_Ecg";
-            dataPoint1.ToolTip = "#VAL";
-            series1.Points.Add(dataPoint1);
-            series1.ShadowColor = System.Drawing.Color.Red;
-            series1.YValuesPerPoint = 2;
-            this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(594, 556);
-            this.chart1.TabIndex = 41;
-            this.chart1.Text = "chart1";
-            this.chart1.GetToolTipText += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.ToolTipEventArgs>(this.chart1_GetToolTipText);
-            this.chart1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseDown);
-            this.chart1.MouseEnter += new System.EventHandler(this.chart1_MouseEnter);
-            this.chart1.MouseLeave += new System.EventHandler(this.chart1_MouseLeave);
-            this.chart1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseUp);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(823, 578);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "数据保存";
+            this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // menuStrip2
             // 
-            this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(801, 464);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(93, 23);
-            this.button1.TabIndex = 42;
-            this.button1.Text = "0Mv校准";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // AmplificationValue
-            // 
-            this.AmplificationValue.AutoSize = true;
-            this.AmplificationValue.Location = new System.Drawing.Point(900, 434);
-            this.AmplificationValue.Name = "AmplificationValue";
-            this.AmplificationValue.Size = new System.Drawing.Size(137, 12);
-            this.AmplificationValue.TabIndex = 43;
-            this.AmplificationValue.Text = "未定标或无法获取定标值";
-            this.AmplificationValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // differenceValue
-            // 
-            this.differenceValue.AutoSize = true;
-            this.differenceValue.Location = new System.Drawing.Point(900, 470);
-            this.differenceValue.Name = "differenceValue";
-            this.differenceValue.Size = new System.Drawing.Size(137, 12);
-            this.differenceValue.TabIndex = 44;
-            this.differenceValue.Text = "未定标或无法获取定标值";
-            this.differenceValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // timer1
-            // 
-            this.timer1.Enabled = true;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(12, 575);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(47, 12);
-            this.label15.TabIndex = 45;
-            this.label15.Text = "label15";
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(12, 593);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(47, 12);
-            this.label16.TabIndex = 46;
-            this.label16.Text = "label16";
-            this.label16.Visible = false;
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(219, 574);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(137, 12);
-            this.label17.TabIndex = 47;
-            this.label17.Text = "获取的第一个点的值:0mV";
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(219, 593);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(137, 12);
-            this.label18.TabIndex = 48;
-            this.label18.Text = "获取的第二个点的值:0mV";
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(382, 581);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(65, 12);
-            this.label19.TabIndex = 49;
-            this.label19.Text = "高度差:0mV";
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(693, 573);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(130, 17);
-            this.progressBar1.TabIndex = 50;
-            // 
-            // checkBox3
-            // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(602, 573);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(60, 16);
-            this.checkBox3.TabIndex = 51;
-            this.checkBox3.Text = "未连接";
-            this.checkBox3.UseVisualStyleBackColor = true;
-            // 
-            // checkBox4
-            // 
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Location = new System.Drawing.Point(602, 595);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(60, 16);
-            this.checkBox4.TabIndex = 52;
-            this.checkBox4.Text = "未连接";
-            this.checkBox4.UseVisualStyleBackColor = true;
-            // 
-            // checkBox5
-            // 
-            this.checkBox5.AutoSize = true;
-            this.checkBox5.Location = new System.Drawing.Point(846, 575);
-            this.checkBox5.Name = "checkBox5";
-            this.checkBox5.Size = new System.Drawing.Size(60, 16);
-            this.checkBox5.TabIndex = 53;
-            this.checkBox5.Text = "未连接";
-            this.checkBox5.UseVisualStyleBackColor = true;
-            // 
-            // checkBox6
-            // 
-            this.checkBox6.AutoSize = true;
-            this.checkBox6.Location = new System.Drawing.Point(846, 599);
-            this.checkBox6.Name = "checkBox6";
-            this.checkBox6.Size = new System.Drawing.Size(60, 16);
-            this.checkBox6.TabIndex = 54;
-            this.checkBox6.Text = "未连接";
-            this.checkBox6.UseVisualStyleBackColor = true;
-            // 
-            // progressBar2
-            // 
-            this.progressBar2.Location = new System.Drawing.Point(693, 596);
-            this.progressBar2.Name = "progressBar2";
-            this.progressBar2.Size = new System.Drawing.Size(130, 17);
-            this.progressBar2.TabIndex = 55;
-            // 
-            // progressBar3
-            // 
-            this.progressBar3.Location = new System.Drawing.Point(928, 598);
-            this.progressBar3.Name = "progressBar3";
-            this.progressBar3.Size = new System.Drawing.Size(130, 17);
-            this.progressBar3.TabIndex = 56;
-            // 
-            // progressBar4
-            // 
-            this.progressBar4.Location = new System.Drawing.Point(928, 575);
-            this.progressBar4.Name = "progressBar4";
-            this.progressBar4.Size = new System.Drawing.Size(130, 17);
-            this.progressBar4.TabIndex = 57;
+            this.menuStrip2.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip2.Name = "menuStrip2";
+            this.menuStrip2.Size = new System.Drawing.Size(1108, 24);
+            this.menuStrip2.TabIndex = 60;
+            this.menuStrip2.Text = "menuStrip2";
             // 
             // RF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ButtonShadow;
-            this.ClientSize = new System.Drawing.Size(1063, 652);
-            this.Controls.Add(this.progressBar4);
-            this.Controls.Add(this.progressBar3);
-            this.Controls.Add(this.progressBar2);
-            this.Controls.Add(this.checkBox6);
-            this.Controls.Add(this.checkBox5);
-            this.Controls.Add(this.checkBox4);
-            this.Controls.Add(this.checkBox3);
-            this.Controls.Add(this.progressBar1);
-            this.Controls.Add(this.label19);
-            this.Controls.Add(this.label18);
-            this.Controls.Add(this.label17);
-            this.Controls.Add(this.label16);
-            this.Controls.Add(this.label15);
-            this.Controls.Add(this.differenceValue);
-            this.Controls.Add(this.AmplificationValue);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.chart1);
-            this.Controls.Add(this.statusStrip2);
-            this.Controls.Add(this.label13);
-            this.Controls.Add(this.textBox5);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.label10);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.IDValuebutton);
-            this.Controls.Add(this.textBoxScan);
-            this.Controls.Add(this.PauseButton);
-            this.Controls.Add(this.BLENUMlabel);
-            this.Controls.Add(this.label11);
-            this.Controls.Add(this.ConnectBLEButton);
-            this.Controls.Add(this.MACComboBox);
-            this.Controls.Add(this.ScanButton);
+            this.ClientSize = new System.Drawing.Size(1108, 652);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.MonitorText);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.panel3);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.Lea);
-            this.Controls.Add(this.panel4);
+            this.Controls.Add(this.menuStrip2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RF";
             this.Text = "HM502B2心电数据显示软件V1.00(20150706)";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.RF_FormClosed);
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();
@@ -935,9 +1048,14 @@
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
             this.statusStrip2.ResumeLayout(false);
             this.statusStrip2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -976,13 +1094,12 @@
         private System.Windows.Forms.TextBox BatteryValue;
         private System.Windows.Forms.RichTextBox Lead;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Label BLENUMlabel;
         private System.Windows.Forms.Button PauseButton;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button IDValuebutton;
         private System.Windows.Forms.TextBox textBoxScan;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button UpDataButton;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.CheckBox checkBox1;
@@ -990,19 +1107,11 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.StatusStrip statusStrip2;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
-        private System.Windows.Forms.ToolStripStatusLabel EcgPatchVersionLabel;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label differenceValue;
         private System.Windows.Forms.Label AmplificationValue;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
@@ -1023,6 +1132,25 @@
         private System.Windows.Forms.ProgressBar progressBar4;
         private System.Windows.Forms.ProgressBar progressBar3;
         private System.Windows.Forms.ProgressBar progressBar2;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.MenuStrip menuStrip2;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.StatusStrip statusStrip2;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
+        private System.Windows.Forms.ToolStripStatusLabel EcgPatchVersionLabel;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label9;
     }
 }
 
