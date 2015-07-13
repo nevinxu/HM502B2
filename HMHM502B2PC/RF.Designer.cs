@@ -121,6 +121,7 @@
             this.EcgPatchVersionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
+            this.serialPort5 = new System.IO.Ports.SerialPort(this.components);
             this.Lea.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -374,7 +375,7 @@
             this.comboBoxPortel.FormattingEnabled = true;
             this.comboBoxPortel.Items.AddRange(new object[] {
             "9600",
-            "57600"});
+            "115200"});
             this.comboBoxPortel.Location = new System.Drawing.Point(67, 57);
             this.comboBoxPortel.Name = "comboBoxPortel";
             this.comboBoxPortel.Size = new System.Drawing.Size(86, 24);
@@ -1151,6 +1152,7 @@
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Label label9;
+        private System.IO.Ports.SerialPort serialPort5;
     }
 }
 

@@ -47,6 +47,7 @@ namespace MotionSensor
         private List<byte> SerialReceiveData2 = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
         private List<byte> SerialReceiveData3 = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
         private List<byte> SerialReceiveData4 = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
+        private List<byte> SerialReceiveData5 = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
         private List<double> SerialEcgData = new List<double>(512);//默认分配1页内存，并始终限制不允许超
 
         private byte EcgCaptureFlag = 0;
@@ -210,18 +211,22 @@ namespace MotionSensor
                         DownLoadFlag[i] = 13;
                         if (i == 0)
                         {
+                            SerialReceiveData.Clear();
                             UpDataComUpDataConnectReq(serialPort1);
                         }
                         else if (i == 1)
                         {
+                            SerialReceiveData2.Clear();
                             UpDataComUpDataConnectReq(serialPort2);
                         }
                         else if (i == 2)
                         {
+                            SerialReceiveData3.Clear();
                             UpDataComUpDataConnectReq(serialPort3);
                         }
                         else if (i == 3)
                         {
+                            SerialReceiveData4.Clear();
                             UpDataComUpDataConnectReq(serialPort4);
                         }
                         Thread.Sleep(500);
@@ -334,16 +339,20 @@ namespace MotionSensor
                         }
                     }
                 }
-                //else
-                //{
-                //    Thread.Sleep(1000);
-                //}
                 if (checkBox3.Checked == true || (checkBox4.Checked == true) || (checkBox5.Checked == true) || (checkBox6.Checked == true))
                 {
                     UpDataButton.Invoke(new EventHandler(delegate
                     {
                         UpDataButton.Enabled = true;
                         tabControl1.TabPages[1].Text = "程序下载（可升级）";
+                    }));
+                }
+                else
+                {
+                    UpDataButton.Invoke(new EventHandler(delegate
+                    {
+                        UpDataButton.Enabled = true;
+                        tabControl1.TabPages[1].Text = "程序下载（无设备连接）";
                     }));
                 }
             }
@@ -502,7 +511,10 @@ namespace MotionSensor
                 }
                 else
                 {
-                    ReceiveDataList.RemoveAt(0);
+                    while (ReceiveDataList.Count>0 && (ReceiveDataList[0] != 0x5a))
+                    {
+                        ReceiveDataList.RemoveAt(0);
+                    }
                 }
             }
         }
@@ -512,7 +524,7 @@ namespace MotionSensor
         {
             int length;
             int SerialReceiveLength;
-            System.Threading.Thread.Sleep(2);
+            System.Threading.Thread.Sleep(1);
             if (!serialPort1.IsOpen)   //检测串口是否关闭
             {
                 return;
@@ -535,6 +547,10 @@ namespace MotionSensor
             }
 
             byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
+            if (!serialPort1.IsOpen)   //检测串口是否关闭
+            {
+                return;
+            }
             serialPort1.Read(buf, 0, SerialReceiveLength);
             SerialReceiveData.AddRange(buf);
 
@@ -547,7 +563,7 @@ namespace MotionSensor
         {
             int length;
             int SerialReceiveLength;
-            System.Threading.Thread.Sleep(2);
+            System.Threading.Thread.Sleep(1);
             if (!serialPort2.IsOpen)   //检测串口是否关闭
             {
                 return;
@@ -570,6 +586,10 @@ namespace MotionSensor
             }
 
             byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
+            if (!serialPort2.IsOpen)   //检测串口是否关闭
+            {
+                return;
+            }
             serialPort2.Read(buf, 0, SerialReceiveLength);
 
             SerialReceiveData2.AddRange(buf);
@@ -580,7 +600,7 @@ namespace MotionSensor
         {
             int length;
             int SerialReceiveLength;
-            System.Threading.Thread.Sleep(2);
+            System.Threading.Thread.Sleep(1);
             if (!serialPort3.IsOpen)   //检测串口是否关闭
             {
                 return;
@@ -602,7 +622,11 @@ namespace MotionSensor
                 return;
             }
 
-            byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
+            byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据
+            if (!serialPort3.IsOpen)   //检测串口是否关闭
+            {
+                return;
+            }
             serialPort3.Read(buf, 0, SerialReceiveLength);
 
             SerialReceiveData3.AddRange(buf);
@@ -613,7 +637,7 @@ namespace MotionSensor
         {
             int length;
             int SerialReceiveLength;
-            System.Threading.Thread.Sleep(2);
+            System.Threading.Thread.Sleep(1);
             if (!serialPort4.IsOpen)   //检测串口是否关闭
             {
                 return;
@@ -636,11 +660,51 @@ namespace MotionSensor
             }
 
             byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
+            if (!serialPort4.IsOpen)   //检测串口是否关闭
+            {
+                return;
+            }
             serialPort4.Read(buf, 0, SerialReceiveLength);
 
             SerialReceiveData4.AddRange(buf);
 
             UpdataReceiveDataProcess(3,SerialReceiveData4);
+        }
+
+        private void serialPort5_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            int length;
+            int SerialReceiveLength;
+            System.Threading.Thread.Sleep(1);
+            if (!serialPort5.IsOpen)   //检测串口是否关闭
+            {
+                return;
+            }
+            /********************************************串口接收**************************************************/
+            length = serialPort5.BytesToRead;
+            if (length == 0)
+            {
+                return;
+            }
+
+            if ((length > 0) && (length < 5000))
+            {
+                SerialReceiveLength = length;
+            }
+            else
+            {
+                serialPort5.DiscardInBuffer();
+                return;
+            }
+
+            byte[] buf = new byte[SerialReceiveLength];//声明一个临时数组存储当前来的串口数据 
+            if (!serialPort5.IsOpen)   //检测串口是否关闭
+            {
+                return;
+            }
+            serialPort5.Read(buf, 0, SerialReceiveLength);
+
+            SerialReceiveData5.AddRange(buf);
         }
 
 
@@ -689,7 +753,10 @@ namespace MotionSensor
                 {
                     serialport.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort4_DataReceived);
                 }
-
+                else if (serialport == serialPort5)
+                {
+                    serialport.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(serialPort5_DataReceived);
+                }
                 
                 return true;
             }
@@ -889,47 +956,6 @@ namespace MotionSensor
             if (!serialPort1.IsOpen)
             {
                 return;
-            }
-
-            if (SerialReceiveData.Count == 10)
-            {
-                if (SerialReceiveData[0] == 0x5A && (SerialReceiveData[1] == 0xA7))
-                {
-                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                    string DisplayString = ConnectUartName[0] + "连接成功，准备升级！\r\n";
-                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                    OutMsg(MonitorText, DisplayString, Color.Red);
-
-                    if (checkBox3.Text == "未连接")
-                    {
-                        checkBox3.Text = comboBoxCom.Text + "已连接";
-                        checkBox3.Checked = true;
-                    }
-
-                    ComConnectFlag = 1;
-                    UpDataButton.Enabled = true;
-                    ComConnectTimeOut[0] = 0;
-                    if (ConnectUartNum < 1)
-                    {
-                        ConnectUartNum = 1;
-                    }
-                }
-            }
-
-            else if (UpgradeNum == 2)
-            {
-                if (SerialReceiveData.Count > 0)
-                    SerialReceiveData[0] = 0;
-                return;
-            }
-
-
-            if (DebugMode == 2)
-            {
-                while (SerialReceiveData.Count >= 1 && (SerialReceiveData[0] != 0x77))
-                {
-                    SerialReceiveData.RemoveAt(0);
-                }
             }
 
             while (SerialReceiveData.Count >= 4 && ((SerialReceiveData[3] + 4) <= SerialReceiveData.Count))
@@ -2861,6 +2887,7 @@ namespace MotionSensor
             if (checkBox3.Checked == true)
             {
                 DownLoadFlag[0] = 1;
+                SerialReceiveData.Clear();
                 serialcommand.FlashEraseAllUnsecure_Command(serialPort1);
                 num = 0;
                 while (DownLoadFlag[0] == 1)
@@ -2874,6 +2901,7 @@ namespace MotionSensor
                         DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                         OutMsg(MonitorText, DisplayString, Color.Red);
                         checkBox3.Checked = false;
+                        SerialReceiveData.Clear();
                         break;
                     }
                 }
@@ -2900,6 +2928,7 @@ namespace MotionSensor
             if (checkBox4.Checked == true)
             {
                 DownLoadFlag[1] = 1;
+                SerialReceiveData2.Clear();
                 serialcommand.FlashEraseAllUnsecure_Command(serialPort2);
                 num = 0;
                 while (DownLoadFlag[1] == 1)
@@ -2913,6 +2942,7 @@ namespace MotionSensor
                         DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                         OutMsg(MonitorText, DisplayString, Color.Red);
                         checkBox4.Checked = false;
+                        SerialReceiveData2.Clear();
                         break;
                     }
                 }
@@ -2937,6 +2967,7 @@ namespace MotionSensor
             if (checkBox5.Checked == true)
             {
                 DownLoadFlag[2] = 1;
+                SerialReceiveData3.Clear();
                 serialcommand.FlashEraseAllUnsecure_Command(serialPort3);
                 num = 0;
                 while (DownLoadFlag[2] == 1)
@@ -2950,6 +2981,7 @@ namespace MotionSensor
                         DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                         OutMsg(MonitorText, DisplayString, Color.Red);
                         checkBox5.Checked = false;
+                        SerialReceiveData3.Clear();
                         break;
                     }
                 }
@@ -2974,6 +3006,7 @@ namespace MotionSensor
             if (checkBox6.Checked == true)
             {
                 DownLoadFlag[3] = 1;
+                SerialReceiveData4.Clear();
                 serialcommand.FlashEraseAllUnsecure_Command(serialPort4);
                 num = 0;
                 while (DownLoadFlag[3] == 1)
@@ -2987,6 +3020,7 @@ namespace MotionSensor
                         DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                         OutMsg(MonitorText, DisplayString, Color.Red);
                         checkBox6.Checked = false;
+                        SerialReceiveData4.Clear();
                         break;
                     }
                 }
@@ -3043,7 +3077,7 @@ namespace MotionSensor
                         UpDataThread2.Abort();
                     }
                     UpDataThread2 = new Thread(new ParameterizedThreadStart(Upgrade2));
-                    UpDataThread2.Name = "Thread A:";
+                    UpDataThread2.Name = "Thread B:";
                     UpDataThread2.Start(serialPort2);
                     DowmLoadNum++;
                 }
@@ -3054,7 +3088,7 @@ namespace MotionSensor
                         UpDataThread3.Abort();
                     }
                     UpDataThread3 = new Thread(new ParameterizedThreadStart(Upgrade2));
-                    UpDataThread3.Name = "Thread A:";
+                    UpDataThread3.Name = "Thread C:";
                     UpDataThread3.Start(serialPort3);
                     DowmLoadNum++;
                 }
@@ -3065,7 +3099,7 @@ namespace MotionSensor
                         UpDataThread4.Abort();
                     }
                     UpDataThread4 = new Thread(new ParameterizedThreadStart(Upgrade2));
-                    UpDataThread4.Name = "Thread A:";
+                    UpDataThread4.Name = "Thread D:";
                     UpDataThread4.Start(serialPort4);
                     DowmLoadNum++;
                 }          
@@ -3120,7 +3154,7 @@ namespace MotionSensor
             serialcommand.WriteMemoryData_Command(serialport, Byte, 32);
 
             num = 0;
-            while (DownLoadFlag[i] == 7)
+            while (DownLoadFlag[i] == 7) 
             {
                 Thread.Sleep(1);
                 num++;
@@ -3303,7 +3337,7 @@ namespace MotionSensor
                     label9.Invoke(new EventHandler(delegate
                     {
                         int a = progressBar1.Value * 100 / progressBar1.Maximum;
-                        label9.Text = "正在下载中..." + a.ToString()+"%";
+                        label9.Text = "正在下载中..." + a.ToString() + "%";
                     }));
                 }
                 else if (serialport == serialPort2)
@@ -3585,6 +3619,7 @@ namespace MotionSensor
         private void RF_FormClosed(object sender, FormClosedEventArgs e)
         {
             ScanUpdataThread.Abort();
+
             if (UpDataThread1.IsAlive)
             {
                 UpDataThread1.Abort();
