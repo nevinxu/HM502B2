@@ -270,14 +270,14 @@ void SimpleBLECentral_Init( uint8 task_id )
   GAP_SetParamValue( TGAP_LIM_DISC_SCAN, DEFAULT_SCAN_DURATION );
   GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, (uint8 *) simpleBLEDeviceName );
   
-//#if 1
-//  GAP_SetParamValue(TGAP_CONN_PARAM_TIMEOUT,100);
-//  
-//  GAP_SetParamValue(TGAP_CONN_ADV_INT_MIN,16);
-//  GAP_SetParamValue(TGAP_CONN_EST_ADV_TIMEOUT,500);
-//  GAP_SetParamValue(TGAP_CONN_EST_LATENCY,1);
-//#endif
-//  GAP_SetParamValue(TGAP_CONN_EST_SUPERV_TIMEOUT,50);   //2s
+#if 1
+  GAP_SetParamValue(TGAP_CONN_PARAM_TIMEOUT,100);
+  
+  GAP_SetParamValue(TGAP_CONN_ADV_INT_MIN,16);
+  GAP_SetParamValue(TGAP_CONN_EST_ADV_TIMEOUT,500);
+  GAP_SetParamValue(TGAP_CONN_EST_LATENCY,1);
+#endif
+  GAP_SetParamValue(TGAP_CONN_EST_SUPERV_TIMEOUT,50);   //2s
 
   // Setup the GAP Bond Manager
   {

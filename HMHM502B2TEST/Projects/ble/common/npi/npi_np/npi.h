@@ -24,8 +24,8 @@ extern "C"
 
 /* UART port */
 
-//#define NPI_UART_PORT                  HAL_UART_PORT_0   //开发板
-#define NPI_UART_PORT                  HAL_UART_PORT_1   //HM502B1
+#define NPI_UART_PORT                  HAL_UART_PORT_0   //开发板
+//#define NPI_UART_PORT                  HAL_UART_PORT_1   //HM502B1
 
 #define NPI_UART_FC                    FALSE
 

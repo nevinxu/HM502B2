@@ -40,10 +40,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.panel3 = new System.Windows.Forms.Panel();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label14 = new System.Windows.Forms.Label();
@@ -52,28 +48,22 @@
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.label4 = new System.Windows.Forms.Label();
-            this.panel4 = new System.Windows.Forms.Panel();
-            this.comboBoxPortel = new System.Windows.Forms.ComboBox();
-            this.comboBoxCom = new System.Windows.Forms.ComboBox();
-            this.SerialSetButton = new System.Windows.Forms.Button();
             this.DataStoreButton = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.Timer = new System.Timers.Timer();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.skinEngine1 = new Sunisoft.IrisSkin.SkinEngine(((System.ComponentModel.Component)(this)));
             this.MonitorText = new System.Windows.Forms.RichTextBox();
             this.ScanButton = new System.Windows.Forms.Button();
-            this.MACComboBox = new System.Windows.Forms.ComboBox();
             this.ConnectBLEButton = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
             this.PauseButton = new System.Windows.Forms.Button();
             this.textBoxScan = new System.Windows.Forms.TextBox();
             this.IDValuebutton = new System.Windows.Forms.Button();
-            this.UpDataButton = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
@@ -84,31 +74,16 @@
             this.button1 = new System.Windows.Forms.Button();
             this.AmplificationValue = new System.Windows.Forms.Label();
             this.differenceValue = new System.Windows.Forms.Label();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label15 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
-            this.checkBox5 = new System.Windows.Forms.CheckBox();
-            this.checkBox6 = new System.Windows.Forms.CheckBox();
-            this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
-            this.serialPort2 = new System.IO.Ports.SerialPort(this.components);
-            this.serialPort3 = new System.IO.Ports.SerialPort(this.components);
-            this.serialPort4 = new System.IO.Ports.SerialPort(this.components);
-            this.progressBar2 = new System.Windows.Forms.ProgressBar();
-            this.progressBar3 = new System.Windows.Forms.ProgressBar();
-            this.progressBar4 = new System.Windows.Forms.ProgressBar();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.MAClistBox = new System.Windows.Forms.ListBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.label22 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
+            this.MACComboBox = new System.Windows.Forms.ComboBox();
             this.button2 = new System.Windows.Forms.Button();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
@@ -119,15 +94,16 @@
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
             this.EcgPatchVersionLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.UpDataButton = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
-            this.serialPort5 = new System.IO.Ports.SerialPort(this.components);
+            this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
+            this.miniToolStrip = new System.Windows.Forms.StatusStrip();
             this.Lea.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
-            this.panel4.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.tabControl1.SuspendLayout();
@@ -145,9 +121,10 @@
             this.Lea.Controls.Add(this.label3);
             this.Lea.Controls.Add(this.label8);
             this.Lea.Controls.Add(this.label1);
-            this.Lea.Location = new System.Drawing.Point(408, 31);
+            this.Lea.Controls.Add(this.panel3);
+            this.Lea.Location = new System.Drawing.Point(547, 12);
             this.Lea.Name = "Lea";
-            this.Lea.Size = new System.Drawing.Size(144, 142);
+            this.Lea.Size = new System.Drawing.Size(169, 102);
             this.Lea.TabIndex = 1;
             // 
             // label12
@@ -173,10 +150,10 @@
             // 
             this.BatteryValue.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.BatteryValue.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.BatteryValue.Location = new System.Drawing.Point(90, 18);
+            this.BatteryValue.Location = new System.Drawing.Point(73, 18);
             this.BatteryValue.Name = "BatteryValue";
             this.BatteryValue.ReadOnly = true;
-            this.BatteryValue.Size = new System.Drawing.Size(37, 23);
+            this.BatteryValue.Size = new System.Drawing.Size(54, 23);
             this.BatteryValue.TabIndex = 17;
             this.BatteryValue.TabStop = false;
             this.BatteryValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -211,32 +188,6 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "数据";
             // 
-            // statusStrip1
-            // 
-            this.statusStrip1.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1,
-            this.toolStripStatusLabel2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 630);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1108, 22);
-            this.statusStrip1.SizingGrip = false;
-            this.statusStrip1.TabIndex = 3;
-            // 
-            // toolStripStatusLabel1
-            // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
-            // 
-            // toolStripStatusLabel2
-            // 
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(0, 17);
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
-            // 
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -247,14 +198,14 @@
             this.panel3.Controls.Add(this.trackBar1);
             this.panel3.Controls.Add(this.radioButton2);
             this.panel3.Controls.Add(this.radioButton1);
-            this.panel3.Location = new System.Drawing.Point(371, 209);
+            this.panel3.Location = new System.Drawing.Point(31, 85);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(181, 255);
+            this.panel3.Size = new System.Drawing.Size(181, 162);
             this.panel3.TabIndex = 5;
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(92, 213);
+            this.numericUpDown1.Location = new System.Drawing.Point(98, 125);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             8,
             0,
@@ -279,7 +230,7 @@
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(14, 217);
+            this.label14.Location = new System.Drawing.Point(20, 126);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(53, 12);
             this.label14.TabIndex = 27;
@@ -343,6 +294,32 @@
             this.radioButton1.UseVisualStyleBackColor = true;
             this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1,
+            this.toolStripStatusLabel2});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 630);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(1108, 22);
+            this.statusStrip1.SizingGrip = false;
+            this.statusStrip1.TabIndex = 3;
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+            // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(0, 17);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -353,111 +330,17 @@
             this.label4.TabIndex = 6;
             this.label4.Text = "设置";
             // 
-            // panel4
-            // 
-            this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel4.Controls.Add(this.comboBoxPortel);
-            this.panel4.Controls.Add(this.comboBoxCom);
-            this.panel4.Controls.Add(this.SerialSetButton);
-            this.panel4.Controls.Add(this.DataStoreButton);
-            this.panel4.Controls.Add(this.label7);
-            this.panel4.Controls.Add(this.label6);
-            this.panel4.Controls.Add(this.label2);
-            this.panel4.Location = new System.Drawing.Point(628, 31);
-            this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(231, 208);
-            this.panel4.TabIndex = 7;
-            // 
-            // comboBoxPortel
-            // 
-            this.comboBoxPortel.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.comboBoxPortel.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.comboBoxPortel.FormattingEnabled = true;
-            this.comboBoxPortel.Items.AddRange(new object[] {
-            "9600",
-            "115200"});
-            this.comboBoxPortel.Location = new System.Drawing.Point(67, 57);
-            this.comboBoxPortel.Name = "comboBoxPortel";
-            this.comboBoxPortel.Size = new System.Drawing.Size(86, 24);
-            this.comboBoxPortel.TabIndex = 17;
-            // 
-            // comboBoxCom
-            // 
-            this.comboBoxCom.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.comboBoxCom.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.comboBoxCom.FormattingEnabled = true;
-            this.comboBoxCom.Location = new System.Drawing.Point(80, 12);
-            this.comboBoxCom.Name = "comboBoxCom";
-            this.comboBoxCom.Size = new System.Drawing.Size(86, 24);
-            this.comboBoxCom.TabIndex = 16;
-            this.comboBoxCom.MouseClick += new System.Windows.Forms.MouseEventHandler(this.comboBoxCom_MouseClick);
-            // 
-            // SerialSetButton
-            // 
-            this.SerialSetButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.SerialSetButton.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.SerialSetButton.Location = new System.Drawing.Point(13, 95);
-            this.SerialSetButton.Name = "SerialSetButton";
-            this.SerialSetButton.Size = new System.Drawing.Size(62, 37);
-            this.SerialSetButton.TabIndex = 13;
-            this.SerialSetButton.Text = "初始化串口";
-            this.SerialSetButton.UseVisualStyleBackColor = false;
-            this.SerialSetButton.Click += new System.EventHandler(this.SerialSetButton_Click);
-            // 
             // DataStoreButton
             // 
             this.DataStoreButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.DataStoreButton.Enabled = false;
-            this.DataStoreButton.Location = new System.Drawing.Point(101, 94);
+            this.DataStoreButton.Location = new System.Drawing.Point(741, 79);
             this.DataStoreButton.Name = "DataStoreButton";
             this.DataStoreButton.Size = new System.Drawing.Size(64, 37);
             this.DataStoreButton.TabIndex = 9;
             this.DataStoreButton.Text = "数据保存";
             this.DataStoreButton.UseVisualStyleBackColor = false;
             this.DataStoreButton.Click += new System.EventHandler(this.button1_Click_1);
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label7.Location = new System.Drawing.Point(19, 15);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(56, 16);
-            this.label7.TabIndex = 14;
-            this.label7.Text = "串口号";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label6.Location = new System.Drawing.Point(19, 60);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(56, 16);
-            this.label6.TabIndex = 15;
-            this.label6.Text = "波特率";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(98, 172);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 14);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "设置";
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Checked = true;
-            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox2.Location = new System.Drawing.Point(526, 180);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(96, 16);
-            this.checkBox2.TabIndex = 18;
-            this.checkBox2.Text = "串口自动连接";
-            this.checkBox2.UseVisualStyleBackColor = true;
-            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
             // 
             // Timer
             // 
@@ -483,25 +366,13 @@
             // 
             this.ScanButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.ScanButton.Enabled = false;
-            this.ScanButton.Location = new System.Drawing.Point(598, 310);
+            this.ScanButton.Location = new System.Drawing.Point(579, 262);
             this.ScanButton.Name = "ScanButton";
-            this.ScanButton.Size = new System.Drawing.Size(93, 23);
+            this.ScanButton.Size = new System.Drawing.Size(200, 23);
             this.ScanButton.TabIndex = 10;
             this.ScanButton.Text = "搜索设备";
             this.ScanButton.UseVisualStyleBackColor = false;
             this.ScanButton.Click += new System.EventHandler(this.ScanButton_Click);
-            // 
-            // MACComboBox
-            // 
-            this.MACComboBox.Enabled = false;
-            this.MACComboBox.FormattingEnabled = true;
-            this.MACComboBox.Items.AddRange(new object[] {
-            "无设备"});
-            this.MACComboBox.Location = new System.Drawing.Point(558, 284);
-            this.MACComboBox.Name = "MACComboBox";
-            this.MACComboBox.Size = new System.Drawing.Size(257, 20);
-            this.MACComboBox.TabIndex = 11;
-            this.MACComboBox.SelectedIndexChanged += new System.EventHandler(this.MACComboBox_SelectedIndexChanged);
             // 
             // ConnectBLEButton
             // 
@@ -518,7 +389,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(579, 263);
+            this.label11.Location = new System.Drawing.Point(550, 148);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(125, 12);
             this.label11.TabIndex = 21;
@@ -557,17 +428,6 @@
             this.IDValuebutton.UseVisualStyleBackColor = true;
             this.IDValuebutton.Click += new System.EventHandler(this.IDValuebutton_Click);
             // 
-            // UpDataButton
-            // 
-            this.UpDataButton.Enabled = false;
-            this.UpDataButton.Location = new System.Drawing.Point(100, 181);
-            this.UpDataButton.Name = "UpDataButton";
-            this.UpDataButton.Size = new System.Drawing.Size(93, 23);
-            this.UpDataButton.TabIndex = 30;
-            this.UpDataButton.Text = "程序下载";
-            this.UpDataButton.UseVisualStyleBackColor = true;
-            this.UpDataButton.Click += new System.EventHandler(this.button2_Click);
-            // 
             // label10
             // 
             this.label10.AutoSize = true;
@@ -581,7 +441,7 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Enabled = false;
-            this.checkBox1.Location = new System.Drawing.Point(722, 262);
+            this.checkBox1.Location = new System.Drawing.Point(719, 147);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(96, 16);
             this.checkBox1.TabIndex = 33;
@@ -603,7 +463,7 @@
             // button6
             // 
             this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(709, 529);
+            this.button6.Location = new System.Drawing.Point(727, 530);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(93, 23);
             this.button6.TabIndex = 37;
@@ -613,7 +473,7 @@
             // 
             // textBox5
             // 
-            this.textBox5.Location = new System.Drawing.Point(538, 529);
+            this.textBox5.Location = new System.Drawing.Point(558, 511);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(165, 21);
             this.textBox5.TabIndex = 38;
@@ -622,7 +482,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(577, 500);
+            this.label13.Location = new System.Drawing.Point(662, 485);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(143, 12);
             this.label13.TabIndex = 39;
@@ -653,7 +513,7 @@
             chartArea1.BackColor = System.Drawing.Color.Black;
             chartArea1.Name = "ChartArea_Ecg";
             this.chart1.ChartAreas.Add(chartArea1);
-            this.chart1.Location = new System.Drawing.Point(39, 14);
+            this.chart1.Location = new System.Drawing.Point(0, 0);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea_Ecg";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
@@ -664,7 +524,7 @@
             series1.ShadowColor = System.Drawing.Color.Red;
             series1.YValuesPerPoint = 2;
             this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(242, 319);
+            this.chart1.Size = new System.Drawing.Size(541, 512);
             this.chart1.TabIndex = 41;
             this.chart1.Text = "chart1";
             this.chart1.GetToolTipText += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.ToolTipEventArgs>(this.chart1_GetToolTipText);
@@ -703,10 +563,6 @@
             this.differenceValue.TabIndex = 44;
             this.differenceValue.Text = "未定标或无法获取定标值";
             this.differenceValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // label15
             // 
@@ -754,74 +610,6 @@
             this.label19.TabIndex = 49;
             this.label19.Text = "高度差:0mV";
             // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(307, 173);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(130, 17);
-            this.progressBar1.TabIndex = 50;
-            // 
-            // checkBox3
-            // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(216, 173);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(60, 16);
-            this.checkBox3.TabIndex = 51;
-            this.checkBox3.Text = "未连接";
-            this.checkBox3.UseVisualStyleBackColor = true;
-            // 
-            // checkBox4
-            // 
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Location = new System.Drawing.Point(216, 195);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(60, 16);
-            this.checkBox4.TabIndex = 52;
-            this.checkBox4.Text = "未连接";
-            this.checkBox4.UseVisualStyleBackColor = true;
-            // 
-            // checkBox5
-            // 
-            this.checkBox5.AutoSize = true;
-            this.checkBox5.Location = new System.Drawing.Point(216, 221);
-            this.checkBox5.Name = "checkBox5";
-            this.checkBox5.Size = new System.Drawing.Size(60, 16);
-            this.checkBox5.TabIndex = 53;
-            this.checkBox5.Text = "未连接";
-            this.checkBox5.UseVisualStyleBackColor = true;
-            // 
-            // checkBox6
-            // 
-            this.checkBox6.AutoSize = true;
-            this.checkBox6.Location = new System.Drawing.Point(216, 243);
-            this.checkBox6.Name = "checkBox6";
-            this.checkBox6.Size = new System.Drawing.Size(60, 16);
-            this.checkBox6.TabIndex = 54;
-            this.checkBox6.Text = "未连接";
-            this.checkBox6.UseVisualStyleBackColor = true;
-            // 
-            // progressBar2
-            // 
-            this.progressBar2.Location = new System.Drawing.Point(307, 196);
-            this.progressBar2.Name = "progressBar2";
-            this.progressBar2.Size = new System.Drawing.Size(130, 17);
-            this.progressBar2.TabIndex = 55;
-            // 
-            // progressBar3
-            // 
-            this.progressBar3.Location = new System.Drawing.Point(307, 219);
-            this.progressBar3.Name = "progressBar3";
-            this.progressBar3.Size = new System.Drawing.Size(130, 17);
-            this.progressBar3.TabIndex = 56;
-            // 
-            // progressBar4
-            // 
-            this.progressBar4.Location = new System.Drawing.Point(307, 242);
-            this.progressBar4.Name = "progressBar4";
-            this.progressBar4.Size = new System.Drawing.Size(130, 17);
-            this.progressBar4.TabIndex = 57;
-            // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
@@ -835,19 +623,17 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.checkBox2);
+            this.tabPage1.Controls.Add(this.MAClistBox);
+            this.tabPage1.Controls.Add(this.DataStoreButton);
             this.tabPage1.Controls.Add(this.chart1);
             this.tabPage1.Controls.Add(this.label18);
             this.tabPage1.Controls.Add(this.label19);
             this.tabPage1.Controls.Add(this.label17);
-            this.tabPage1.Controls.Add(this.panel4);
             this.tabPage1.Controls.Add(this.label16);
             this.tabPage1.Controls.Add(this.Lea);
             this.tabPage1.Controls.Add(this.label15);
             this.tabPage1.Controls.Add(this.label11);
-            this.tabPage1.Controls.Add(this.panel3);
             this.tabPage1.Controls.Add(this.label4);
-            this.tabPage1.Controls.Add(this.MACComboBox);
             this.tabPage1.Controls.Add(this.checkBox1);
             this.tabPage1.Controls.Add(this.ScanButton);
             this.tabPage1.Controls.Add(this.PauseButton);
@@ -870,24 +656,24 @@
             this.tabPage1.Text = "心电补丁测试";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // MAClistBox
+            // 
+            this.MAClistBox.FormattingEnabled = true;
+            this.MAClistBox.ItemHeight = 12;
+            this.MAClistBox.Location = new System.Drawing.Point(547, 168);
+            this.MAClistBox.Name = "MAClistBox";
+            this.MAClistBox.Size = new System.Drawing.Size(268, 88);
+            this.MAClistBox.TabIndex = 50;
+            this.MAClistBox.SelectedIndexChanged += new System.EventHandler(this.MAClistBox_SelectedIndexChanged);
+            this.MAClistBox.DoubleClick += new System.EventHandler(this.MAClistBox_DoubleClick);
+            // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.label22);
-            this.tabPage2.Controls.Add(this.label21);
-            this.tabPage2.Controls.Add(this.label20);
-            this.tabPage2.Controls.Add(this.label9);
+            this.tabPage2.Controls.Add(this.MACComboBox);
             this.tabPage2.Controls.Add(this.button2);
             this.tabPage2.Controls.Add(this.textBox3);
             this.tabPage2.Controls.Add(this.statusStrip2);
             this.tabPage2.Controls.Add(this.UpDataButton);
-            this.tabPage2.Controls.Add(this.progressBar4);
-            this.tabPage2.Controls.Add(this.progressBar1);
-            this.tabPage2.Controls.Add(this.progressBar3);
-            this.tabPage2.Controls.Add(this.checkBox3);
-            this.tabPage2.Controls.Add(this.progressBar2);
-            this.tabPage2.Controls.Add(this.checkBox4);
-            this.tabPage2.Controls.Add(this.checkBox6);
-            this.tabPage2.Controls.Add(this.checkBox5);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -896,41 +682,16 @@
             this.tabPage2.Text = "程序下载";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // label22
+            // MACComboBox
             // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(477, 247);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(53, 12);
-            this.label22.TabIndex = 65;
-            this.label22.Text = "等待下载";
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(477, 225);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(53, 12);
-            this.label21.TabIndex = 64;
-            this.label21.Text = "等待下载";
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(477, 199);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(53, 12);
-            this.label20.TabIndex = 63;
-            this.label20.Text = "等待下载";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(477, 173);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(53, 12);
-            this.label9.TabIndex = 62;
-            this.label9.Text = "等待下载";
+            this.MACComboBox.Enabled = false;
+            this.MACComboBox.FormattingEnabled = true;
+            this.MACComboBox.Items.AddRange(new object[] {
+            "无设备"});
+            this.MACComboBox.Location = new System.Drawing.Point(283, 279);
+            this.MACComboBox.Name = "MACComboBox";
+            this.MACComboBox.Size = new System.Drawing.Size(257, 20);
+            this.MACComboBox.TabIndex = 61;
             // 
             // button2
             // 
@@ -1004,6 +765,17 @@
             this.EcgPatchVersionLabel.Name = "EcgPatchVersionLabel";
             this.EcgPatchVersionLabel.Size = new System.Drawing.Size(0, 17);
             // 
+            // UpDataButton
+            // 
+            this.UpDataButton.Enabled = false;
+            this.UpDataButton.Location = new System.Drawing.Point(100, 181);
+            this.UpDataButton.Name = "UpDataButton";
+            this.UpDataButton.Size = new System.Drawing.Size(93, 23);
+            this.UpDataButton.TabIndex = 30;
+            this.UpDataButton.Text = "程序下载";
+            this.UpDataButton.UseVisualStyleBackColor = true;
+            this.UpDataButton.Click += new System.EventHandler(this.button2_Click);
+            // 
             // tabPage3
             // 
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
@@ -1020,6 +792,18 @@
             this.menuStrip2.Size = new System.Drawing.Size(1108, 24);
             this.menuStrip2.TabIndex = 60;
             this.menuStrip2.Text = "menuStrip2";
+            // 
+            // miniToolStrip
+            // 
+            this.miniToolStrip.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.miniToolStrip.AutoSize = false;
+            this.miniToolStrip.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.miniToolStrip.Dock = System.Windows.Forms.DockStyle.None;
+            this.miniToolStrip.Location = new System.Drawing.Point(1, 1);
+            this.miniToolStrip.Name = "miniToolStrip";
+            this.miniToolStrip.Size = new System.Drawing.Size(17, 22);
+            this.miniToolStrip.SizingGrip = false;
+            this.miniToolStrip.TabIndex = 58;
             // 
             // RF
             // 
@@ -1040,14 +824,12 @@
             this.Load += new System.EventHandler(this.Motion_Load);
             this.Lea.ResumeLayout(false);
             this.Lea.PerformLayout();
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
-            this.panel4.ResumeLayout(false);
-            this.panel4.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.tabControl1.ResumeLayout(false);
@@ -1075,19 +857,12 @@
         private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.ComboBox comboBoxPortel;
-        private System.Windows.Forms.ComboBox comboBoxCom;
-        private System.Windows.Forms.Button SerialSetButton;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Timers.Timer Timer;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private Sunisoft.IrisSkin.SkinEngine skinEngine1;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ComboBox MACComboBox;
         private System.Windows.Forms.Button ScanButton;
         private System.Windows.Forms.Button DataStoreButton;
         private System.Windows.Forms.RichTextBox MonitorText;
@@ -1096,11 +871,9 @@
         private System.Windows.Forms.RichTextBox Lead;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Button PauseButton;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button IDValuebutton;
         private System.Windows.Forms.TextBox textBoxScan;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Button UpDataButton;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.CheckBox checkBox1;
@@ -1112,8 +885,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label differenceValue;
         private System.Windows.Forms.Label AmplificationValue;
-        private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label15;
@@ -1121,23 +892,16 @@
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.CheckBox checkBox6;
-        private System.Windows.Forms.CheckBox checkBox5;
-        private System.Windows.Forms.CheckBox checkBox4;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.IO.Ports.SerialPort serialPort1;
-        private System.IO.Ports.SerialPort serialPort2;
-        private System.IO.Ports.SerialPort serialPort3;
-        private System.IO.Ports.SerialPort serialPort4;
-        private System.Windows.Forms.ProgressBar progressBar4;
-        private System.Windows.Forms.ProgressBar progressBar3;
-        private System.Windows.Forms.ProgressBar progressBar2;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.MenuStrip menuStrip2;
         private System.Windows.Forms.TabPage tabPage3;
+        private System.IO.Ports.SerialPort serialPort1;
+        private System.Windows.Forms.ListBox MAClistBox;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.ComboBox MACComboBox;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
@@ -1146,13 +910,8 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
         private System.Windows.Forms.ToolStripStatusLabel EcgPatchVersionLabel;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Label label22;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.Label label9;
-        private System.IO.Ports.SerialPort serialPort5;
+        private System.Windows.Forms.Button UpDataButton;
+        private System.Windows.Forms.StatusStrip miniToolStrip;
     }
 }
 

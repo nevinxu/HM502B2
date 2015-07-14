@@ -367,8 +367,8 @@ st( \
 
 
 #define HAL_UART_DMA 0
-#define HAL_UART_ISR  2    //HM502B1
-//#define HAL_UART_ISR  1   //开发板
+//#define HAL_UART_ISR  2    //HM502B1
+#define HAL_UART_ISR  1   //开发板
 //#define HAL_UART_ISR  0
 
 
