@@ -184,6 +184,10 @@ namespace MotionSensor
                 DisplayString = "BLE主机串口(" + ConnectUartName[4] + ")：" + DisplayString3;
                 OutMsg(MonitorText, DisplayString, Color.Red);
             }
+            else
+            {
+                return -2;
+            }
             return 0;
         }
 
@@ -256,21 +260,73 @@ namespace MotionSensor
                         })); 
                         ScanDeviceFlag = 0;
                 }
-                else if (ConnectDeviceFlag == 1)
+                else if (ConnectDeviceFlag == 1)  //连接请求
                 {
                     DisplayString1 = "请求连接设备...\r\n";
                     DisplayString2 = "连接设备失败！\r\n";
                     DisplayString3 = "连接设备成功！\r\n";
-                    serialcommand.ConnectBLESerialCommand(EcgCom, (byte)MAClistBox.SelectedIndex);
-                    if (TestCommandGetStatus(0x41, 0x42, DisplayString1, DisplayString2, DisplayString3, 1000) == 0)
+                    MAClistBox.Invoke(new EventHandler(delegate
+                    {
+                        serialcommand.ConnectBLESerialCommand(EcgCom, (byte)MAClistBox.SelectedIndex);
+                    }));
+                    if (TestCommandGetStatus(0x41, 0x42, DisplayString1, DisplayString2, DisplayString3, 200) == 0)
+                    {
+                        ScanButton.Invoke(new EventHandler(delegate
+                        {
+                            ScanButton.Text = "设备已连接";
+                            MAClistBox.Invoke(new EventHandler(delegate
+                            {
+                                MAClistBox.Enabled = false;
+                            }));
+                            ConnectDeviceFlag = 2;
+                        }));
+                    }
+                    else
                     {
                         ScanButton.Invoke(new EventHandler(delegate
                         {
                             ScanButton.Text = "搜索设备";
+                            ConnectDeviceFlag = 0;
                         }));
                     }
-                    ConnectDeviceFlag = 0;
                 }
+                else if (ConnectDeviceFlag == 3) //请求断开
+                {
+                    DisplayString1 = "请求断开心电补丁...\r\n";
+                    DisplayString2 = "断开心电补丁失败！\r\n";
+                    DisplayString3 = "心电补丁已断开！\r\n";
+                    serialcommand.DisconnectBLESerialCommand(EcgCom);
+                    
+                    if (TestCommandGetStatus(3, 4, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        ScanButton.Invoke(new EventHandler(delegate
+                        {
+                            ScanButton.Text = "搜索设备";
+                            MAClistBox.Enabled = true;
+                            ConnectDeviceFlag = 0;
+                        }));
+                    }
+                }
+                else if (ConnectDeviceFlag == 2)   //已连接
+                {
+                    DisplayString1 = "请求接收心电数据...\r\n";
+                    DisplayString2 = "接收心电数据失败！\r\n";
+                    DisplayString3 = "接收心电数据成功！\r\n";
+                    serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                    if (TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        ConnectDeviceFlag = 4;
+                    }
+                    else
+                    { 
+                        
+                    }
+                }
+                else if (ConnectDeviceFlag == 4)  //请求断开
+                {
+                    ;
+                }
+
                 else
                 {
                     DisplayString1 = "请求断开心电补丁...\r\n";
@@ -296,8 +352,26 @@ namespace MotionSensor
                     DisplayString3 = "获取自动连接配置状态成功！\r\n";
                     serialcommand.AutoConnectBLEStatusSerialCommand(EcgCom);
                     TestCommandGetStatus(9, 10, DisplayString1, DisplayString2, DisplayString3, 500);
+
+                    DisplayString1 = "请求获取配对MAC...\r\n";
+                    DisplayString2 = "获取配对MAC失败！\r\n";
+                    DisplayString3 = "获取配对MAC成功！\r\n";
+                    serialcommand.ReceivePairingStatusCCommand(EcgCom);
+                    if (TestCommandGetStatus(0x10, 0x11, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        MAClistBox.Invoke(new EventHandler(delegate
+                        {
+                            textBox5.Text = ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
+                        }));
+                    }
+
+                    DisplayString1 = "请求设置测试模式...\r\n";
+                    DisplayString2 = "设置测试模式失败！\r\n";
+                    DisplayString3 = "设置测试模式成功！\r\n";
+                    serialcommand.SetTestModeCommand(EcgCom);
+                    TestCommandGetStatus(0x12, 0x13, DisplayString1, DisplayString2, DisplayString3, 500);
                 }
-                Thread.Sleep(500);
+                Thread.Sleep(2000);
 
             }
             ScanEcgUartThread = new Thread(new ThreadStart(ScanEcgUartFunction));
@@ -850,10 +924,38 @@ namespace MotionSensor
                             else    //选择的设备与绑定的mac不符，无法连接
                             {
 
-
+                                EcgComReceiveFlag = 0x43;
                             }
                         }
+                        else if (ReceiveDataList[1] == 0x23) //获取配对状态成功
+                        {
+                            EcgComReceiveFlag = 0x11;
+                            for (int i = 0; i < 6; i++)
+                            {
+                                ECGPairMAC[i] = ReceiveDataList[4 + i];
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x25) //设置测试模式成功
+                        {
+                            EcgComReceiveFlag = 0x13;
+                        }
+                        else if (ReceiveDataList[1] == 0x15)
+                        {
+                            if (ReceiveDataList[4] == 0)   //设备未连接,无法设置成功
+                            {
+                                EcgComReceiveFlag = 0x53;
+                            }
+                            else if (ReceiveDataList[4] == 1) //设置接收心电数据成功
+                            {
+                                EcgComReceiveFlag = 0x52;
+                            }
 
+
+                        }
+                        else if (ReceiveDataList[1] == 0x09)
+                        {
+                            EcgComReceiveFlag = 0x99;
+                        }
                         ReceiveDataList.RemoveRange(0, ReceiveDataList[3] + 4);
                     }
                 }
@@ -2357,17 +2459,34 @@ namespace MotionSensor
         #region 第二个按键处理函数
         private void ScanButton_Click(object sender, EventArgs e)
         {
-            if (EcgUartProcessThread.IsAlive)
+            if (ScanButton.Text == "搜索设备")
             {
-                EcgUartProcessThread.Abort();
+                if (EcgUartProcessThread.IsAlive)
+                {
+                    EcgUartProcessThread.Abort();
+                }
+
+                ScanDeviceFlag = 1;   //发送搜索命令标志
+
+                ScanButton.Text = "正在搜索设备...";
+
+                EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
+                EcgUartProcessThread.Start();
             }
+            else if (ScanButton.Text == "设备已连接")
+            {
+                if (EcgUartProcessThread.IsAlive)
+                {
+                    EcgUartProcessThread.Abort();
+                }
 
-            ScanDeviceFlag = 1;   //发送搜索命令标志
+                ConnectDeviceFlag = 3;
 
-            ScanButton.Text = "正在搜索设备...";
+                ScanButton.Text = "正在断开设备...";
 
-            EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
-            EcgUartProcessThread.Start();
+                EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
+                EcgUartProcessThread.Start();
+            }
             //if (EcgUartProcessThread.IsAlive)
             //{
             //    EcgUartProcessThread.Abort();
@@ -3173,8 +3292,16 @@ namespace MotionSensor
 
         private void RF_FormClosed(object sender, FormClosedEventArgs e)
         {
-            ScanEcgUartThread.Abort();
-            ScanUpdataThread.Abort();
+            if (ScanEcgUartThread.IsAlive)
+            {
+                ScanEcgUartThread.Abort();
+            }
+
+            if (ScanUpdataThread.IsAlive)
+            {
+                ScanUpdataThread.Abort();
+            }
+
             for (int i = 0; i < UPDATACOMNUM; i++)
             {
                 if (UpDataThread[i].IsAlive)
@@ -3214,6 +3341,10 @@ namespace MotionSensor
 
         private void MAClistBox_DoubleClick(object sender, EventArgs e)
         {
+            if (EcgUartProcessThread.IsAlive)
+            {
+                EcgUartProcessThread.Abort();
+            }
             if (ScanBleName[MAClistBox.SelectedIndex, 0] != 'B' || (ScanBleName[MAClistBox.SelectedIndex, 1] != 'D'))
             {
                 MessageBox.Show("连接设备不是心电补丁", "蓝牙连接错误", MessageBoxButtons.OK, MessageBoxIcon.Question);
@@ -3223,6 +3354,10 @@ namespace MotionSensor
                 ConnectDeviceFlag = 1;
                 ScanButton.Text = "正在连接心电补丁";
             }
+
+            EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
+            EcgUartProcessThread.Start();
+
         }
     }
 
