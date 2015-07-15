@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFtest", "RFtest.csproj", "{23B8605B-22A0-4B3D-9610-B28442CC8D03}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "..\HM502B-PC\Setup1\Setup1.vdproj", "{BDA5E70C-663B-45F8-B255-E985093799B4}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HM502B2", "..\HM502B-PC\Setup1\Setup1.vdproj", "{BDA5E70C-663B-45F8-B255-E985093799B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
