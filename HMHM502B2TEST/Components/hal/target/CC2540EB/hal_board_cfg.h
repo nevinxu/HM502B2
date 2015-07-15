@@ -369,7 +369,6 @@ st( \
 #define HAL_UART_DMA 0
 //#define HAL_UART_ISR  2    //HM502B1
 #define HAL_UART_ISR  1   //¿ª·¢°å
-//#define HAL_UART_ISR  0
 
 
 // Used to set P2 priority - USART0 over USART1 if both are defined.

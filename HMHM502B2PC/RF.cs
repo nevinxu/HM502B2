@@ -252,14 +252,28 @@ namespace MotionSensor
                         DisplayString2 = "搜索设备失败！\r\n";
                         DisplayString3 = "搜索设备成功！\r\n";
                         serialcommand.SendDisAdvertiseSerialCommand(EcgCom);
-                        if (TestCommandGetStatus(0x31, 0x32, DisplayString1, DisplayString2, DisplayString3, 1500) == 0)
+                        if (TestCommandGetStatus(0x31, 0x32, DisplayString1, DisplayString2, DisplayString3, 1000) == 0)
                         {
                             DisplayScanDevice();
+                            ScanButton.Invoke(new EventHandler(delegate
+                            {
+                                ScanButton.Text = "搜索完成";
+                                ScanButton.Enabled = false;
+                            }));
+                            Thread.Sleep(1000);
+                            ScanButton.Invoke(new EventHandler(delegate
+                            {
+                                ScanButton.Text = "搜索设备";
+                                ScanButton.Enabled = true;
+                            }));
                         }
-                        ScanButton.Invoke(new EventHandler(delegate
+                        else
                         {
-                            ScanButton.Text = "搜索设备";
-                        })); 
+                            ScanButton.Invoke(new EventHandler(delegate
+                            {
+                                ScanButton.Text = "搜索失败，请重新搜索";
+                            }));
+                        }
                         ScanDeviceFlag = 0;
                 }
                 else if (ConnectDeviceFlag == 1)  //连接请求
@@ -338,11 +352,25 @@ namespace MotionSensor
                     {
                         MAClistBox.Invoke(new EventHandler(delegate
                         {
-                            string aa = ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") + ":" +                                      ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
+                            string aa = ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
                             PatchMACLabel.Text = "当前配对的MAC：" + aa;
+                            PairButton.Text = "配对完成";
+                        }));
+                        Thread.Sleep(1000);
+                        MAClistBox.Invoke(new EventHandler(delegate
+                        {
+                            PairButton.Text = "配对";
+                        }));
+                    }
+                    else
+                    {
+                        MAClistBox.Invoke(new EventHandler(delegate
+                        {
+                            PairButton.Text = "配对失败，请重新配对";
                         }));
                     }
                     PairDeviceFlag = 0;
+                    
                 }
                 else
                 {
@@ -2495,7 +2523,7 @@ namespace MotionSensor
         #region 第二个按键处理函数
         private void ScanButton_Click(object sender, EventArgs e)
         {
-            if (ScanButton.Text == "搜索设备")
+            if (ScanButton.Text == "搜索设备" || (ScanButton.Text == "搜索失败，请重新搜索"))
             {
                 if (EcgUartProcessThread.IsAlive)
                 {

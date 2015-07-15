@@ -38,7 +38,6 @@ void SerialInterface_Init( uint8 task_id )
 {
   serialInterface_TaskID = task_id;   
   NPI_InitTransport(cSerialPacketParser);
-
 }
 
 uint16 SerialInterface_ProcessEvent( uint8 task_id, uint16 events )
@@ -516,12 +515,11 @@ void parseCmd(void){
         txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
         txSerialPkt.header.opCode = APP_CMD_ECGPATCHHARDVERSIONREQ;
         txSerialPkt.header.status = 0x00;
-        txSerialPkt.length = 5; 
-        txSerialPkt.data[0] = '0';
-        txSerialPkt.data[1] = '.';
-        txSerialPkt.data[2] = '0';
-        txSerialPkt.data[3] = '.';
-        txSerialPkt.data[4] = '0';
+        txSerialPkt.length = 4; 
+        txSerialPkt.data[0] = 0;
+        txSerialPkt.data[1] = 0;
+        txSerialPkt.data[2] = 0;
+        txSerialPkt.data[3] = 0;
         sendSerialEvt();
       }
     }
@@ -537,19 +535,11 @@ void parseCmd(void){
       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
       txSerialPkt.header.opCode = APP_CMD_ECGPATCHSOFTVERSIONREQ;
       txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 12; 
-      txSerialPkt.data[0] = '0';
-      txSerialPkt.data[1] = '.';
-      txSerialPkt.data[2] = '0';
-      txSerialPkt.data[3] = '.';
-      txSerialPkt.data[4] = '0';
-      txSerialPkt.data[5] = '.';
-      txSerialPkt.data[6] = '0';
-      txSerialPkt.data[7] = '0';
-      txSerialPkt.data[8] = '0';
-      txSerialPkt.data[9] = '0';
-      txSerialPkt.data[10] = '0';
-      txSerialPkt.data[11] = '0';
+      txSerialPkt.length = 4; 
+      txSerialPkt.data[0] = 0;
+      txSerialPkt.data[1] = 0;
+      txSerialPkt.data[2] = 0;
+      txSerialPkt.data[3] = 0;
       sendSerialEvt();
       }
     }

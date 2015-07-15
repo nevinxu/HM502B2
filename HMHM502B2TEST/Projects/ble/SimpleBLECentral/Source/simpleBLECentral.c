@@ -88,7 +88,7 @@
 #define DEFAULT_SCAN_DELAY                      3000
 #define DEFAULT_CONNECT_DELAY                   500
 #define DEFAULT_NOTIFY_DELAY                    300
-#define DEFAULT_PERIOD_DELAY                   3000
+#define DEFAULT_PERIOD_DELAY                   6000
 
 // TRUE to filter discovery results on desired service UUID
 #define DEFAULT_DEV_DISC_BY_SVC_UUID          FALSE
@@ -256,8 +256,7 @@ void SimpleBLECentral_Init( uint8 task_id )
 //  HalFlashErase(PairMACPage);
 //  HalFlashWrite(PairMACAddr, PairMAC, 6);
   
- // HalFlashRead(PairMACPage, 0, PairMAC, 6);
-  
+  HalFlashRead(PairMACPage, 0, PairMAC, 6);
 
   // Setup Central Profile
   {
@@ -379,60 +378,28 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
 /********************************************************************************/  
   if(events & START_CONNECT_EVT)        //连接事件
   {
-    uint8 addrType;
-    uint8 *peerAddr;
+    static uint8 addrType;
+    static uint8 *peerAddr;
 // Connect or disconnect
     if ( simpleBLEState == BLE_STATE_IDLE )
     {
       // if there is a scan result
-
-        if(DeviceMode == 0)   //303模式
+      if ( simpleBLEScanRes > 0 )
+      {
+        // connect to current device in scan result
+        if(memcmp(simpleBLEDevList[simpleBLEScanIdx].addr,PairMAC,6) == 0)
         {
-            peerAddr = PairMAC;
-            addrType = 0x02;
+          peerAddr = PairMAC;
+          memcpy(ECGPatchMAC,PairMAC,6);
+          addrType = simpleBLEDevList[simpleBLEScanIdx].addrType;
+        
+          simpleBLEState = BLE_STATE_CONNECTING;
           
-            simpleBLEState = BLE_STATE_CONNECTING;
-            
-              txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
-              txSerialPkt.header.opCode = APP_CMD_CONNECTBLEACK;
-              txSerialPkt.header.status = 0x00;
-              txSerialPkt.length = 1;
-              txSerialPkt.data[0] = 0;
-              sendSerialEvt();
-              osal_pwrmgr_device( PWRMGR_BATTERY );
-            
-            GAPCentralRole_EstablishLink( DEFAULT_LINK_HIGH_DUTY_CYCLE,
-                                          DEFAULT_LINK_WHITE_LIST,
-                                          addrType, peerAddr );
+          GAPCentralRole_EstablishLink( DEFAULT_LINK_HIGH_DUTY_CYCLE,
+                                        DEFAULT_LINK_WHITE_LIST,
+                                        addrType, peerAddr );
         }
-        else if(DeviceMode == 1)  //测试模式
-        {
-          if ( simpleBLEScanRes > 0 )
-          {
-            // connect to current device in scan result
-            if(memcmp(simpleBLEDevList[simpleBLEScanIdx].addr,PairMAC,6) == 0)
-            {
-              peerAddr = PairMAC;
-              memcpy(ECGPatchMAC,PairMAC,6);
-              addrType = simpleBLEDevList[simpleBLEScanIdx].addrType;
-            
-              simpleBLEState = BLE_STATE_CONNECTING;
-              
-              GAPCentralRole_EstablishLink( DEFAULT_LINK_HIGH_DUTY_CYCLE,
-                                            DEFAULT_LINK_WHITE_LIST,
-                                            addrType, peerAddr );
-            }
-            else
-            {
-              txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
-              txSerialPkt.header.opCode = APP_CMD_CONNECTBLEACK;
-              txSerialPkt.header.status = 0x00;
-              txSerialPkt.length = 1;
-              txSerialPkt.data[0] = 0;
-              sendSerialEvt();
-            }
-          }
-        }
+      }
     }
     return ( events ^ START_CONNECT_EVT );
   }
@@ -442,37 +409,20 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
     
     if ( simpleBLEState == BLE_STATE_IDLE )  //未连接且为自动搜索连接模式
     {
-      if(DeviceMode == 0)   //303模式
+      if(AutoConnectFlag == 1)
       {
-        osal_pwrmgr_device( PWRMGR_ALWAYS_ON );
-        txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
-        txSerialPkt.header.opCode = APP_CMD_CONNECTBLEACK;
+        txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+        txSerialPkt.header.opCode = APP_CMD_ADVERTISEBEGIN;    //开始搜索蓝牙设备
         txSerialPkt.header.status = 0x00;
-        txSerialPkt.length = 1;
-        txSerialPkt.data[0] = 3;
+        txSerialPkt.length = 0;
         sendSerialEvt();
-        //osal_pwrmgr_device( PWRMGR_BATTERY );
-        osal_set_event( simpleBLETaskId, START_CONNECT_EVT);
-       // osal_set_event( simpleBLETaskId, START_SCAN_EVT);
+        osal_set_event( simpleBLETaskId, START_SCAN_EVT);
       }
-      else if(DeviceMode == 1)  //测试模式
+      
+      if(simpleBLERssi)
       {
-        if(AutoConnectFlag == 1)
-        {
-          txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
-          txSerialPkt.header.opCode = APP_CMD_ADVERTISEBEGIN;    //开始搜索蓝牙设备
-          txSerialPkt.header.status = 0x00;
-          txSerialPkt.length = 0;
-          sendSerialEvt();
-          
-          osal_set_event( simpleBLETaskId, START_SCAN_EVT);
-        }
-        
-        if(simpleBLERssi)
-        {
-          simpleBLERssi = FALSE;
-          GAPCentralRole_CancelRssi(simpleBLEConnHandle);
-        }
+        simpleBLERssi = FALSE;
+        GAPCentralRole_CancelRssi(simpleBLEConnHandle);
       }
       
     }
@@ -537,7 +487,7 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
     if ( simpleBLEState == BLE_STATE_CONNECTED )
     { 
       SendCommand2Peripheral(APP_CMD_GET0MVVALUE,0,0);
-      //osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
+      osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
     }
     return (events ^ START_GET0MVVALUE_EVT);
   }    
@@ -553,13 +503,13 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
       osal_memcpy(txSerialPkt.data,ECGPatchMAC,6);
       sendSerialEvt();
       
-    //  osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
+      osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,1000);
     }
     return (events ^ START_GETECGPatchMACVALUE_EVT);
   } 
   if ( events & START_STOREPAIRMAC_EVT ) 
   {
-      HalFlashErase(PairMACPage);
+          HalFlashErase(PairMACPage);
       HalFlashWrite(PairMACAddr, PairMAC, 6);
       memset(PairMAC,0,6);
       HalFlashRead(PairMACPage, 0, PairMAC, 6);
@@ -667,7 +617,7 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
         static uint8 rxpacketnum = 0;
         static uint8 serial_txbuffer[100];
         {
-          osal_memcpy(&serial_txbuffer[3+(rxpacketnum*10)],&pMsg->msg.handleValueNoti.value[6],10);
+          osal_memcpy(&serial_txbuffer[3+(rxpacketnum*10)],&pMsg->msg.handleValueNoti.value[8],10);
           rxpacketnum++;
           if(rxpacketnum >= 8)
           {
@@ -677,14 +627,8 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
             serial_txbuffer[83] = ']';
             serial_txbuffer[1] = 84;
           //  batteryvalue = pMsg->msg.handleValueNoti.value[7] + (pMsg->msg.handleValueNoti.value[6]<<8);
-         //   serial_txbuffer[2] = ((pMsg->msg.handleValueNoti.value[5]&0x01)<<7)+ (pMsg->msg.handleValueNoti.value[6]&0x7f);
-            osal_pwrmgr_device( PWRMGR_ALWAYS_ON );
+            serial_txbuffer[2] = ((pMsg->msg.handleValueNoti.value[5]&0x01)<<7)+ (pMsg->msg.handleValueNoti.value[6]&0x7f);
             NPI_WriteTransport(serial_txbuffer,84);
-            
-          }
-          else if(rxpacketnum == 3)
-          {
-            osal_pwrmgr_device( PWRMGR_BATTERY );
           }
         }
     }
@@ -889,18 +833,15 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
         {
           if(PairFlag == 1)   //配对功能使能
           {
-            if(AutoConnectFlag == 1)  //自动搜索连接
+            for(int i = 0;i<simpleBLEScanRes; i++)
             {
-              for(int i = 0;i<simpleBLEScanRes; i++)
-              {
-                  if(memcmp(simpleBLEDevList[i].addr, PairMAC,6) == 0)
-                  {
-                    osal_memcpy(ECGPatchMAC,simpleBLEDevList[i].addr,6);
-                    simpleBLEScanIdx = i;
-                    osal_start_timerEx( simpleBLETaskId, START_CONNECT_EVT,500);
-                    break;
-                  }
-              }
+                if(memcmp(simpleBLEDevList[i].addr, PairMAC,6) == 0)
+                {
+                  osal_memcpy(ECGPatchMAC,simpleBLEDevList[i].addr,6);
+                  simpleBLEScanIdx = i;
+                  osal_start_timerEx( simpleBLETaskId, START_CONNECT_EVT,500);
+                  break;
+                }
             }
           }
           else
@@ -928,9 +869,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
           txSerialPkt.header.opCode = APP_CMD_CONNECTBLEACK;
           txSerialPkt.header.status = 0x00;
-          txSerialPkt.length = 1;
-          txSerialPkt.data[0] = 1;
-          
+          txSerialPkt.length = 0;
           sendSerialEvt();
           
        //   osal_memcpy(ECGPatchMAC,simpleBLEDevList[simpleBLEScanIdx].addr,6);
@@ -942,17 +881,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
         //  osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
           osal_start_timerEx( simpleBLETaskId, START_GETECGPatchMACVALUE_EVT,500);
           
-          ReceivePackageNum = 0;
-          LostPackageNum = 0;
-          LastPackageNum = -1;
-          
-         // osal_pwrmgr_device( PWRMGR_ALWAYS_ON );
-          
-          if(DeviceMode == 0)
-          {
-            osal_start_timerEx( simpleBLETaskId, START_RECEIVEECGDATA_EVT,500);
-             // SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
-          }
+       //   SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
           
         }
         else    //连接失败   
@@ -969,8 +898,6 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_ON ); 
           HalLedSet( HAL_LED_YELLOW, HAL_LED_MODE_OFF );
           osal_memset(ECGPatchMAC,0,6);   //清除
-          
-        //  osal_pwrmgr_device( PWRMGR_BATTERY );
         }
       }
       break;
@@ -994,8 +921,6 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
         txSerialPkt.length = 0;
         sendSerialEvt(); 
         osal_memset(ECGPatchMAC,0,6);   //清除 
-        
-     //   osal_pwrmgr_device( PWRMGR_BATTERY );
       }
       break;
 /***********************************************************************************************/
@@ -1085,8 +1010,8 @@ static void simpleBLECentralPasscodeCB( uint8 *deviceAddr, uint16 connectionHand
   // Display passcode to user
   if ( uiOutputs != 0 )
   {
-   // LCD_WRITE_STRING( "Passcode:",  HAL_LCD_LINE_1 );
-   // LCD_WRITE_STRING( (char *) _ltoa(passcode, str, 10),  HAL_LCD_LINE_2 );
+    LCD_WRITE_STRING( "Passcode:",  HAL_LCD_LINE_1 );
+    LCD_WRITE_STRING( (char *) _ltoa(passcode, str, 10),  HAL_LCD_LINE_2 );
   }
   
   // Send passcode response
