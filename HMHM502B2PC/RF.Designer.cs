@@ -463,7 +463,7 @@
             // button6
             // 
             this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(727, 530);
+            this.button6.Location = new System.Drawing.Point(734, 509);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(93, 23);
             this.button6.TabIndex = 37;
@@ -482,7 +482,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(662, 485);
+            this.label13.Location = new System.Drawing.Point(560, 496);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(143, 12);
             this.label13.TabIndex = 39;
