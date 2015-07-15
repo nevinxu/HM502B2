@@ -22,6 +22,8 @@ namespace MotionSensor
         string[] Xdata = new string[M * N];
         double[] XdataV = new double[M * N];
 
+        private byte[,] EcgData_Com = new byte[256, 10];   //原始采集到的心电数据
+
         byte[] ECGData = new byte[M * 2];
 
         int chartlenMin = 0;    //chart 显示最大点数
@@ -50,6 +52,8 @@ namespace MotionSensor
         private List<byte> SerialReceiveData5 = new List<byte>(40960);//默认分配1页内存，并始终限制不允许超
         private List<double> SerialEcgData = new List<double>(512);//默认分配1页内存，并始终限制不允许超
 
+
+
         private byte EcgCaptureFlag = 0;
         private byte BLEConnectFlag = 0;
 
@@ -74,6 +78,7 @@ namespace MotionSensor
 
         private int PairingFlag = 1;
         byte[] ECGPairMAC = new byte[6];
+        byte[] ECGSetPairMAC = new byte[6];
         private int EcgDataTimer = 0;
         private Int16 amplification = 60;
         private Int16 difference_Value = 525;
@@ -145,6 +150,7 @@ namespace MotionSensor
         private int EcgComReceiveFlag = 0;
         private int ScanDeviceFlag = 0;
         private int ConnectDeviceFlag = 0;
+        private int PairDeviceFlag = 0;
 
 
         public RF()
@@ -209,26 +215,22 @@ namespace MotionSensor
                 {
                     if (ScanBleName[i, 0] == 'B' && (ScanBleName[i, 1] == 'D'))
                     {
-                        MACComboBox.Items.Add(bb + "(心电补丁)");
                         MAClistBox.Items.Add(bb + "(心电补丁)");
                     }
                     else if (ScanBleName[i, 0] == 'B' && (ScanBleName[i, 1] == 'G'))
                     {
-                        MACComboBox.Items.Add(bb + "(血压计)");
                         MAClistBox.Items.Add(bb + "(血压计)");
                     }
                     else
                     {
-                        MACComboBox.Items.Add(bb + "(未知设备)");
                         MAClistBox.Items.Add(bb + "(未知设备)");
                     }
                     MACComboBox.Enabled = true;
-                    if (ScanBLENum > 0)
-                    {
-                        MACComboBox.SelectedIndex = 0;
-                      //  MAClistBox.SelectedIndex = 0;
-                    }
                 }));
+            }
+            if (ScanBLENum == 0)
+            {
+                MAClistBox.Items.Add ("无设备");
             }
         }
 
@@ -318,15 +320,30 @@ namespace MotionSensor
                         ConnectDeviceFlag = 4;
                     }
                     else
-                    { 
-                        
+                    {
+                        ;
                     }
                 }
-                else if (ConnectDeviceFlag == 4)  //请求断开
+                else if (ConnectDeviceFlag == 4)
                 {
                     ;
                 }
-
+                else if (PairDeviceFlag == 1)
+                {
+                    DisplayString1 = "请求设置配对MAC...\r\n";
+                    DisplayString2 = "设置配对MAC失败！\r\n";
+                    DisplayString3 = "设置配对MAC成功！\r\n";
+                    serialcommand.PairingCommand(EcgCom, ECGSetPairMAC);
+                    if (TestCommandGetStatus(0x61, 0x62, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        MAClistBox.Invoke(new EventHandler(delegate
+                        {
+                            string aa = ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") + ":" +                                      ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
+                            PatchMACLabel.Text = "当前配对的MAC：" + aa;
+                        }));
+                    }
+                    PairDeviceFlag = 0;
+                }
                 else
                 {
                     DisplayString1 = "请求断开心电补丁...\r\n";
@@ -360,8 +377,9 @@ namespace MotionSensor
                     if (TestCommandGetStatus(0x10, 0x11, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
                     {
                         MAClistBox.Invoke(new EventHandler(delegate
-                        {
-                            textBox5.Text = ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
+                        { 
+                            string aa = ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
+                            PatchMACLabel.Text = "当前配对的MAC：" + aa;
                         }));
                     }
 
@@ -371,7 +389,7 @@ namespace MotionSensor
                     serialcommand.SetTestModeCommand(EcgCom);
                     TestCommandGetStatus(0x12, 0x13, DisplayString1, DisplayString2, DisplayString3, 500);
                 }
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
 
             }
             ScanEcgUartThread = new Thread(new ThreadStart(ScanEcgUartFunction));
@@ -917,14 +935,17 @@ namespace MotionSensor
                         }
                         else if (ReceiveDataList[1] == 0x06)
                         {
-                            if (ReceiveDataList[4] == 1) //心电补丁连接成功
+                            if (ReceiveDataList.Count >= 5)
                             {
-                                EcgComReceiveFlag = 0x42;
-                            }
-                            else    //选择的设备与绑定的mac不符，无法连接
-                            {
+                                if (ReceiveDataList[4] == 1) //心电补丁连接成功
+                                {
+                                    EcgComReceiveFlag = 0x42;
+                                }
+                                else    //选择的设备与绑定的mac不符，无法连接
+                                {
 
-                                EcgComReceiveFlag = 0x43;
+                                    EcgComReceiveFlag = 0x43;
+                                }
                             }
                         }
                         else if (ReceiveDataList[1] == 0x23) //获取配对状态成功
@@ -952,9 +973,24 @@ namespace MotionSensor
 
 
                         }
+                        else if (ReceiveDataList[1] == 0x21)   //设置配对MAC成功
+                        {
+                            EcgComReceiveFlag = 0x62;
+                            for (int i = 0; i < 6;i++ )
+                            {
+                                ECGPairMAC[i] = ReceiveDataList[4 + i];
+                            }
+                        }
                         else if (ReceiveDataList[1] == 0x09)
                         {
-                            EcgComReceiveFlag = 0x99;
+                            if (ConnectDeviceFlag == 4)
+                            {
+                                EcgComReceiveFlag = 0x99;
+                                for (int i = 0; i < 10;i++ )
+                                {
+                                  //  EcgData_Com[ReceiveDataList[],i] = ReceiveDataList[i+]
+                                }
+                            }
                         }
                         ReceiveDataList.RemoveRange(0, ReceiveDataList[3] + 4);
                     }
@@ -1255,7 +1291,7 @@ namespace MotionSensor
                                 ConnectBLEButton.Text = "设备已断开";
                                 ConnectBLEButton.Enabled = true;
 
-                                button6.Enabled = false;   //定标按键
+                                PairButton.Enabled = false;   //定标按键
 
                                 this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
 
@@ -1530,7 +1566,7 @@ namespace MotionSensor
                                 }
                                 ScanBLENum++;
                                 ConnectBLEButton.Enabled = true;
-                                button6.Enabled = true;
+                                PairButton.Enabled = true;
                                 ConnectBLEButton.Text = "设备已断开";
                                 MACComboBox.SelectedIndex = 0;
                                 ScanButton.Enabled = true;
@@ -1545,7 +1581,7 @@ namespace MotionSensor
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                                 OutMsg(MonitorText, DisplayString, Color.Red);
 
-                                button6.Enabled = true;   //配对按钮
+                                PairButton.Enabled = true;   //配对按钮
                                 ScanButton.Enabled = true;
                             }
                             #endregion
@@ -1565,7 +1601,7 @@ namespace MotionSensor
 
                                     DataStoreButton.Enabled = true;
 
-                                    button6.Enabled = false;
+                                    PairButton.Enabled = false;
                                     IDValuebutton.Enabled = true;
                                     button5.Enabled = true;
                                     button1.Enabled = true;
@@ -1638,7 +1674,7 @@ namespace MotionSensor
                                 IDValuebutton.Enabled = false;
                                 button5.Enabled = false;
                                 button1.Enabled = false;
-                                button6.Enabled = true;
+                                PairButton.Enabled = true;
                                 PauseButton.Enabled = false;
 
                                 StartEcgCaptureFlag = 0;
@@ -1677,7 +1713,7 @@ namespace MotionSensor
                                 RSSIValue = SerialReceiveData[4] - 256;
                                 ConnectBLEButton.Text = "设备已连接";
                                 ConnectBLEButton.Enabled = true;
-                                button6.Enabled = true;   //定标按键
+                                PairButton.Enabled = true;   //定标按键
 
                             }
                             #endregion
@@ -2262,7 +2298,7 @@ namespace MotionSensor
                     DataTransmissionFlag = 0;
                     ConnectBLEButton.Text = "设备已连接";
                     ConnectBLEButton.Enabled = true;
-                    button6.Enabled = false;   //定标按键
+                    PairButton.Enabled = false;   //定标按键
                     PauseButton.Enabled = true;
                     ScanButton.Enabled = false;
 
@@ -2761,7 +2797,7 @@ namespace MotionSensor
             }
 
         }
-        private void button6_Click(object sender, EventArgs e)
+        void GetSetPairMAC()
         {
             string InputChar = textBox5.Text;
             char[] cc = InputChar.ToCharArray();
@@ -2776,11 +2812,40 @@ namespace MotionSensor
                     cc[i] = (char)(cc[i] - 'A' + 10);
                 }
             }
-            serialcommand.PairingCommand(serialPort1, cc);
-            System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-            string DisplayString = "请求设置配对心电补丁的MAC\r\n";
-            DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-            OutMsg(MonitorText, DisplayString, Color.Red);
+            for (int i = 0; i < 6; i++)
+            {
+                ECGSetPairMAC[i] = (byte)((cc[(5 - i) * 3] << 4) + (cc[(5 - i) * 3 + 1]));
+            }
+        }
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (EcgUartProcessThread.IsAlive)
+            {
+                EcgUartProcessThread.Abort();
+            }
+            GetSetPairMAC();
+            ConnectDeviceFlag = 0;
+            PairDeviceFlag = 1;   //
+
+            PairButton.Text = "正在设置配对MAC";
+
+            EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
+            EcgUartProcessThread.Start();
+
+
+            string InputChar = textBox5.Text;
+            char[] cc = InputChar.ToCharArray();
+            for (int i = 0; i < 0x11; i++)
+            {
+                if (cc[i] >= '0' && (cc[i] <= '9'))
+                {
+                    cc[i] = (char)(cc[i] - 0x30);
+                }
+                else if (cc[i] >= 'A' && (cc[i] <= 'F'))
+                {
+                    cc[i] = (char)(cc[i] - 'A' + 10);
+                }
+            }
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -3358,6 +3423,12 @@ namespace MotionSensor
             EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
             EcgUartProcessThread.Start();
 
+        }
+
+        private void MAClistBox_Click(object sender, EventArgs e)
+        {
+            textBox5.Text = ScanBLEMAC[MAClistBox.SelectedIndex, 5].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 4].ToString("X2") + ":" +                   ScanBLEMAC[MAClistBox.SelectedIndex, 3].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 2].ToString("X2") + ":" + ScanBLEMAC                    [MAClistBox.SelectedIndex, 1].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 0].ToString("X2");
+            PairButton.Enabled = true;
         }
     }
 

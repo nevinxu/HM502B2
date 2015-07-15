@@ -57,13 +57,13 @@
 #define DEFAULT_ENABLE_UPDATE_REQUEST         TRUE
 
 // Minimum connection interval (units of 1.25ms) if automatic parameter update request is enabled
-#define DEFAULT_UPDATE_MIN_CONN_INTERVAL      8
+#define DEFAULT_UPDATE_MIN_CONN_INTERVAL      50
 
 // Maximum connection interval (units of 1.25ms) if automatic parameter update request is enabled
-#define DEFAULT_UPDATE_MAX_CONN_INTERVAL      20
+#define DEFAULT_UPDATE_MAX_CONN_INTERVAL      100
 
 // Slave latency to use if automatic parameter update request is enabled
-#define DEFAULT_UPDATE_SLAVE_LATENCY          FALSE
+#define DEFAULT_UPDATE_SLAVE_LATENCY          0
 
 // Supervision timeout value (units of 10ms) if automatic parameter update request is enabled
 #define DEFAULT_UPDATE_CONN_TIMEOUT           600
@@ -271,10 +271,10 @@ void SimpleBLECentral_Init( uint8 task_id )
   GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, (uint8 *) simpleBLEDeviceName );
   
 #if 1
-  GAP_SetParamValue(TGAP_CONN_PARAM_TIMEOUT,100);
-  
+  GAP_SetParamValue(TGAP_CONN_PARAM_TIMEOUT,1);
   GAP_SetParamValue(TGAP_CONN_ADV_INT_MIN,16);
-  GAP_SetParamValue(TGAP_CONN_EST_ADV_TIMEOUT,500);
+  GAP_SetParamValue(TGAP_CONN_ADV_INT_MAX,16);
+  GAP_SetParamValue(TGAP_CONN_EST_ADV_TIMEOUT,100);
   GAP_SetParamValue(TGAP_CONN_EST_LATENCY,1);
 #endif
   GAP_SetParamValue(TGAP_CONN_EST_SUPERV_TIMEOUT,50);   //2s

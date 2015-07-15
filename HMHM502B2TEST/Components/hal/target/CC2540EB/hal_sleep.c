@@ -157,8 +157,8 @@
 // 1. avoid thrashing in-and-out of sleep with short OSAL timer
 // 2. define minimum safe sleep period
 #if !defined (PM_MIN_SLEEP_TIME)
-//#define PM_MIN_SLEEP_TIME                   66                    // default to min safe sleep time, in 32kHz ticks
-#define PM_MIN_SLEEP_TIME                   100
+#define PM_MIN_SLEEP_TIME                   66                    // default to min safe sleep time, in 32kHz ticks
+//#define PM_MIN_SLEEP_TIME                   100
 #endif // !PM_MIN_SLEEP_TIME
 
 // This value is used to adjust the sleep timer compare value such that the

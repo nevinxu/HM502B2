@@ -309,12 +309,12 @@ namespace RFtest
                 }
                 
         }
-        public void PairingCommand(SerialPort serialport, char[] cc)
+        public void PairingCommand(SerialPort serialport, byte[] PairMAC)
         {
                 byte[] ssss = { 0x77, 0x20, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
                 for (int i = 0; i < 6; i++)
                 {
-                    ssss[4 + i] = (byte)((cc[(5 - i) * 3] << 4) + (cc[(5 - i) * 3 + 1]));
+                    ssss[4 + i] = PairMAC[i];
                 }
                 //   ECGPairMAC
                 if (serialport.IsOpen)

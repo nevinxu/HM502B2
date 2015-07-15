@@ -67,9 +67,8 @@
             this.label10 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
+            this.PairButton = new System.Windows.Forms.Button();
             this.textBox5 = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button1 = new System.Windows.Forms.Button();
             this.AmplificationValue = new System.Windows.Forms.Label();
@@ -81,6 +80,7 @@
             this.label19 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.PatchMACLabel = new System.Windows.Forms.Label();
             this.MAClistBox = new System.Windows.Forms.ListBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.MACComboBox = new System.Windows.Forms.ComboBox();
@@ -460,33 +460,24 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
-            // button6
+            // PairButton
             // 
-            this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(734, 509);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(93, 23);
-            this.button6.TabIndex = 37;
-            this.button6.Text = "配对";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.PairButton.Enabled = false;
+            this.PairButton.Location = new System.Drawing.Point(607, 509);
+            this.PairButton.Name = "PairButton";
+            this.PairButton.Size = new System.Drawing.Size(143, 23);
+            this.PairButton.TabIndex = 37;
+            this.PairButton.Text = "配对";
+            this.PairButton.UseVisualStyleBackColor = true;
+            this.PairButton.Click += new System.EventHandler(this.button6_Click);
             // 
             // textBox5
             // 
-            this.textBox5.Location = new System.Drawing.Point(558, 511);
+            this.textBox5.Location = new System.Drawing.Point(595, 482);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(165, 21);
             this.textBox5.TabIndex = 38;
             this.textBox5.TextChanged += new System.EventHandler(this.textBox5_TextChanged);
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(560, 496);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(143, 12);
-            this.label13.TabIndex = 39;
-            this.label13.Text = "设置配对心电补丁MAC地址";
             // 
             // chart1
             // 
@@ -623,6 +614,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.PatchMACLabel);
             this.tabPage1.Controls.Add(this.MAClistBox);
             this.tabPage1.Controls.Add(this.DataStoreButton);
             this.tabPage1.Controls.Add(this.chart1);
@@ -644,10 +636,9 @@
             this.tabPage1.Controls.Add(this.differenceValue);
             this.tabPage1.Controls.Add(this.button5);
             this.tabPage1.Controls.Add(this.AmplificationValue);
-            this.tabPage1.Controls.Add(this.button6);
+            this.tabPage1.Controls.Add(this.PairButton);
             this.tabPage1.Controls.Add(this.button1);
             this.tabPage1.Controls.Add(this.textBox5);
-            this.tabPage1.Controls.Add(this.label13);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -655,6 +646,15 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "心电补丁测试";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // PatchMACLabel
+            // 
+            this.PatchMACLabel.AutoSize = true;
+            this.PatchMACLabel.Location = new System.Drawing.Point(556, 541);
+            this.PatchMACLabel.Name = "PatchMACLabel";
+            this.PatchMACLabel.Size = new System.Drawing.Size(83, 12);
+            this.PatchMACLabel.TabIndex = 51;
+            this.PatchMACLabel.Text = "当前配对MAC：";
             // 
             // MAClistBox
             // 
@@ -664,6 +664,7 @@
             this.MAClistBox.Name = "MAClistBox";
             this.MAClistBox.Size = new System.Drawing.Size(268, 88);
             this.MAClistBox.TabIndex = 50;
+            this.MAClistBox.Click += new System.EventHandler(this.MAClistBox_Click);
             this.MAClistBox.SelectedIndexChanged += new System.EventHandler(this.MAClistBox_SelectedIndexChanged);
             this.MAClistBox.DoubleClick += new System.EventHandler(this.MAClistBox_DoubleClick);
             // 
@@ -878,9 +879,8 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button PairButton;
         private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.Label label13;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label differenceValue;
@@ -912,6 +912,7 @@
         private System.Windows.Forms.ToolStripStatusLabel EcgPatchVersionLabel;
         private System.Windows.Forms.Button UpDataButton;
         private System.Windows.Forms.StatusStrip miniToolStrip;
+        private System.Windows.Forms.Label PatchMACLabel;
     }
 }
 
