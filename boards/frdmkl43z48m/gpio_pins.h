@@ -50,8 +50,10 @@ enum _gpio_pins
 	kGpioLED1        				= GPIO_MAKE_PIN(HW_GPIOE, 29),  /* HM502B2 GREEN LED */
 	kGpioPWR_AD_EN         			= GPIO_MAKE_PIN(HW_GPIOE,  18),  
 	kGpioBTPIO0         			= GPIO_MAKE_PIN(HW_GPIOC,  2),  
-	kGpioBTPIO1         			= GPIO_MAKE_PIN(HW_GPIOC,  1), 
-	kGpioLEADOFF_CHECK        		= GPIO_MAKE_PIN(HW_GPIOC,  2),  
+	kGpioBTPIO1         			= GPIO_MAKE_PIN(HW_GPIOB,  17), 
+	//kGpioBTPIO1         			= GPIO_MAKE_PIN(HW_GPIOC,  1), 
+	kGpioLEADOFF_CHECK        		= GPIO_MAKE_PIN(HW_GPIOC,  1), 
+//	kGpioLEADOFF_CHECK        		= GPIO_MAKE_PIN(HW_GPIOC,  2),  
 	kGpioBT_RET         			= GPIO_MAKE_PIN(HW_GPIOC,  0),  
 	kGpioCHARG_LED         			= GPIO_MAKE_PIN(HW_GPIOE,  24), 
 	kGpioCHARG_EN         			= GPIO_MAKE_PIN(HW_GPIOE,  25),

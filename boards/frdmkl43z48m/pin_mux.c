@@ -44,6 +44,7 @@ void configure_gpio_pins(uint32_t instance)
 
     case 1:                             /* PTB */
 	PORT_HAL_SetMuxMode(g_portBaseAddr[1],3u,kPortMuxAsGpio);
+	PORT_HAL_SetMuxMode(g_portBaseAddr[1],17u,kPortMuxAsGpio);
       break;
 
     case 2:                             /* PTC */

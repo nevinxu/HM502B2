@@ -180,7 +180,7 @@ static bool simpleBLEProcedureInProgress = FALSE;
 extern BLEPacket_t  rxSerialPkt;
 extern BLEPacket_t  txSerialPkt;
 
-uint8 AutoConnectFlag = 1;   //自动连接初始化时能
+uint8 AutoConnectFlag = 0;   //自动连接初始化时能
 uint8 DeviceMode = 0;     //303模式
 //uint8 DeviceMode = 1;     //测试模式
 
@@ -189,7 +189,7 @@ uint8 CentralMAC[6];
 uint8 ECGPatchMAC[6];    //连接心电补丁MAC地址
 
 uint8 PairMAC[6] = {0xE6,0x39,0x00,0x0B,0x0E,0x00};
-uint8 PairFlag = 1;   //配对功能使能
+uint8 PairFlag = 0;   //配对功能使能
 
 long  ReceivePackageNum;
 long  LostPackageNum;
@@ -398,6 +398,15 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
           GAPCentralRole_EstablishLink( DEFAULT_LINK_HIGH_DUTY_CYCLE,
                                         DEFAULT_LINK_WHITE_LIST,
                                         addrType, peerAddr );
+        }
+        else
+        {
+          txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+          txSerialPkt.header.opCode = APP_CMD_CONNECTBLEACK;
+          txSerialPkt.header.status = 0x00;
+          txSerialPkt.length = 1;
+          txSerialPkt.data[0] = 0;
+          sendSerialEvt(); 
         }
       }
     }
@@ -716,6 +725,14 @@ static void simpleBLECentralProcessGATTMsg( gattMsgEvent_t *pMsg )
               {
                 HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
               }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_STARTSET1MVVALUEACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
+              else if(pMsg->msg.handleValueNoti.value[1] == APP_CMD_STARTSET0MVVALUEACK)
+              {
+                HalUARTWrite(NPI_UART_PORT, pMsg->msg.handleValueNoti.value, pMsg->msg.handleValueNoti.len);
+              }
               
             }
           }
@@ -869,7 +886,8 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
           txSerialPkt.header.opCode = APP_CMD_CONNECTBLEACK;
           txSerialPkt.header.status = 0x00;
-          txSerialPkt.length = 0;
+          txSerialPkt.length = 1;
+          txSerialPkt.data[0] = 1;
           sendSerialEvt();
           
        //   osal_memcpy(ECGPatchMAC,simpleBLEDevList[simpleBLEScanIdx].addr,6);
@@ -879,7 +897,7 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           simpleBLEProcedureInProgress = FALSE;
           
         //  osal_start_timerEx( simpleBLETaskId, START_GET0MVVALUE_EVT,500);
-          osal_start_timerEx( simpleBLETaskId, START_GETECGPatchMACVALUE_EVT,500);
+       //   osal_start_timerEx( simpleBLETaskId, START_GETECGPatchMACVALUE_EVT,500);
           
        //   SendCommand2Peripheral(APP_CMD_RECEIVEECGDATA,0,0);   //向心电补丁请求发送心电数据
           
@@ -891,8 +909,9 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
           
           txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
           txSerialPkt.header.opCode = APP_CMD_CONNECTBLEACK;
-          txSerialPkt.header.status = 0x01;
-          txSerialPkt.length = 0;
+          txSerialPkt.header.status = 0x00;
+          txSerialPkt.length = 1;
+          txSerialPkt.data[0] = 0;
           sendSerialEvt();    
           
           HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_ON ); 

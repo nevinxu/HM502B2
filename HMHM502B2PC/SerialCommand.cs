@@ -371,6 +371,26 @@ namespace RFtest
 
                 
         }
+        public void StartSetcalibration0mvSerialCommand(SerialPort serialport)
+        {
+            byte[] ssss = { 0x77, 0x51, 0x00, 0x00};
+            if (serialport.IsOpen)
+            {
+                serialport.Write(ssss, 0, 4);
+            }
+
+
+        }
+        public void StartSetcalibration1mvSerialCommand(SerialPort serialport)
+        {
+            byte[] ssss = { 0x77, 0x50, 0x00, 0x00};
+            if (serialport.IsOpen)
+            {
+                serialport.Write(ssss, 0, 4);
+            }
+
+
+        }
         public void GetHardWareVersionSerialCommand(SerialPort serialport)
         {
                 byte[] ssss = { 0x77, 0x30, 0x00, 0x00 };

@@ -23,6 +23,8 @@
 #define SENDGET1MVCODE										0x09			//获取1mv定标
 #define SENDGET0MVCODE										0x0A			//获取0mv校准
 #define SENDSETECGPATCHIDCODE								0x0B			//设置心电补丁ID回应
+#define STARTSENDSET1MVCODE										0x0C			//设置进行校准回应
+#define STARTSENDSET0MVCODE										0x0D			//设置进行校准回应
 
 
 #define SERIAL_IDENTIFIER       									0x77
@@ -72,6 +74,8 @@
 
 #define APP_CMD_STARTSET1MVVALUE               				0x50
 #define APP_CMD_STARTSET0MVVALUE               				0x51
+#define APP_CMD_STARTSET1MVVALUEACK               				0x52
+#define APP_CMD_STARTSET0MVVALUEACK               				0x53
 
 
                      

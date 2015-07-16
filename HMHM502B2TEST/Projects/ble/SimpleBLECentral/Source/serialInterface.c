@@ -166,6 +166,8 @@ void cSerialPacketParser( uint8 port, uint8 events )
           case APP_CMD_ECGPATCHHARDVERSIONACK:
           case APP_CMD_ECGPATCHSOFTVERSIONACK:
           case APP_CMD_SETECGPATCHID:
+          case APP_CMD_STARTSET1MVVALUE:
+          case APP_CMD_STARTSET0MVVALUE:
             rxSerialPkt.header.opCode = cmd_opcode;
             pktState = NPI_SERIAL_STATE_STATUS;
             break;
@@ -515,11 +517,12 @@ void parseCmd(void){
         txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
         txSerialPkt.header.opCode = APP_CMD_ECGPATCHHARDVERSIONREQ;
         txSerialPkt.header.status = 0x00;
-        txSerialPkt.length = 4; 
-        txSerialPkt.data[0] = 0;
-        txSerialPkt.data[1] = 0;
-        txSerialPkt.data[2] = 0;
-        txSerialPkt.data[3] = 0;
+        txSerialPkt.length = 5; 
+        txSerialPkt.data[0] = '0';
+        txSerialPkt.data[1] = '.';
+        txSerialPkt.data[2] = '0';
+        txSerialPkt.data[3] = '.';
+        txSerialPkt.data[4] = '0';
         sendSerialEvt();
       }
     }
@@ -535,11 +538,19 @@ void parseCmd(void){
       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
       txSerialPkt.header.opCode = APP_CMD_ECGPATCHSOFTVERSIONREQ;
       txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 4; 
-      txSerialPkt.data[0] = 0;
-      txSerialPkt.data[1] = 0;
-      txSerialPkt.data[2] = 0;
-      txSerialPkt.data[3] = 0;
+      txSerialPkt.length = 12; 
+      txSerialPkt.data[0] = '0';
+      txSerialPkt.data[1] = '.';
+      txSerialPkt.data[2] = '0';
+      txSerialPkt.data[3] = '.';
+      txSerialPkt.data[4] = '0';
+      txSerialPkt.data[5] = '.';
+      txSerialPkt.data[6] = '0';
+      txSerialPkt.data[7] = '0';
+      txSerialPkt.data[8] = '0';
+      txSerialPkt.data[9] = '0';
+      txSerialPkt.data[10] = '0';
+      txSerialPkt.data[11] = '0';
       sendSerialEvt();
       }
     }
@@ -556,6 +567,41 @@ void parseCmd(void){
       txSerialPkt.header.opCode = APP_CMD_SETECGPATCHIDACK;
       txSerialPkt.header.status = 0x00;
       txSerialPkt.length = 10; 
+        
+      sendSerialEvt();
+      }
+    }
+    break;
+    case APP_CMD_STARTSET0MVVALUE:
+    {
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_STARTSET0MVVALUE,0,0);
+      }
+      else   //心电补丁未连接
+      {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_STARTSET0MVVALUEACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 1; 
+      txSerialPkt.data[0] = 0;  
+      sendSerialEvt();
+      }
+    }
+    break;
+    case APP_CMD_STARTSET1MVVALUE:
+    {
+      if( simpleBLEState == BLE_STATE_CONNECTED )
+      {
+        SendCommand2Peripheral(APP_CMD_STARTSET1MVVALUE,0,0);
+      }
+      else   //心电补丁未连接
+      {
+      txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
+      txSerialPkt.header.opCode = APP_CMD_STARTSET1MVVALUEACK;
+      txSerialPkt.header.status = 0x00;
+      txSerialPkt.length = 1; 
+      txSerialPkt.data[0] = 0;  
         
       sendSerialEvt();
       }
@@ -600,6 +646,8 @@ void sendSerialEvt(void){
   case APP_CMD_ADVERTISEOVER:
     case APP_CMD_SETECGPATCHIDACK:
   case   APP_CMD_RECEIVEPACKAGENUMVALUE:
+  case APP_CMD_STARTSET0MVVALUEACK:
+  case APP_CMD_STARTSET1MVVALUEACK:
   HalUARTWrite(NPI_UART_PORT, (uint8*)&txSerialPkt, sizeof(txSerialPkt.header)+ txSerialPkt.length + 1);
   break;
     

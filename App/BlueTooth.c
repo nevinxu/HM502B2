@@ -29,7 +29,7 @@ static lpuart_state_t s_bt_lpuart[2];
 extern msg_queue_handler_t hBTMsgQueue;  //心电数据发送队列 
 
 uint8_t	HardWareVersion[5] = {"1.1.0"};
-uint8_t	SoftWareVersion[12] = {"1.0.3.150706"};   //sdk1.0.0   2015.06.17
+uint8_t	SoftWareVersion[12] = {"1.0.3.150716"};   //sdk1.0.0   2015.06.17
 
 unsigned char MACEDR[12];
 unsigned char MACBLE[12];
@@ -227,6 +227,8 @@ void task_bluetooth_tx(task_param_t param)   //优先级高
 					case  SENDHARDVERSIONCODE:
 					case  SENDSOFTVERSIONCODE:
 					case  SENDSETECGPATCHIDCODE:
+					case STARTSENDSET1MVCODE:
+					case STARTSENDSET0MVCODE:
 						while ( kStatus_LPUART_TxBusy == LPUART_DRV_SendData(BOARD_BT_UART_INSTANCE,(uint8_t*)&m_btdatapackage.data,m_btdatapackage.size)); 
 						break;
 				}		
@@ -322,10 +324,14 @@ void task_bluetooth_rx(task_param_t param)
 								else if(bluerxbuffer[1] == APP_CMD_STARTSET1MVVALUE)	
 								{
 									CalibrationFlag = 1;
+									BlueToothSendCommand(STARTSENDSET1MVCODE,APP_CMD_STARTSET1MVVALUEACK,SERIAL_DATASIZE_ONE,SucessFlag); 
+
 								}
-								else if(bluerxbuffer[1] == APP_CMD_STARTSET1MVVALUE)	
+								else if(bluerxbuffer[1] == APP_CMD_STARTSET0MVVALUE)	
 								{
 									CalibrationFlag = 1;
+									BlueToothSendCommand(STARTSENDSET0MVCODE,APP_CMD_STARTSET0MVVALUEACK,SERIAL_DATASIZE_ONE,SucessFlag); 
+
 								}
 						 }
 					 }

@@ -70,6 +70,11 @@
 #define APP_CMD_ECGPATCHSOFTVERSIONACK          	0x32
 #define APP_CMD_ECGPATCHSOFTVERSIONREQ        		0x33
 
+#define APP_CMD_STARTSET1MVVALUE               				0x50
+#define APP_CMD_STARTSET0MVVALUE               				0x51
+#define APP_CMD_STARTSET1MVVALUEACK               				0x52
+#define APP_CMD_STARTSET0MVVALUEACK               				0x53
+
 // Serial Event Mnemonic        Opcode
 #define	APP_EVT_CMD_RESPONSE	0x81
 #define APP_EVT_CONNECT	        0x82 // Not used

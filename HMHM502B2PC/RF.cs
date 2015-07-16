@@ -22,7 +22,7 @@ namespace MotionSensor
         string[] Xdata = new string[M * N];
         double[] XdataV = new double[M * N];
 
-        private byte[,] EcgData_Com = new byte[256, 10];   //原始采集到的心电数据
+        private double[,] EcgData_Com = new double[64, 8];   //原始采集到的心电数据
 
         byte[] ECGData = new byte[M * 2];
 
@@ -80,6 +80,7 @@ namespace MotionSensor
         byte[] ECGPairMAC = new byte[6];
         byte[] ECGSetPairMAC = new byte[6];
         private int EcgDataTimer = 0;
+
         private Int16 amplification = 60;
         private Int16 difference_Value = 525;
 
@@ -88,11 +89,12 @@ namespace MotionSensor
 
         private int ScalingFlag = 0;
         private int calibration_Num = 0;
-        private List<double> calibration_Value = new List<double>(1024);
+        private List<double> calibration_Value = new List<double>(4096);
         private double[] ScalingEcgMin = new double[8];
         private double[] ScalingEcgMax = new double[8];
 
-        private int ZeroValue = 9999;
+        private int ZeroValue = 5000;
+        private int DisplayMultipleNum = 10;
         private int BaseLine = 0;
 
         byte[] HardVersion = new byte[5];
@@ -272,6 +274,7 @@ namespace MotionSensor
                             ScanButton.Invoke(new EventHandler(delegate
                             {
                                 ScanButton.Text = "搜索失败，请重新搜索";
+                                ScanButton.Enabled = true;
                             }));
                         }
                         ScanDeviceFlag = 0;
@@ -285,23 +288,35 @@ namespace MotionSensor
                     {
                         serialcommand.ConnectBLESerialCommand(EcgCom, (byte)MAClistBox.SelectedIndex);
                     }));
-                    if (TestCommandGetStatus(0x41, 0x42, DisplayString1, DisplayString2, DisplayString3, 200) == 0)
+                    if (TestCommandGetStatus(0x41, 0x42, DisplayString1, DisplayString2, DisplayString3, 300) == 0)
                     {
                         ScanButton.Invoke(new EventHandler(delegate
                         {
                             ScanButton.Text = "设备已连接";
+                            ScanButton.Enabled = true;
+                            PairButton.Enabled = false;
                             MAClistBox.Invoke(new EventHandler(delegate
                             {
                                 MAClistBox.Enabled = false;
                             }));
                             ConnectDeviceFlag = 2;
+                            button5.Enabled = true;
+                            button1.Enabled = true;
                         }));
                     }
                     else
                     {
                         ScanButton.Invoke(new EventHandler(delegate
                         {
+                            ScanButton.Text = "连接失败";
+                            button5.Enabled = false;
+                            button1.Enabled = false;
+                        }));
+                        Thread.Sleep(1000);
+                        ScanButton.Invoke(new EventHandler(delegate
+                        {
                             ScanButton.Text = "搜索设备";
+                            PairButton.Enabled = true;
                             ConnectDeviceFlag = 0;
                         }));
                     }
@@ -317,14 +332,89 @@ namespace MotionSensor
                     {
                         ScanButton.Invoke(new EventHandler(delegate
                         {
+                            ScanButton.Text = "设备已断开";
+                            MAClistBox.Enabled = true;
+                            ScanButton.Enabled = false;
+                            toolStripStatusLabel2.Text = "";
+                            toolStripStatusLabel3.Text = "";
+                            button5.Enabled = false;
+                            button1.Enabled = false;
+                        }));
+                        Thread.Sleep(1000);
+                        ScanButton.Invoke(new EventHandler(delegate
+                        {
                             ScanButton.Text = "搜索设备";
                             MAClistBox.Enabled = true;
                             ConnectDeviceFlag = 0;
+                            ScanButton.Enabled = true;
+                            PairButton.Enabled = true;
+
                         }));
                     }
                 }
                 else if (ConnectDeviceFlag == 2)   //已连接
                 {
+                    DisplayString1 = "请求停止接收心电数据...\r\n";
+                    DisplayString2 = "请求停止接收心电数据失败！\r\n";
+                    DisplayString3 = "请求停止接收心电数据成功！\r\n";
+                    serialcommand.StopReceiveECGDataSerialCommand(EcgCom);
+                    TestCommandGetStatus(5, 6, DisplayString1, DisplayString2, DisplayString3, 500);
+
+                    DisplayString1 = "请求获取硬件版本...\r\n";
+                    DisplayString2 = "获取硬件版本失败！\r\n";
+                    DisplayString3 = "获取硬件版本成功！\r\n";
+                    serialcommand.GetHardWareVersionSerialCommand(EcgCom);
+                    if (TestCommandGetStatus(0x71, 0x72, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        ;
+                    }
+
+                    DisplayString1 = "请求获取软件版本...\r\n";
+                    DisplayString2 = "获取软件版本失败！\r\n";
+                    DisplayString3 = "获取软件版本成功！\r\n";
+                    serialcommand.GetSoftWareVersionSerialCommand(EcgCom);
+                    if (TestCommandGetStatus(0x73, 0x74, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        ;
+                    }
+                    DisplayString1 = "请求获取0mv校准值...\r\n";
+                    DisplayString2 = "获取0mv校准值失败！\r\n";
+                    DisplayString3 = "获取0mv校准值成功！\r\n";
+                    serialcommand.calibration0mvSerialCommand(EcgCom);
+                    if (TestCommandGetStatus(0x81, 0x82, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        ;
+                    }
+
+                    DisplayString1 = "请求获取1mv校准值...\r\n";
+                    DisplayString2 = "获取1mv校准值失败！\r\n";
+                    DisplayString3 = "获取1mv校准值成功！\r\n";
+                    serialcommand.calibration1mvSerialCommand(EcgCom);
+                    if (TestCommandGetStatus(0x83, 0x84, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        ;
+                    }
+                    else
+                    {
+                        ;
+                    }
+                    toolStripStatusLabel2.Text = "当前心电补丁 1mv校准值: " + amplification.ToString() + "    0mv校准值： " + difference_Value.ToString();
+
+
+                    toolStripStatusLabel3.Text = "硬件版本:" + Encoding.UTF8.GetString(HardVersion) + "   软件版本:" + Encoding.UTF8.GetString                       (SoftVersion);
+
                     DisplayString1 = "请求接收心电数据...\r\n";
                     DisplayString2 = "接收心电数据失败！\r\n";
                     DisplayString3 = "接收心电数据成功！\r\n";
@@ -340,6 +430,20 @@ namespace MotionSensor
                 }
                 else if (ConnectDeviceFlag == 4)
                 {
+                    for(int i = 0;i<512;i++)
+                    {
+                        XdataV[i] = EcgData_Com[i / 8, i % 8];
+                    }
+                    chart1.Invoke(new EventHandler(delegate
+                    {
+                        chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+                        chart1.Series["Series_Ecg"].Color = Color.FromArgb(0, 192, 0);
+                    }));
+                    ScalingFuction();
+                    Thread.Sleep(100);
+                }
+                else if (ConnectDeviceFlag == 5)
+                {
                     ;
                 }
                 else if (PairDeviceFlag == 1)
@@ -354,12 +458,15 @@ namespace MotionSensor
                         {
                             string aa = ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
                             PatchMACLabel.Text = "当前配对的MAC：" + aa;
+                            toolStripStatusLabel4.Text = "当前配对的MAC：" + aa;
                             PairButton.Text = "配对完成";
+                            PairButton.Enabled = false;
                         }));
                         Thread.Sleep(1000);
                         MAClistBox.Invoke(new EventHandler(delegate
                         {
                             PairButton.Text = "配对";
+                            PairButton.Enabled = true;
                         }));
                     }
                     else
@@ -370,7 +477,7 @@ namespace MotionSensor
                         }));
                     }
                     PairDeviceFlag = 0;
-                    
+
                 }
                 else
                 {
@@ -405,9 +512,10 @@ namespace MotionSensor
                     if (TestCommandGetStatus(0x10, 0x11, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
                     {
                         MAClistBox.Invoke(new EventHandler(delegate
-                        { 
+                        {
                             string aa = ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") + ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") + ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
                             PatchMACLabel.Text = "当前配对的MAC：" + aa;
+                            toolStripStatusLabel4.Text = "当前配对的MAC：" + aa;
                         }));
                     }
 
@@ -416,20 +524,11 @@ namespace MotionSensor
                     DisplayString3 = "设置测试模式成功！\r\n";
                     serialcommand.SetTestModeCommand(EcgCom);
                     TestCommandGetStatus(0x12, 0x13, DisplayString1, DisplayString2, DisplayString3, 500);
+                    Thread.Sleep(1000);
                 }
-                Thread.Sleep(1000);
-
             }
             ScanEcgUartThread = new Thread(new ThreadStart(ScanEcgUartFunction));
             ScanEcgUartThread.Start();
-                //System.Threading.Thread.Sleep(200);
-
-                //serialcommand.AutoConnectBLEStatusSerialCommand(serialPort1);
-
-                //converter = new System.Text.ASCIIEncoding();
-                //DisplayString = "获取自动连接配置状态...\r\n";
-                //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                //OutMsg(MonitorText, DisplayString, Color.Red);
         }
 
         void ScanEcgUartFunction()
@@ -437,7 +536,7 @@ namespace MotionSensor
             Int16 ScanSequence = 0;
             while (true)
             {
-                if (EcgComConnectFlag == 0)
+                if (EcgComConnectFlag == 0x00)
                 {
                     GetComList(GetComNameList);    //获取当前所有的串口
                     if (ScanSequence >= GetComNameList.Count() - 1)
@@ -451,25 +550,23 @@ namespace MotionSensor
                     }
                     ConnectUartName[4] = GetComNameList[ScanSequence];
                 }
-                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
                 string DisplayString = "BLE主机串口：请求连接" + ConnectUartName[4] + "...\r\n";
-                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                 OutMsg(MonitorText, DisplayString, Color.Red);
+                EcgComReceiveFlag = 0x01;
                 EcgComUpDataConnectReq(EcgCom, ConnectUartName[4]);
-                EcgComReceiveFlag = 1;
                 Thread.Sleep(500);
-                if(EcgComReceiveFlag == 1)
+                if(EcgComReceiveFlag == 0x01)
                 {
-                        converter = new System.Text.ASCIIEncoding();
                         DisplayString = "BLE主机串口： "+ConnectUartName[4] + "连接失败！\r\n";
-                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                         OutMsg(MonitorText, DisplayString, Color.Red);
+
                         EcgComReceiveFlag = 0;
                         EcgComConnectFlag = 0;
 
                         tabControl1.Invoke(new EventHandler(delegate
                         {
                             tabControl1.TabPages[0].Text = "心电补丁主机测试工装未连接";
+                            toolStripStatusLabel1.Text = "BLE主机串口未连接";
                         }));
 
                         if (EcgUartProcessThread.IsAlive)
@@ -477,17 +574,17 @@ namespace MotionSensor
                             EcgUartProcessThread.Abort();
                         }
                 }
-                if (EcgComReceiveFlag == 2)
+                if (EcgComReceiveFlag == 0x02)
                 {
-                    converter = new System.Text.ASCIIEncoding();
                     DisplayString = "BLE主机串口： " + ConnectUartName[4] + "连接成功！\r\n";
-                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                     OutMsg(MonitorText, DisplayString, Color.Red);
+
                     EcgComConnectFlag = 1;
 
                     tabControl1.Invoke(new EventHandler(delegate
                     {
                         tabControl1.TabPages[0].Text = "心电补丁主机测试工装已连接";
+                        toolStripStatusLabel1.Text = "BLE主机串口： " + ConnectUartName[4] + "连接成功";
                     }));
                     if (!EcgUartProcessThread.IsAlive)
                     {
@@ -892,41 +989,56 @@ namespace MotionSensor
                     {
                         if (ReceiveDataList[1] == 0x02)  //
                         {
-                            EcgComReceiveFlag = 2;
+                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0))
+                            {
+                                EcgComReceiveFlag = 2;
+                            }
                         }
                         else if (ReceiveDataList[1] == 0x0B) //心电补丁已断开
                         {
-                            EcgComReceiveFlag = 4;
+                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0) || (ConnectDeviceFlag == 3))
+                            {
+                                EcgComReceiveFlag = 4;
+                            }
                         }
                         else if (ReceiveDataList[1] == 0x17) //请求停止接收心电数据成功
                         {
-                            EcgComReceiveFlag = 6;
+                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0) || (ConnectDeviceFlag == 2) || (ConnectDeviceFlag == 3) || (ConnectDeviceFlag == 5))
+                            {
+                                EcgComReceiveFlag = 6;
+                            }
                         }
                         else if (ReceiveDataList[1] == 0x12)
                         {
-                            if (ReceiveDataList[4] == 0x01)    //自动连接配置完成！
+                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0))
                             {
+                                if (ReceiveDataList[4] == 0x01)    //自动连接配置完成！
+                                {
 
-                            }
-                            else if (ReceiveDataList[4] == 0x00)   //停止自动连接！
-                            {
-                                EcgComReceiveFlag = 8;
+                                }
+                                else if (ReceiveDataList[4] == 0x00)   //停止自动连接！
+                                {
+                                    EcgComReceiveFlag = 8;
+                                }
                             }
                         }
                         else if (ReceiveDataList[1] == 0x1B)  //获取自动搜索连接状态成功
                         {
-                            EcgComReceiveFlag = 10;
-                            checkBox1.Invoke(new EventHandler(delegate
+                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0))
                             {
-                                if (ReceiveDataList[4] == 1)
+                                EcgComReceiveFlag = 10;
+                                checkBox1.Invoke(new EventHandler(delegate
                                 {
-                                    checkBox1.Checked = true;
-                                }
-                                else if (ReceiveDataList[4] == 0)
-                                {
-                                    checkBox1.Checked = false;
-                                }
-                             }));
+                                    if (ReceiveDataList[4] == 1)
+                                    {
+                                        checkBox1.Checked = true;
+                                    }
+                                    else if (ReceiveDataList[4] == 0)
+                                    {
+                                        checkBox1.Checked = false;
+                                    }
+                                }));
+                            }
                         }
                         else if (ReceiveDataList[1] == 0x0E)  //正在搜索设备
                         {
@@ -954,17 +1066,18 @@ namespace MotionSensor
                         }
                         else if (ReceiveDataList[1] == 0x2E)  //搜索结束
                         {
-                            EcgComReceiveFlag = 0x32;
-                           // button6.Enabled = true;   //配对按钮
-                            ScanButton.Invoke(new EventHandler(delegate
+                            if (ScanDeviceFlag == 1)
                             {
-                                ScanButton.Enabled = true;
-                            }));
+                                EcgComReceiveFlag = 0x32;
+                                // button6.Enabled = true;   //配对按钮
+                                ScanButton.Invoke(new EventHandler(delegate
+                                {
+                                    ScanButton.Enabled = true;
+                                }));
+                            }
                         }
                         else if (ReceiveDataList[1] == 0x06)
                         {
-                            if (ReceiveDataList.Count >= 5)
-                            {
                                 if (ReceiveDataList[4] == 1) //心电补丁连接成功
                                 {
                                     EcgComReceiveFlag = 0x42;
@@ -973,20 +1086,25 @@ namespace MotionSensor
                                 {
 
                                     EcgComReceiveFlag = 0x43;
-                                }
-                            }
+                                } 
                         }
                         else if (ReceiveDataList[1] == 0x23) //获取配对状态成功
                         {
-                            EcgComReceiveFlag = 0x11;
-                            for (int i = 0; i < 6; i++)
+                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0) || (PairDeviceFlag == 1))
                             {
-                                ECGPairMAC[i] = ReceiveDataList[4 + i];
+                                EcgComReceiveFlag = 0x11;
+                                for (int i = 0; i < 6; i++)
+                                {
+                                    ECGPairMAC[i] = ReceiveDataList[4 + i];
+                                }
                             }
                         }
                         else if (ReceiveDataList[1] == 0x25) //设置测试模式成功
                         {
-                            EcgComReceiveFlag = 0x13;
+                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0))
+                            {
+                                EcgComReceiveFlag = 0x13;
+                            }
                         }
                         else if (ReceiveDataList[1] == 0x15)
                         {
@@ -1003,10 +1121,111 @@ namespace MotionSensor
                         }
                         else if (ReceiveDataList[1] == 0x21)   //设置配对MAC成功
                         {
-                            EcgComReceiveFlag = 0x62;
-                            for (int i = 0; i < 6;i++ )
+                            if (PairDeviceFlag == 1)
                             {
-                                ECGPairMAC[i] = ReceiveDataList[4 + i];
+                                EcgComReceiveFlag = 0x62;
+                                for (int i = 0; i < 6; i++)
+                                {
+                                    ECGPairMAC[i] = ReceiveDataList[4 + i];
+                                }
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x31)  //获取硬件版本成功
+                        {
+                            EcgComReceiveFlag = 0x72;
+                            for (int i = 0; i < 5; i++)
+                            {
+                                HardVersion[i] = ReceiveDataList[4 + i];
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x33)  //获取软件版本成功
+                        {
+                            EcgComReceiveFlag = 0x74;
+                            for (int i = 0; i < 12; i++)
+                            {
+                                SoftVersion[i] = ReceiveDataList[4 + i];
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x1D)   //获取主设备蓝牙MAC成功
+                        {
+                            for (int i = 0; i < 6; i++)
+                            {
+                                BLECentralMAC[i] = ReceiveDataList[4 + i];
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x1F)
+                        {
+                            //蓝牙心电补丁未连接，无法获取MAC
+                            if (ReceiveDataList[4] == 0 && (ReceiveDataList[5] == 0) && (ReceiveDataList[6] == 0) && (ReceiveDataList[7] == 0))
+                            {
+                                    ;
+                            }
+                            else//蓝牙心电补丁MAC获取成功
+                            {
+                                    ;
+                            }
+
+                        }
+                        else if (ReceiveDataList[1] == 0x19)   //心电补丁ID获取成功
+                        {
+                            for (int i = 0; i < ReceiveDataList[3]; i++)
+                            {
+                                ECGPatchID[i] = ReceiveDataList[4 + i];
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x2B)  //获取0mv校准值成功
+                        {
+                            difference_Value = (Int16)(ReceiveDataList[4] + (ReceiveDataList[5] << 8));
+                            if (difference_Value <= 0 || (difference_Value > 1000))
+                            {
+                                difference_Value = 500;
+                                
+                            }
+                            EcgComReceiveFlag = 0x82;
+                        }
+                        else if (ReceiveDataList[1] == 0x27)//获取1mv定标值成功
+                        {
+                            amplification = (Int16)(ReceiveDataList[4] + (ReceiveDataList[5] << 8));
+                            if (amplification <= 0 || (amplification > 100))
+                            {
+                                amplification = 60;
+                                
+                            }
+                            EcgComReceiveFlag = 0x84;
+                        }
+                        else if (ReceiveDataList[1] == 0x2D) //设置0mv校准值成功
+                        {
+                            if (ReceiveDataList[4] == 1)
+                            {
+                                ;
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x29)//设置1mv定标值成功
+                        {
+                            if (ReceiveDataList[4] == 1)
+                            {
+                                ;
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x35)  //设置心电补丁ID成功
+                        {
+                            for (int i = 0; i < 10; i++)
+                            {
+                                 ECGPatchID[i] = ReceiveDataList[4 + i];
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x52)  //开始1mv校准成功
+                        {
+                            if (ReceiveDataList[4] == 1)
+                            {
+                                EcgComReceiveFlag = 0x76;
+                            }
+                        }
+                        else if (ReceiveDataList[1] == 0x53)  //开始0mv校准成功
+                        {
+                            if (ReceiveDataList[4] == 1)
+                            {
+                                EcgComReceiveFlag = 0x78;
                             }
                         }
                         else if (ReceiveDataList[1] == 0x09)
@@ -1014,10 +1233,26 @@ namespace MotionSensor
                             if (ConnectDeviceFlag == 4)
                             {
                                 EcgComReceiveFlag = 0x99;
-                                for (int i = 0; i < 10;i++ )
+                                EcgData_Com[ReceiveDataList[4] % 64, 0] = (Convert.ToDouble(ReceiveDataList[6]) + Convert.ToDouble((ReceiveDataList[10] & 0xc0) << 2)) * DisplayMultipleNum - ZeroValue;
+                                EcgData_Com[ReceiveDataList[4] % 64, 1] = (Convert.ToDouble(ReceiveDataList[7]) + Convert.ToDouble((ReceiveDataList[10] & 0x30) << 4)) * DisplayMultipleNum - ZeroValue;
+                                EcgData_Com[ReceiveDataList[4] % 64, 2] = (Convert.ToDouble(ReceiveDataList[8]) + Convert.ToDouble((ReceiveDataList[10] & 0x0c) << 6)) * DisplayMultipleNum - ZeroValue;
+                                EcgData_Com[ReceiveDataList[4] % 64, 3] = (Convert.ToDouble(ReceiveDataList[9]) + Convert.ToDouble((ReceiveDataList[10] & 0x03) << 8)) * DisplayMultipleNum - ZeroValue;
+                                EcgData_Com[ReceiveDataList[4] % 64, 4] = (Convert.ToDouble(ReceiveDataList[11]) + Convert.ToDouble((ReceiveDataList[15] & 0xc0) << 2)) * DisplayMultipleNum - ZeroValue;
+                                EcgData_Com[ReceiveDataList[4] % 64, 5] = (Convert.ToDouble(ReceiveDataList[12]) + Convert.ToDouble((ReceiveDataList[15] & 0x30) << 4)) * DisplayMultipleNum - ZeroValue;
+                                EcgData_Com[ReceiveDataList[4] % 64, 6] = (Convert.ToDouble(ReceiveDataList[13]) + Convert.ToDouble((ReceiveDataList[15] & 0x0c) << 6)) * DisplayMultipleNum - ZeroValue;
+                                EcgData_Com[ReceiveDataList[4] % 64, 7] = (Convert.ToDouble(ReceiveDataList[14]) + Convert.ToDouble((ReceiveDataList[15] & 0x03) << 8)) * DisplayMultipleNum - ZeroValue;
+                                if ((ScalingFlag == 1) || (ScalingFlag == 11))   //校准或定标
                                 {
-                                  //  EcgData_Com[ReceiveDataList[],i] = ReceiveDataList[i+]
+                                    calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 0]);
+                                    calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 1]);
+                                    calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 2]);
+                                    calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 3]);
+                                    calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 4]);
+                                    calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 5]);
+                                    calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 6]);
+                                    calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 7]);
                                 }
+
                             }
                         }
                         ReceiveDataList.RemoveRange(0, ReceiveDataList[3] + 4);
@@ -1032,6 +1267,115 @@ namespace MotionSensor
             {
                 ReceiveDataList.RemoveAt(0);
             }
+        }
+
+        int ScalingFuction()
+        {
+            if (calibration_Value.Count >= 1024)
+            {
+                if (ScalingFlag == 1)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        ScalingEcgMin[i] = 50000;
+                    }
+                    for (int i = 0; i < 8; i++)
+                    {
+                        ScalingEcgMax[i] = -50000;
+                    }
+                    for (int j = 0; j < 8; j++)
+                    {
+                        for (int i = 200; i < 1024; i++)  //前面不要了
+                        {
+                            if (ScalingEcgMin[j] > calibration_Value[i])
+                            {
+                                if (j > 0)
+                                {
+                                    if (ScalingEcgMin[j - 1] < calibration_Value[i])
+                                    {
+                                        ScalingEcgMin[j] = calibration_Value[i];
+                                    }
+                                }
+                                else
+                                {
+                                    ScalingEcgMin[j] = calibration_Value[i];
+                                }
+                            }
+                            if (ScalingEcgMax[j] < calibration_Value[i])
+                            {
+                                if (j > 0)
+                                {
+                                    if (ScalingEcgMax[j - 1] > calibration_Value[i])
+                                    {
+                                        ScalingEcgMax[j] = calibration_Value[i];
+                                    }
+                                }
+                                else
+                                {
+                                    ScalingEcgMax[j] = calibration_Value[i];
+                                }
+
+                            }
+                        }
+                    }
+                    for (int i = 1; i < 4; i++)
+                    {
+                        ScalingEcgMax[0] += ScalingEcgMax[i];
+                        ScalingEcgMin[0] += ScalingEcgMin[i];
+                    }
+                    amplification = (Int16)((ScalingEcgMax[0] - ScalingEcgMin[0]) / 4);
+                    difference_Value = difference_Value_Back;
+
+                    calibration_Value.Clear();
+
+                    ScalingFlag = 2;   //完成1mv定标
+                    ZeroValue = 5000;
+                    DisplayMultipleNum = 10;
+                    button1.Invoke(new EventHandler(delegate
+                    {
+                        button5.Text = "1mv定标成功";
+                        button5.Enabled = false;
+                    }));
+
+                    Thread.Sleep(1000);
+                    button1.Invoke(new EventHandler(delegate
+                    {
+                        button5.Text = "1mv定标";
+                        button5.Enabled = true;
+                        button1.Enabled = true;
+                    }));
+                    return 1;
+                }
+                else if (ScalingFlag == 11)
+                {
+                    double m_value = 0;
+                    for (int i = 0; i < 1024; i++)
+                    {
+                        m_value += calibration_Value[i];
+                    }
+                    difference_Value = (Int16)(m_value / 1024);
+                    amplification = amplification_Back;
+                    calibration_Value.Clear();
+                    ZeroValue = 5000;
+                    DisplayMultipleNum = 10;
+                    ScalingFlag = 12;   //完成0mv校准
+                    button1.Invoke(new EventHandler(delegate
+                    {
+                        button1.Text = "0mv校准成功";
+                        button1.Enabled = false;
+                    }));
+                    
+                    Thread.Sleep(1000);
+                    button1.Invoke(new EventHandler(delegate
+                    {
+                        button1.Text = "0mv校准";
+                        button1.Enabled = true;
+                        button5.Enabled = true;
+                    }));
+                    return 2;
+                }
+            }
+            return -1;
         }
 
         #region 串口初始化
@@ -1102,10 +1446,10 @@ namespace MotionSensor
                 chart1.Series["Series_Ecg"].Points[i].ToolTip = "#VALX,#VALY";
             }
 
-            textBox1.Text = (chartlenMin * 1000 / 128).ToString();
-            textBox2.Text = (chartlenMax * 1000 / 128).ToString();
+            //textBox1.Text = (chartlenMin * 1000 / 128).ToString();
+            //textBox2.Text = (chartlenMax * 1000 / 128).ToString();
 
-            numericUpDown1.Value = Ecgamplification;
+            //numericUpDown1.Value = Ecgamplification;
 
             ScanUpDataComFlag = 1;
 
@@ -1152,42 +1496,42 @@ namespace MotionSensor
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            if (radioButton2.Checked)
-            {
-                trackBar1.Minimum = chartlenMin + 128;
-                chartlenMax = trackBar1.Value;
-            }
-            else if (radioButton1.Checked)
-            {
-                trackBar1.Maximum = chartlenMax - 128;
-                chartlenMin = trackBar1.Value;
-            }
-            textBox1.Text = (chartlenMin * 1000 / 128).ToString();
-            textBox2.Text = (chartlenMax * 1000 / 128).ToString();
-            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Maximum = chartlenMax;
-            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Minimum = chartlenMin;
-            chart1.ChartAreas["ChartArea_Ecg"].AxisX.Interval = (chartlenMax - chartlenMin) / 4;
+            //if (radioButton2.Checked)
+            //{
+            //    trackBar1.Minimum = chartlenMin + 128;
+            //    chartlenMax = trackBar1.Value;
+            //}
+            //else if (radioButton1.Checked)
+            //{
+            //    trackBar1.Maximum = chartlenMax - 128;
+            //    chartlenMin = trackBar1.Value;
+            //}
+            //textBox1.Text = (chartlenMin * 1000 / 128).ToString();
+            //textBox2.Text = (chartlenMax * 1000 / 128).ToString();
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisX.Maximum = chartlenMax;
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisX.Minimum = chartlenMin;
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisX.Interval = (chartlenMax - chartlenMin) / 4;
         }
 
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton1.Checked)
-            {
-                trackBar1.Minimum = 0;
-                trackBar1.Value = chartlenMin;
-            }
-            trackBar1.Focus();
+            //if (radioButton1.Checked)
+            //{
+            //    trackBar1.Minimum = 0;
+            //    trackBar1.Value = chartlenMin;
+            //}
+            //trackBar1.Focus();
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton2.Checked)
-            {
-                trackBar1.Maximum = 512;
-                trackBar1.Value = chartlenMax;
-            }
-            trackBar1.Focus();
+            //if (radioButton2.Checked)
+            //{
+            //    trackBar1.Maximum = 512;
+            //    trackBar1.Value = chartlenMax;
+            //}
+            //trackBar1.Focus();
         }
 
         #region 定时器处理函数
@@ -1198,883 +1542,14 @@ namespace MotionSensor
 
             while (SerialReceiveData.Count >= 4 && ((SerialReceiveData[3] + 4) <= SerialReceiveData.Count))
             {
-                #region
-                if (DebugMode == 1)
-                {
-                    if (SerialReceiveData[0] == 0x04)   //type (command)
-                    {
-                        if (SerialReceiveData[5] == 0x00)  //状态正常
-                        {
-                            if ((SerialReceiveData[3] == 0x00) && (SerialReceiveData[4] == 0x06))
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "GAP_DeviceInitDone！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                // TGAP_GEN_DISC_SCANCommand(1000);
-
-                                if (EcgCaptureFlag == 1)
-                                {
-                                    // System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    DisplayString = "设备已连接，心电采集中...\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    DataStoreButton.Enabled = true;
-                                    StartStoreDataTime = DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString();
-                                    string filePath2 = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
-                                    //判断文件是不是存在
-                                    if (File.Exists(filePath2))
-                                    {
-                                        //如果存在则删除
-                                        File.Delete(filePath2);
-                                    }
-
-                                }
-                            }
-                            else if ((SerialReceiveData[3] == 0x7f) && (SerialReceiveData[4] == 0x06)) //GAP_HCI_ExtentionCommandStatus
-                            {
-                                if ((SerialReceiveData[6] == 0x00) && (SerialReceiveData[7] == 0xFE))
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "GAP_DeviceInit！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                                else if ((SerialReceiveData[6] == 0x04) && (SerialReceiveData[7] == 0xFE))
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "GAP_DeviceDiscoveryRequest！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                                else if ((SerialReceiveData[6] == 0x09) && (SerialReceiveData[7] == 0xFE))
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "GAP_EstablishLinkRequest！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    ConnectBLEButton.Text = "设备已连接";
-                                    PauseButton.Text = "运行中";
-
-                                    DisplayString = "设备已连接！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                    BLEConnectFlag = 1;
-
-                                    DataStoreButton.Enabled = true;
-                                    StartStoreDataTime = DateTime.Now.ToString("yyyy-MM-dd") + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString();
-                                    string filePath3 = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
-                                    //判断文件是不是存在
-                                    if (File.Exists(filePath3))
-                                    {
-                                        //如果存在则删除
-                                        File.Delete(filePath3);
-                                    }
-                                }
-                                else if ((SerialReceiveData[6] == 0x0A) && (SerialReceiveData[7] == 0xFE))
-                                {
-                                    //System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    //string DisplayString = "GAP_TerminateLinkRequest！\r\n";
-                                    //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    //OutMsg(MonitorText, DisplayString, Color.Red);
-                                    //ConnectBLEButton.Text = "设备已断开";
-                                    //ConnectBLEButton.Enabled = true;
-                                    //this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
-
-                                    //DataStoreButton.Enabled = false;
-
-                                    //ScanButton.Enabled = true;
-
-                                    //DisplayString = "设备已断开！\r\n";
-                                    //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    //OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                    //for (int i = 0; i < N * M; i++)
-                                    //{
-                                    //    XdataV[i] = 0;
-                                    //}
-                                    //chart1.Series["数据个数"].Points.DataBindXY(Xdata, XdataV);
-
-                                    //BLEConnectFlag = 0;
-                                }
-                                else if ((SerialReceiveData[6] == 0x30) && (SerialReceiveData[7] == 0xFE))
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "GAP_SetParam Success！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                            }
-                            else if ((SerialReceiveData[3] == 0x05) && (SerialReceiveData[4] == 0x06))
-                            {
-                                connhandle = SerialReceiveData[13] + (SerialReceiveData[14] << 8);
-                            }
-                            else if ((SerialReceiveData[3] == 0x06) && (SerialReceiveData[4] == 0x06))
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "GAP_TerminateLinkRequest！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                ConnectBLEButton.Text = "设备已断开";
-                                ConnectBLEButton.Enabled = true;
-
-                                PairButton.Enabled = false;   //定标按键
-
-                                this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
-
-                                DataStoreButton.Enabled = false;
-
-                                ScanButton.Enabled = true;
-
-                                DisplayString = "设备已断开！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                for (int i = 0; i < N * M; i++)
-                                {
-                                    XdataV[i] = ZeroValue;
-                                }
-                                chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
-                                chart1.Series["Series_Ecg"].Color = Color.Black;
-
-                                BLEConnectFlag = 0;
-                            }
-                            else if ((SerialReceiveData[3] == 0x0D) && (SerialReceiveData[4] == 0x06))
-                            {
-                                if ((SerialReceiveData[6] == 0x00) && (SerialReceiveData[7] == 0x02))
-                                {
-                                    for (int i = 0; i < 6; i++)
-                                    {
-                                        ScanBLEMAC[ScanBLENum, i] = SerialReceiveData[8 + i];
-                                    }
-                                    ScanBLENum++;
-
-                                    MACComboBox.Items.Add(Convert.ToString(SerialReceiveData[13], 16) + ":" + Convert.ToString(SerialReceiveData[12], 16) + ":" + Convert.ToString(SerialReceiveData[11], 16) + ":" + Convert.ToString(SerialReceiveData[10], 16) + ":" + Convert.ToString(SerialReceiveData[9], 16) + ":" + Convert.ToString(SerialReceiveData[8], 16));
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "搜索到一个设备！\r\n正在继续搜索设备...\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                }
-                                if ((SerialReceiveData[6] == 0x04) && (SerialReceiveData[7] == 0x02))
-                                {
-                                    //MACComboBox.Items.Add(SerialReceiveData[8] + ":" + SerialReceiveData[9] + ":" + SerialReceiveData[10] + ":" + SerialReceiveData[11] + ":" + SerialReceiveData[9] + ":" + SerialReceiveData[13]);
-                                    //System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    //string DisplayString = "搜索到一个设备！\r\n正在继续搜索设备...\r\n";
-                                    //DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    //OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                            }
-                            else if ((SerialReceiveData[3] == 0x01) && (SerialReceiveData[4] == 0x06))
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "GAP_DeviceDiscoveryDone！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                ScanButton.Enabled = true;
-                                MACComboBox.Enabled = true;
-                                if (ScanBLENum > 0)
-                                {
-                                    MACComboBox.SelectedIndex = 0;
-                                }
-                                ConnectBLEButton.Enabled = true;
-                                ConnectBLEButton.Text = "设备已断开";
-                            }
-                            else if ((SerialReceiveData[3] == 0x1b) && (SerialReceiveData[4] == 0x05))
-                            {
-                                EcgCaptureFlag = 1;
-                                if (SerialReceiveData[8] == 18)
-                                {
-                                    ;
-                                    for (int j = (M - 8); j < M; j++)   //
-                                    {
-                                        for (int k = 0; k < N - 1; k++)
-                                        {
-                                            XdataV[k * M + j] = XdataV[(k + 1) * M + j];
-                                        }
-                                    }
-                                    XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15] & 0x7f) + Convert.ToDouble((SerialReceiveData[16] & 0x07) << 7);
-                                    XdataV[(N - 1) * M + 1] = Convert.ToDouble((SerialReceiveData[16] & 0x78) >> 3) + Convert.ToDouble((SerialReceiveData[17] & 0x3f) << 4);
-                                    XdataV[(N - 1) * M + 2] = Convert.ToDouble((SerialReceiveData[17] & 0x40) >> 6) + Convert.ToDouble((SerialReceiveData[18] & 0x7f) << 1) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
-                                    XdataV[(N - 1) * M + 3] = Convert.ToDouble((SerialReceiveData[19] & 0x7c) >> 2) + Convert.ToDouble((SerialReceiveData[20] & 0x1f) << 5);
-                                    XdataV[(N - 1) * M + 4] = Convert.ToDouble((SerialReceiveData[20] & 0x60) >> 5) + Convert.ToDouble((SerialReceiveData[21] & 0x7f) << 2) + Convert.ToDouble((SerialReceiveData[22] & 0x01) << 9);
-                                    XdataV[(N - 1) * M + 5] = Convert.ToDouble((SerialReceiveData[22] & 0x7e) >> 1) + Convert.ToDouble((SerialReceiveData[23] & 0x0f) << 6);
-                                    XdataV[(N - 1) * M + 6] = Convert.ToDouble((SerialReceiveData[23] & 0x70) >> 4) + Convert.ToDouble((SerialReceiveData[24] & 0x7f) << 3);
-
-                                    XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[25] & 0x7f) + Convert.ToDouble((SerialReceiveData[26] & 0x07) << 7);
-                                    DataTransmissionFlag = 1;
-                                    LeadOffStatus = Convert.ToInt16(SerialReceiveData[13]);
-                                    Vbat = Convert.ToInt16(SerialReceiveData[14]);
-                                }
-                                else if (SerialReceiveData[8] == 16)
-                                {
-                                    for (int j = (M - 8); j < M; j++)   //
-                                    {
-                                        for (int k = 0; k < N - 1; k++)
-                                        {
-                                            XdataV[k * M + j] = XdataV[(k + 1) * M + j];
-                                        }
-                                    }
-                                    XdataV[(N - 1) * M + 0] = Convert.ToDouble(SerialReceiveData[15]) + Convert.ToDouble((SerialReceiveData[19] & 0xc0) << 2);
-                                    XdataV[(N - 1) * M + 1] = Convert.ToDouble(SerialReceiveData[16]) + Convert.ToDouble((SerialReceiveData[19] & 0x30) << 4);
-                                    XdataV[(N - 1) * M + 2] = Convert.ToDouble(SerialReceiveData[17]) + Convert.ToDouble((SerialReceiveData[19] & 0x0c) << 6);
-                                    XdataV[(N - 1) * M + 3] = Convert.ToDouble(SerialReceiveData[18]) + Convert.ToDouble((SerialReceiveData[19] & 0x03) << 8);
-                                    XdataV[(N - 1) * M + 4] = Convert.ToDouble(SerialReceiveData[20]) + Convert.ToDouble((SerialReceiveData[24] & 0xc0) << 2);
-                                    XdataV[(N - 1) * M + 5] = Convert.ToDouble(SerialReceiveData[21]) + Convert.ToDouble((SerialReceiveData[24] & 0x30) << 4);
-                                    XdataV[(N - 1) * M + 6] = Convert.ToDouble(SerialReceiveData[22]) + Convert.ToDouble((SerialReceiveData[24] & 0x0c) << 6);
-                                    XdataV[(N - 1) * M + 7] = Convert.ToDouble(SerialReceiveData[23]) + Convert.ToDouble((SerialReceiveData[24] & 0x03) << 8);
-
-
-                                    DataTransmissionFlag = 1;
-                                    LeadOffStatus = Convert.ToInt16(SerialReceiveData[12]);
-                                    Vbat = Convert.ToInt16(SerialReceiveData[14] << 8) + Convert.ToInt16(SerialReceiveData[13]);
-                                }
-
-                                else if (SerialReceiveData[8] == 22)
-                                {
-                                    ;
-                                    for (int j = 0; j < M; j++)   //
-                                    {
-                                        for (int k = 0; k < N - 1; k++)
-                                        {
-                                            XdataV[k * M + j] = XdataV[(k + 1) * M + j];
-                                        }
-                                        XdataV[(N - 1) * M + j] = (Convert.ToDouble(SerialReceiveData[(j << 1) + 16]) * 256) + Convert.ToDouble(SerialReceiveData[(j << 1) + 15]);
-                                    }
-                                    DataTransmissionFlag = 1;
-
-                                    LeadOffStatus = Convert.ToInt16(SerialReceiveData[12]);
-                                    Vbat = Convert.ToInt16(SerialReceiveData[14]) * 256 + Convert.ToInt16(SerialReceiveData[13]);
-                                }
-                                //byte[] ECGData = new byte[M * 2 + 3];
-                                //for (int i = 0; i < M * 2; i++)
-                                //{
-                                //   // ECGData[i] = SerialReceiveData[11 + i];
-                                //}
-
-                                FileStream fs = null;
-                                string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.bin";
-                                try
-                                {
-                                    fs = File.OpenWrite(filePath);
-                                    //设定书写的开始位置为文件的末尾   
-                                    fs.Position = fs.Length;
-                                    //将待写入内容追加到文件末尾   
-                                    fs.Write(ECGData, 0, M * 2);
-                                    fs.Position = fs.Length;
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("文件打开失败{0}", ex.ToString());
-                                }
-                                finally
-                                {
-                                    fs.Close();
-                                }
-                            }
-
-                            SerialReceiveData.RemoveRange(0, SerialReceiveData[2] + 3);//从接收列表中删除包
-                        }
-                        else
-                        {
-                            //这里是很重要的，如果数据开始不是头，则删除数据  
-                            SerialReceiveData.RemoveAt(0);
-                        }
-                    }
-                    else
-                    {
-                        //这里是很重要的，如果数据开始不是头，则删除数据  
-                        SerialReceiveData.RemoveAt(0);
-                    }
-                }
-                #endregion
-                else if (DebugMode == 2)
+               
+                if (DebugMode == 2)
                 {
                     if (SerialReceiveData[0] == 0x77)   //type (command)
                     {
-                        if (SerialReceiveData[2] == 0x00)  //状态正常
-                        {
-                            #region 串口连接成功
-                            if (SerialReceiveData[1] == 0x02)
+                            if (SerialReceiveData[1] == 0x12)
                             {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "串口连接成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                ComConnectFlag = 1;
-
-                                serialcommand.DisconnectBLESerialCommand(serialPort1);
-                                System.Threading.Thread.Sleep(200);
-
-                                serialcommand.StopReceiveECGDataSerialCommand(serialPort1);
-
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求停止接收心电数据...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                System.Threading.Thread.Sleep(200);
-
-                                serialcommand.DisAutoConnectBLESerialCommand(serialPort1);
-
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求关闭自动连接配置...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                System.Threading.Thread.Sleep(200);
-
-                                serialcommand.AutoConnectBLEStatusSerialCommand(serialPort1);
-
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "获取自动连接配置状态...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            #endregion
-
-                            #region 正在搜索设备！
-                            else if (SerialReceiveData[1] == 0x0E)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "正在搜索设备！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                ScanBLENum = 0;
-                                MACComboBox.Items.Clear();
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x04)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "搜索到一个心电设备！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                int[] macbuffer = new int[6];
-                                for (int j = 0; j < 6; j++)
-                                {
-                                    macbuffer[j] = SerialReceiveData[4 + j];
-                                    ScanBLEMAC[ScanBLENum, j] = SerialReceiveData[4 + j];
-                                }
-
-                                if ((SerialReceiveData.Count - 0x10) >= 11)
-                                {
-                                    for (int j = 0; j < 11; j++)
-                                    {
-                                        ScanBleName[ScanBLENum, j] = SerialReceiveData[0x10 + j];
-                                    }
-                                }
-                                for (int j = 0; j < 11; j++)
-                                {
-                                    if (ScanBleName[ScanBLENum, j] == 0)
-                                    {
-                                        ScanBleName[ScanBLENum, j] = 0x20;
-                                    }
-                                }
-                                byte[] m_blename = new byte[11];
-                                for (int j = 0; j < 11; j++)
-                                {
-                                    m_blename[j] = ScanBleName[ScanBLENum, j];
-                                }
-                                string aa = Encoding.UTF8.GetString(m_blename);
-                                if (ScanBleName[ScanBLENum, 0] == 'B' && (ScanBleName[ScanBLENum, 1] == 'D'))
-                                {
-                                    MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(心电补丁)");
-
-                                }
-                                else if (ScanBleName[ScanBLENum, 0] == 'B' && (ScanBleName[ScanBLENum, 1] == 'G'))
-                                {
-                                    MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(血压计)");
-                                }
-                                else
-                                {
-                                    MACComboBox.Items.Add("(" + macbuffer[5].ToString("X2") + ":" + macbuffer[4].ToString("X2") + ":" + macbuffer[3].ToString("X2") + ":" + macbuffer[2].ToString("X2") + ":" + macbuffer[1].ToString("X2") + ":" + macbuffer[0].ToString("X2") + ")" + aa + "(未知设备)");
-
-                                }
-                                ScanBLENum++;
-                                ConnectBLEButton.Enabled = true;
-                                PairButton.Enabled = true;
-                                ConnectBLEButton.Text = "设备已断开";
-                                MACComboBox.SelectedIndex = 0;
-                                ScanButton.Enabled = true;
-                                MACComboBox.Enabled = true;
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x2E)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "搜索结束！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                PairButton.Enabled = true;   //配对按钮
-                                ScanButton.Enabled = true;
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x06)
-                            {
-                                if (SerialReceiveData[4] == 1)
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "心电补丁连接成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                    BLEConnectFlag = 1;
-
-                                    checkBox1.Enabled = false;
-
-                                    DataStoreButton.Enabled = true;
-
-                                    PairButton.Enabled = false;
-                                    IDValuebutton.Enabled = true;
-                                    button5.Enabled = true;
-                                    button1.Enabled = true;
-                                    PauseButton.Enabled = true;
-                                    StartEcgCaptureFlag = 0;
-                                    string filePath = System.IO.Directory.GetCurrentDirectory() + "//ecg_data.hex";
-                                    File.Delete(filePath);
-                                }
-                                else
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "选择的设备与绑定的mac不符，无法连接！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x0B)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "设备已断开！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                ConnectBLEButton.Text = "设备已断开";
-                                ConnectBLEButton.Enabled = true;
-                                ScanButton.Enabled = true;
-                                DataStoreButton.Enabled = false;
-
-                                checkBox1.Enabled = true;
-
-                                if (DisConnectBLEEnableFlag == 0)
-                                {
-                                    MACComboBox.Items.Clear();
-                                    MACComboBox.Items.Add("无设备");
-                                    MACComboBox.SelectedIndex = 0;
-                                    ConnectBLEButton.Enabled = false;
-                                }
-
-                                for (int i = 0; i < N * M; i++)
-                                {
-                                    XdataV[i] = ZeroValue;
-                                }
-                                chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
-                                chart1.Series["Series_Ecg"].Color = Color.Black;
-
-                                BLEConnectFlag = 0;
-
-                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
-                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
-
-                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
-                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
-                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
-
-                                this.EcgPatchVersionLabel.Text = "";
-                                AmplificationValue.Text = "未定标或无法获取定标值";
-                                differenceValue.Text = "未定标或无法获取定标值";
-
-                                this.EcgPatchVersionLabel.Text = "";
-                                EcgPatchVersionLabel.Text = "";
-                                toolStripStatusLabel5.Text = "";
-                                toolStripStatusLabel6.Text = "";
-                                toolStripStatusLabel7.Text = "";
-                                toolStripStatusLabel8.Text = "";
-                                BatteryValue.Text = "";
-                                Lead.Text = "";
-
-                                IDValuebutton.Enabled = false;
-                                button5.Enabled = false;
-                                button1.Enabled = false;
-                                PairButton.Enabled = true;
-                                PauseButton.Enabled = false;
-
-                                StartEcgCaptureFlag = 0;
-
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x12)
-                            {
-                                if (SerialReceiveData[4] == 0x01)
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "自动连接配置完成！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    checkBox1.Checked = true;
-                                }
-                                else if (SerialReceiveData[4] == 0x00)
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "停止自动连接！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    checkBox1.Checked = false;
-                                }
-
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x13)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "接收一次RSSI值！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                RSSIValue = SerialReceiveData[4] - 256;
-                                ConnectBLEButton.Text = "设备已连接";
-                                ConnectBLEButton.Enabled = true;
-                                PairButton.Enabled = true;   //定标按键
-
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x17)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "设置停止接收心电数据成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                for (int i = 0; i < N * M; i++)
-                                {
-                                    XdataV[i] = ZeroValue;
-                                }
-                                chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
-                                chart1.Series["Series_Ecg"].Color = Color.Black;
-
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x1B)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "获取自动搜索连接状态成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                if (SerialReceiveData[4] == 1)
-                                {
-                                    checkBox1.Checked = true;
-                                }
-                                else if (SerialReceiveData[4] == 0)
-                                {
-                                    checkBox1.Checked = false;
-                                }
-                                serialcommand.SetTestModeCommand(serialPort1);
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "设置为测试模式\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x25)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "设置测试模式成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                serialcommand.ReceiveCentralMACCommand(serialPort1);
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求获取主设备蓝牙MAC\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x1D)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "获取主设备蓝牙MAC成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                for (int i = 0; i < 6; i++)
-                                {
-                                    BLECentralMAC[i] = SerialReceiveData[4 + i];
-                                }
-                                serialcommand.ReceivePairingStatusCCommand(serialPort1);
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求获取配对状态\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x23)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "获取配对状态成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                textBox5.Text = SerialReceiveData[9].ToString("X2") + ":" + SerialReceiveData[8].ToString("X2") + ":" + SerialReceiveData[7].ToString("X2")
-                                       + ":" + SerialReceiveData[6].ToString("X2") + ":" + SerialReceiveData[5].ToString("X2") + ":" + SerialReceiveData[4].ToString("X2");
-                                for (int i = 0; i < 6; i++)
-                                {
-                                    ECGPairMAC[i] = SerialReceiveData[4 + i];
-                                }
-
-                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
-                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
-
-                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
-                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
-                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
-                                serialcommand.ReceiveECGPatchMACCommand(serialPort1);
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求获取心电补丁蓝牙MAC\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x1F)
-                            {
-                                if (SerialReceiveData[4] == 0 && (SerialReceiveData[5] == 0) && (SerialReceiveData[6] == 0) && (SerialReceiveData[7] == 0))
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "蓝牙心电补丁未连接，无法获取MAC\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    ScanButton.Enabled = true;
-                                }
-                                else
-                                {
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    string DisplayString = "获取心电补丁MAC成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    for (int i = 0; i < 6; i++)
-                                    {
-                                        ECGPatchMAC[i] = SerialReceiveData[4 + i];
-                                    }
-                                    serialcommand.ReceiveECGPatchIDSerialCommand(serialPort1);
-                                    converter = new System.Text.ASCIIEncoding();
-                                    DisplayString = "请求接收心电补丁ID\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-
-                            }
-                            #endregion
-
-                            #region
-                            else if (SerialReceiveData[1] == 0x19)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "心电补丁ID获取成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                                for (int i = 0; i < SerialReceiveData[3]; i++)
-                                {
-                                    ECGPatchID[i] = SerialReceiveData[4 + i];
-                                }
-
-                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
-                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
-
-                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
-                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
-                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
-                                serialcommand.calibration0mvSerialCommand(serialPort1);
-                                converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求获取0mv校准值...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x15)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                if (SerialReceiveData[4] == 0)
-                                {
-                                    string DisplayString = "设备未连接,无法设置成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                                else if (SerialReceiveData[4] == 1)
-                                {
-                                    string DisplayString = "设置接收心电数据成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    EcgDataTimer = 0;
-
-                                    LostPackageNum = 0;
-                                    ReceivePackageNum = 0;
-
-                                    LastPackageNum = -1;
-                                    this.toolStripStatusLabel5.Text = "上位机丢包数：" + LostPackageNum.ToString();
-                                    this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
-
-                                    StartEcgCaptureFlag = 1;
-                                }
-
-
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x2B)
-                            {
-                                string DisplayString = "获取0mv校准值成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                difference_Value = (Int16)(SerialReceiveData[4] + (SerialReceiveData[5] << 8));
-                                if (difference_Value <= 0 || (difference_Value > 1000))
-                                {
-                                    difference_Value = 500;
-                                }
-                                serialcommand.calibration1mvSerialCommand(serialPort1);
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求获取1mv定标值...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x27)
-                            {
-                                string DisplayString = "获取1mv定标值成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                amplification = (Int16)(SerialReceiveData[4] + (SerialReceiveData[5] << 8));
-                                if (amplification <= 0 || (amplification > 100))
-                                {
-                                    amplification = 60;
-                                }
-                                serialcommand.GetHardWareVersionSerialCommand(serialPort1);
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求获取硬件版本...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x31)
-                            {
-                                string DisplayString = "获取硬件版本成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                for (int i = 0; i < 5; i++)
-                                {
-                                    HardVersion[i] = SerialReceiveData[4 + i];
-                                }
-                                serialcommand.GetSoftWareVersionSerialCommand(serialPort1);
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求获取软件版本...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x33)
-                            {
-                                string DisplayString = "获取软件版本成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                for (int i = 0; i < 12; i++)
-                                {
-                                    SoftVersion[i] = SerialReceiveData[4 + i];
-                                }
-                                serialcommand.ReceiveECGDataSerialCommand(serialPort1);
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                DisplayString = "请求接收心电数据...\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x2D)
-                            {
-                                if (SerialReceiveData[4] == 1)
-                                {
-                                    string DisplayString = "设置0mv校准值成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                    serialcommand.calibration1mvSerialCommand(serialPort1);
-                                    System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                    DisplayString = "请求获取1mv定标值...\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x29)
-                            {
-                                if (SerialReceiveData[4] == 1)
-                                {
-                                    string DisplayString = "设置1mv定标值成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                            }
-                            #endregion
-
-                            #region
-                            else if (SerialReceiveData[1] == 0x35)
-                            {
-                                // if (SerialReceiveData[4] == 1)
-                                {
-                                    for (int i = 0; i < 10; i++)
-                                    {
-                                        ECGPatchID[i] = SerialReceiveData[4 + i];
-                                    }
-                                    string DisplayString = "设置心电补丁ID值成功！\r\n";
-                                    DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                    OutMsg(MonitorText, DisplayString, Color.Red);
-                                }
-                            }
-                            #endregion
-                            #region
-                            else if (SerialReceiveData[1] == 0x21)
-                            {
-                                System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                                string DisplayString = "设置配对MAC地址成功！\r\n";
-                                DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                                OutMsg(MonitorText, DisplayString, Color.Red);
-
-                                textBox5.Text = SerialReceiveData[9].ToString("X2") + ":" + SerialReceiveData[8].ToString("X2") + ":" + SerialReceiveData[7].ToString("X2")
-                                      + ":" + SerialReceiveData[6].ToString("X2") + ":" + SerialReceiveData[5].ToString("X2") + ":" + SerialReceiveData[4].ToString("X2");
-                                for (int i = 0; i < 6; i++)
-                                {
-                                    ECGPairMAC[i] = SerialReceiveData[4 + i];
-                                }
-
-                                this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
-                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
-
-                                    + "  连接状态：心电补丁未连接" + "   配对心电补丁MAC：" + ECGPairMAC[5].ToString("X2") + ":" + ECGPairMAC[4].ToString("X2") +
-                                    ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
-                                    ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
-
-                            }
-                            #endregion
-
-                            #region
-                            else if (SerialReceiveData[1] == 0x36)
+                                if (SerialReceiveData[1] == 0x36)
                             {
                                 string DisplayString = "正在接收主设备接收心电包数...\r\n";
                                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2082,11 +1557,11 @@ namespace MotionSensor
 
                                 double CentralReceivePackage = SerialReceiveData[4] + (SerialReceiveData[5] << 8) + (SerialReceiveData[6] << 16) + (SerialReceiveData[7] << 24);
 
-                                this.toolStripStatusLabel8.Text = "主设备接收包：" + CentralReceivePackage.ToString();
+                                //this.toolStripStatusLabel8.Text = "主设备接收包：" + CentralReceivePackage.ToString();
 
-                                double CentralLostPackage = SerialReceiveData[8] + (SerialReceiveData[9] << 8) + (SerialReceiveData[10] << 16) + (SerialReceiveData[11] << 24);
+                                //double CentralLostPackage = SerialReceiveData[8] + (SerialReceiveData[9] << 8) + (SerialReceiveData[10] << 16) + (SerialReceiveData[11] << 24);
 
-                                this.toolStripStatusLabel7.Text = "主设备丢包：" + CentralLostPackage.ToString();
+                                //this.toolStripStatusLabel7.Text = "主设备丢包：" + CentralLostPackage.ToString();
                             }
                             #endregion
 
@@ -2140,10 +1615,10 @@ namespace MotionSensor
                                         }
                                     }
                                     LastPackageNum = SerialReceiveData[4];
-                                    this.toolStripStatusLabel5.Text = "上位机丢包数：" + LostPackageNum.ToString();
+                                    //this.toolStripStatusLabel5.Text = "上位机丢包数：" + LostPackageNum.ToString();
 
-                                    ReceivePackageNum++;
-                                    this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
+                                    //ReceivePackageNum++;
+                                    //this.toolStripStatusLabel6.Text = "上位机接收包：" + ReceivePackageNum.ToString();
 
                                     if (difference_Value < 0 || (difference_Value > 1000))
                                     {
@@ -2393,15 +1868,15 @@ namespace MotionSensor
                                     ":" + ECGPairMAC[3].ToString("X2") + ":" + ECGPairMAC[2].ToString("X2") +
                                     ":" + ECGPairMAC[1].ToString("X2") + ":" + ECGPairMAC[0].ToString("X2");
                         }
-                        this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
-                                    + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
-                                    + "  连接状态：心电补丁已连接 MAC:" +
-                            ECGPatchMAC[5].ToString("X2") + ":" + ECGPatchMAC[4].ToString("X2") +
-                            ":" + ECGPatchMAC[3].ToString("X2") + ":" + ECGPatchMAC[2].ToString("X2")
-                            + ":" + ECGPatchMAC[1].ToString("X2") + ":" + ECGPatchMAC[0].ToString("X2")
-                            + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  " + str2 + str3;
+                        //this.toolStripStatusLabel2.Text = "主蓝牙设备MAC：" + BLECentralMAC[5].ToString("X2") + ":" + BLECentralMAC[4].ToString("X2")
+                        //            + ":" + BLECentralMAC[3].ToString("X2") + ":" + BLECentralMAC[2].ToString("X2") + ":" + BLECentralMAC[1].ToString("X2") + ":" + BLECentralMAC[0].ToString("X2")
+                        //            + "  连接状态：心电补丁已连接 MAC:" +
+                        //    ECGPatchMAC[5].ToString("X2") + ":" + ECGPatchMAC[4].ToString("X2") +
+                        //    ":" + ECGPatchMAC[3].ToString("X2") + ":" + ECGPatchMAC[2].ToString("X2")
+                        //    + ":" + ECGPatchMAC[1].ToString("X2") + ":" + ECGPatchMAC[0].ToString("X2")
+                        //    + "  " + "RSSI:" + Convert.ToInt16(RSSIValue) + "  ID: " + str + "  " + str2 + str3;
 
-                        this.EcgPatchVersionLabel.Text = "心电补丁已连接 硬件版本:" + Encoding.UTF8.GetString(HardVersion) + "   软件版本:" + Encoding.UTF8.GetString(SoftVersion);
+                        //this.EcgPatchVersionLabel.Text = "心电补丁已连接 硬件版本:" + Encoding.UTF8.GetString(HardVersion) + "   软件版本:" + Encoding.UTF8.GetString(SoftVersion);
                         try
                         {
                             chart1.Series["Series_Ecg"].Color = Color.FromArgb(0, 192, 0);
@@ -2473,7 +1948,6 @@ namespace MotionSensor
             Timer.Enabled = false;
 
         }
-        #endregion
 
         #region 选择串口设备号
         private void comboBoxCom_MouseClick(object sender, MouseEventArgs e)
@@ -2533,6 +2007,7 @@ namespace MotionSensor
                 ScanDeviceFlag = 1;   //发送搜索命令标志
 
                 ScanButton.Text = "正在搜索设备...";
+                ScanButton.Enabled = false;
 
                 EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
                 EcgUartProcessThread.Start();
@@ -2601,7 +2076,7 @@ namespace MotionSensor
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
                 OutMsg(MonitorText, DisplayString, Color.Red);
                 DisConnectBLEEnableFlag = 1;
-                this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
+                //this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
             }
             else
             {
@@ -2767,13 +2242,91 @@ namespace MotionSensor
 
         private void button5_Click(object sender, EventArgs e)
         {
-            ScalingFlag = 1;    //开始1mv定标
-            amplification_Back = amplification;
-            difference_Value_Back = difference_Value;
-            difference_Value = 0;
-            amplification = 1000;
-            BaseLine = 0;
-            System.Threading.Thread.Sleep(100);
+            string DisplayString1 = "请求停止接收心电数据...\r\n";
+            string DisplayString2 = "请求停止接收心电数据失败！\r\n";
+            string DisplayString3 = "请求停止接收心电数据成功！\r\n";
+            ConnectDeviceFlag = 5;
+
+            button5.Text = "请求1mv定标";
+            button5.Enabled = false;
+            button1.Enabled = false;
+
+            serialcommand.StopReceiveECGDataSerialCommand(EcgCom);
+            if (TestCommandGetStatus(5, 6, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+            {
+                DisplayString1 = "请求获取配对MAC...\r\n";
+                DisplayString2 = "获取配对MAC失败！\r\n";
+                DisplayString3 = "获取配对MAC成功！\r\n";
+                serialcommand.StartSetcalibration1mvSerialCommand(EcgCom);
+                if (TestCommandGetStatus(0x75, 0x76, DisplayString1, DisplayString2, DisplayString3, 1000) == 0)
+                {
+                    if (EcgUartProcessThread.IsAlive)
+                    {
+                        EcgUartProcessThread.Abort();
+                    }
+                    ScalingFlag = 1;    //开始1mv校准
+
+                    ZeroValue = 0;
+                    DisplayMultipleNum = 1;
+
+                    DisplayString1 = "请求接收心电数据...\r\n";
+                    DisplayString2 = "接收心电数据失败！\r\n";
+                    DisplayString3 = "接收心电数据成功！\r\n";
+                    serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                    if (TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        ConnectDeviceFlag = 4;
+                        button5.Text = "正在1mv定标";
+                        button5.Enabled = false;
+                    }
+                    else
+                    {
+                        DisplayString1 = "请求接收心电数据...\r\n";
+                        DisplayString2 = "接收心电数据失败！\r\n";
+                        DisplayString3 = "接收心电数据成功！\r\n";
+                        serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                        TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500);
+                        {
+                            button5.Text = "1mv校准失败";
+                            button5.Enabled = false;
+                            Thread.Sleep(100);
+                            button5.Text = "1mv校准";
+                            button5.Enabled = true;
+                            button1.Enabled = true;
+                        }
+                    }
+
+                    EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
+                    EcgUartProcessThread.Start();
+                }
+                else
+                {
+                    DisplayString1 = "请求接收心电数据...\r\n";
+                    DisplayString2 = "接收心电数据失败！\r\n";
+                    DisplayString3 = "接收心电数据成功！\r\n";
+                    serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                    TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500);
+                    {
+                        button5.Text = "1mv定标失败";
+                        button5.Enabled = false;
+                        Thread.Sleep(100);
+                        button5.Text = "1mv定标";
+                        button5.Enabled = true;
+                        button1.Enabled = true;
+                        ConnectDeviceFlag = 4;
+                    }
+                }
+            }
+            else
+            {
+                button1.Text = "0mv定标失败";
+                button1.Enabled = false;
+                Thread.Sleep(100);
+                button1.Text = "0mv定标";
+                button1.Enabled = true;
+                button1.Enabled = true;
+                ConnectDeviceFlag = 4;
+            }
         }
 
         private void textBox5_TextChanged(object sender, EventArgs e)
@@ -2859,43 +2412,106 @@ namespace MotionSensor
 
             EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
             EcgUartProcessThread.Start();
-
-
-            string InputChar = textBox5.Text;
-            char[] cc = InputChar.ToCharArray();
-            for (int i = 0; i < 0x11; i++)
-            {
-                if (cc[i] >= '0' && (cc[i] <= '9'))
-                {
-                    cc[i] = (char)(cc[i] - 0x30);
-                }
-                else if (cc[i] >= 'A' && (cc[i] <= 'F'))
-                {
-                    cc[i] = (char)(cc[i] - 'A' + 10);
-                }
-            }
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            ScalingFlag = 11;    //开始0mv校准
+            string DisplayString1 = "请求停止接收心电数据...\r\n";
+            string DisplayString2 = "请求停止接收心电数据失败！\r\n";
+            string DisplayString3 = "请求停止接收心电数据成功！\r\n";
+            ConnectDeviceFlag = 5;
 
-            amplification_Back = amplification;
-            difference_Value_Back = difference_Value;
-            difference_Value = 0;
-            amplification = 1000;
-            BaseLine = 0;
-            System.Threading.Thread.Sleep(100);
+            button1.Text = "请求0mv校准";
+            button1.Enabled = false;
+            button5.Enabled = false;
+
+            serialcommand.StopReceiveECGDataSerialCommand(EcgCom);
+            if (TestCommandGetStatus(5, 6, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+            {
+                DisplayString1 = "请求获取配对MAC...\r\n";
+                DisplayString2 = "获取配对MAC失败！\r\n";
+                DisplayString3 = "获取配对MAC成功！\r\n";
+                serialcommand.StartSetcalibration0mvSerialCommand(EcgCom);
+                if (TestCommandGetStatus(0x77, 0x78, DisplayString1, DisplayString2, DisplayString3, 1000) == 0)
+                {
+                    if (EcgUartProcessThread.IsAlive)
+                    {
+                        EcgUartProcessThread.Abort();
+                    }
+                    ScalingFlag = 11;    //开始0mv校准
+
+                    ZeroValue = 0;
+                    DisplayMultipleNum = 1;
+
+                    DisplayString1 = "请求接收心电数据...\r\n";
+                    DisplayString2 = "接收心电数据失败！\r\n";
+                    DisplayString3 = "接收心电数据成功！\r\n";
+                    serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                    if (TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        ConnectDeviceFlag = 4;
+                        button1.Text = "正在0mv校准";
+                        button1.Enabled = false;
+                    }
+                    else
+                    {
+                        DisplayString1 = "请求接收心电数据...\r\n";
+                        DisplayString2 = "接收心电数据失败！\r\n";
+                        DisplayString3 = "接收心电数据成功！\r\n";
+                        serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                        TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500);
+                        {
+                            button1.Text = "0mv校准失败";
+                            button1.Enabled = false;
+                            Thread.Sleep(100);
+                            button1.Text = "0mv校准";
+                            button1.Enabled = true;
+                            button5.Enabled = true;
+                        }
+                    }
+
+                    EcgUartProcessThread = new Thread(new ThreadStart(EcgUartProcessFunction));
+                    EcgUartProcessThread.Start();
+                }
+                else
+                {
+                    DisplayString1 = "请求接收心电数据...\r\n";
+                    DisplayString2 = "接收心电数据失败！\r\n";
+                    DisplayString3 = "接收心电数据成功！\r\n";
+                    serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                    TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500);
+                    {
+                        button1.Text = "0mv校准失败";
+                        button1.Enabled = false;
+                        Thread.Sleep(100);
+                        button1.Text = "0mv校准";
+                        button1.Enabled = true;
+                        button5.Enabled = true;
+                        ConnectDeviceFlag = 4;
+                    }
+                }
+            }
+            else
+            {
+                button1.Text = "0mv校准失败";
+                button1.Enabled = false;
+                Thread.Sleep(100);
+                button1.Text = "0mv校准";
+                button1.Enabled = true;
+                button5.Enabled = true;
+                ConnectDeviceFlag = 4;
+            }
+            
         }
 
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = (int)(6000 / (double)(numericUpDown1.Value));
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = (int)(-6000 / (double)(numericUpDown1.Value));
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval = (int)chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum / 6;
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval * 6;
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = -chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval * 6;
-            chart1.ChartAreas["ChartArea_Ecg"].AxisY.MinorGrid.Interval = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval / 5;
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = (int)(6000 / (double)(numericUpDown1.Value));
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = (int)(-6000 / (double)(numericUpDown1.Value));
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval = (int)chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum / 6;
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisY.Maximum = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval * 6;
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisY.Minimum = -chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval * 6;
+            //chart1.ChartAreas["ChartArea_Ecg"].AxisY.MinorGrid.Interval = chart1.ChartAreas["ChartArea_Ecg"].AxisY.Interval / 5;
         }
 
         private void chart1_MouseDown(object sender, MouseEventArgs e)
