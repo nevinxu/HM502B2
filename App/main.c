@@ -100,13 +100,13 @@ int32_t ReadData4Flash()
 	}
 	memcpy(&flashdatapackage,&DataArray,sizeof(flashdatapackage));
 	
-	if(flashdatapackage.amplification >100)
+	if(flashdatapackage.amplification >200)
 	{
-		flashdatapackage.amplification = 60;
+		flashdatapackage.amplification = 149;
 	}
 	if(flashdatapackage.difference_Value >1000)
 	{
-		flashdatapackage.difference_Value = 500;
+		flashdatapackage.difference_Value = 344;
 	}
 	if(flashdatapackage.IDValue[0] != 'D')
 	{

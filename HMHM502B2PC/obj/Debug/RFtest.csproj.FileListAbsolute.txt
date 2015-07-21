@@ -154,3 +154,15 @@ E:\Hellowin\项目\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\MotionSensor.RF.resourc
 E:\Hellowin\项目\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\RFtest.Properties.Resources.resources
 E:\Hellowin\项目\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\RFtest.csproj.GenerateResource.Cache
 E:\Hellowin\项目\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\RFtest.exe.licenses
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\bin\Debug\RFtest.exe.config
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\RFtest.csproj.ResolveComReference.cache
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\RFtest.exe
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\RFtest.pdb
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\bin\Debug\RFtest.exe
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\bin\Debug\RFtest.pdb
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\ResolveAssemblyReference.cache
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\MotionSensor.RF.resources
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\RFtest.Properties.Resources.resources
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\GenerateResource.read.1.tlog
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\GenerateResource.write.1.tlog
+D:\Project\HM502B2\HM502B2\HMHM502B2PC\obj\Debug\RFtest.exe.licenses

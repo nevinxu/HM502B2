@@ -260,13 +260,16 @@ void task_bluetooth_rx(task_param_t param)
 								if(bluerxbuffer[1] == APP_CMD_RECEIVEECGDATAACK)    //开始发送心电数据
 								{
 									BlueToothSendCommand(SENDECGENABLECODE,APP_CMD_RECEIVEECGDATAREQ,SERIAL_DATASIZE_ONE,SucessFlag);
+									OSA_TimeDelay(5);
 									ECGDataSendFlag  = 1;		
 									ecgdatapackage.sequence = 0;								
 								}
 								else if(bluerxbuffer[1] == APP_CMD_STOPRECEIVEECGDATAACK)				//停止发送心电数据
 								{
+									ECGDataSendFlag  = 0;
+									OSA_TimeDelay(1);
 									BlueToothSendCommand(SENDECGDISABLECODE,APP_CMD_STOPRECEIVEECGDATAREQ,SERIAL_DATASIZE_NONE,SERIAL_DATAADDR_NONE);
-									ECGDataSendFlag  = 0;									
+																		
 								}
 								else if(bluerxbuffer[1] == APP_CMD_ECGPATCHIDACK)				//发送ID值
 								{
@@ -282,18 +285,20 @@ void task_bluetooth_rx(task_param_t param)
 								}
 								else if(bluerxbuffer[1] == APP_CMD_SET1MVVALUE)				//保存1mv定标值
 								{
-									BlueToothSendCommand(SENDSET1MVCODE,APP_CMD_SET1MVVALUEACK,SERIAL_DATASIZE_ONE,SucessFlag); 
+									CalibrationFlag = 2;
 									flashdatapackage.amplification = bluerxbuffer[4] + (bluerxbuffer[5]<<8);
 									WriteData2Flash();
 									ReadData4Flash();	
+									BlueToothSendCommand(SENDSET1MVCODE,APP_CMD_SET1MVVALUEACK,SERIAL_DATASIZE_ONE,SucessFlag); 
 									CalibrationFlag = 0;
 								}
 								else if(bluerxbuffer[1] == APP_CMD_SET0MVVALUE)				//保存0mv校准值
 								{
-									BlueToothSendCommand(SENDSET0MVCODE,APP_CMD_SET0MVVALUEACK,SERIAL_DATASIZE_ONE,SucessFlag); 
+									CalibrationFlag = 2;
 									flashdatapackage.difference_Value = bluerxbuffer[4] + (bluerxbuffer[5]<<8);
 									WriteData2Flash();
-									ReadData4Flash();		
+									ReadData4Flash();	
+									BlueToothSendCommand(SENDSET0MVCODE,APP_CMD_SET0MVVALUEACK,SERIAL_DATASIZE_ONE,SucessFlag); 									
 									CalibrationFlag = 0;									
 								}
 								else if(bluerxbuffer[1] == APP_CMD_GET1MVVALUE)				//获取1mv定标值

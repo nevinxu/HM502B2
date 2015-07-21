@@ -447,8 +447,9 @@ void parseCmd(void){
       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
       txSerialPkt.header.opCode = APP_CMD_SET1MVVALUEACK;
       txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 1; 
+      txSerialPkt.length = 2; 
       txSerialPkt.data[0] = 0;
+      txSerialPkt.data[1] = 0;
       sendSerialEvt();
       }
     }
@@ -464,8 +465,9 @@ void parseCmd(void){
       txSerialPkt.header.identifier = rxSerialPkt.header.identifier;
       txSerialPkt.header.opCode = APP_CMD_SET0MVVALUEACK;
       txSerialPkt.header.status = 0x00;
-      txSerialPkt.length = 1; 
+      txSerialPkt.length = 2; 
       txSerialPkt.data[0] = 0;
+      txSerialPkt.data[1] = 0;
       sendSerialEvt();
       }
     }

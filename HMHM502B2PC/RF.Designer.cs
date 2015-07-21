@@ -33,13 +33,6 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, "0,0");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RF));
-            this.Lea = new System.Windows.Forms.Panel();
-            this.label12 = new System.Windows.Forms.Label();
-            this.Lead = new System.Windows.Forms.RichTextBox();
-            this.BatteryValue = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.DataStoreButton = new System.Windows.Forms.Button();
             this.Timer = new System.Timers.Timer();
@@ -58,8 +51,6 @@
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.button1 = new System.Windows.Forms.Button();
-            this.AmplificationValue = new System.Windows.Forms.Label();
-            this.differenceValue = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
@@ -67,107 +58,32 @@
             this.label19 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.BatteryValueLabel = new System.Windows.Forms.Label();
+            this.LeadLabel = new System.Windows.Forms.Label();
+            this.PulseLabel = new System.Windows.Forms.Label();
+            this.statusStrip2 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.PatchMACLabel = new System.Windows.Forms.Label();
             this.MAClistBox = new System.Windows.Forms.ListBox();
-            this.ConnectBLEButton = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.MACComboBox = new System.Windows.Forms.ComboBox();
             this.button2 = new System.Windows.Forms.Button();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.UpDataButton = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
-            this.statusStrip2 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel4 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.Lea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.statusStrip2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.tabPage2.SuspendLayout();
-            this.statusStrip2.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // Lea
-            // 
-            this.Lea.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.Lea.Controls.Add(this.label12);
-            this.Lea.Controls.Add(this.Lead);
-            this.Lea.Controls.Add(this.BatteryValue);
-            this.Lea.Controls.Add(this.label3);
-            this.Lea.Controls.Add(this.label8);
-            this.Lea.Controls.Add(this.label1);
-            this.Lea.Location = new System.Drawing.Point(547, 12);
-            this.Lea.Name = "Lea";
-            this.Lea.Size = new System.Drawing.Size(169, 102);
-            this.Lea.TabIndex = 1;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(135, 23);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(11, 12);
-            this.label12.TabIndex = 19;
-            this.label12.Text = "%";
-            // 
-            // Lead
-            // 
-            this.Lead.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.Lead.Location = new System.Drawing.Point(62, 56);
-            this.Lead.Name = "Lead";
-            this.Lead.Size = new System.Drawing.Size(100, 26);
-            this.Lead.TabIndex = 18;
-            this.Lead.TabStop = false;
-            this.Lead.Text = "";
-            // 
-            // BatteryValue
-            // 
-            this.BatteryValue.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.BatteryValue.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.BatteryValue.Location = new System.Drawing.Point(73, 18);
-            this.BatteryValue.Name = "BatteryValue";
-            this.BatteryValue.ReadOnly = true;
-            this.BatteryValue.Size = new System.Drawing.Size(54, 23);
-            this.BatteryValue.TabIndex = 17;
-            this.BatteryValue.TabStop = false;
-            this.BatteryValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label3.Location = new System.Drawing.Point(8, 66);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(40, 16);
-            this.label3.TabIndex = 11;
-            this.label3.Text = "导联";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label8.Location = new System.Drawing.Point(17, 18);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(40, 16);
-            this.label8.TabIndex = 10;
-            this.label8.Text = "电量";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label1.Location = new System.Drawing.Point(59, -1);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 14);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "数据";
             // 
             // label4
             // 
@@ -183,7 +99,7 @@
             // 
             this.DataStoreButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.DataStoreButton.Enabled = false;
-            this.DataStoreButton.Location = new System.Drawing.Point(741, 79);
+            this.DataStoreButton.Location = new System.Drawing.Point(525, 291);
             this.DataStoreButton.Name = "DataStoreButton";
             this.DataStoreButton.Size = new System.Drawing.Size(64, 37);
             this.DataStoreButton.TabIndex = 9;
@@ -215,7 +131,7 @@
             // 
             this.ScanButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.ScanButton.Enabled = false;
-            this.ScanButton.Location = new System.Drawing.Point(579, 262);
+            this.ScanButton.Location = new System.Drawing.Point(583, 154);
             this.ScanButton.Name = "ScanButton";
             this.ScanButton.Size = new System.Drawing.Size(200, 23);
             this.ScanButton.TabIndex = 10;
@@ -226,7 +142,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(550, 148);
+            this.label11.Location = new System.Drawing.Point(545, 13);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(125, 12);
             this.label11.TabIndex = 21;
@@ -278,7 +194,7 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Enabled = false;
-            this.checkBox1.Location = new System.Drawing.Point(719, 147);
+            this.checkBox1.Location = new System.Drawing.Point(719, 12);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(96, 16);
             this.checkBox1.TabIndex = 33;
@@ -289,9 +205,10 @@
             // button5
             // 
             this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(579, 406);
+            this.button5.ForeColor = System.Drawing.Color.Black;
+            this.button5.Location = new System.Drawing.Point(607, 406);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(93, 23);
+            this.button5.Size = new System.Drawing.Size(143, 23);
             this.button5.TabIndex = 36;
             this.button5.Text = "1mv定标";
             this.button5.UseVisualStyleBackColor = true;
@@ -364,33 +281,13 @@
             // button1
             // 
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(579, 441);
+            this.button1.Location = new System.Drawing.Point(607, 441);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(93, 23);
+            this.button1.Size = new System.Drawing.Size(143, 23);
             this.button1.TabIndex = 42;
             this.button1.Text = "0Mv校准";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // AmplificationValue
-            // 
-            this.AmplificationValue.AutoSize = true;
-            this.AmplificationValue.Location = new System.Drawing.Point(678, 411);
-            this.AmplificationValue.Name = "AmplificationValue";
-            this.AmplificationValue.Size = new System.Drawing.Size(137, 12);
-            this.AmplificationValue.TabIndex = 43;
-            this.AmplificationValue.Text = "未定标或无法获取定标值";
-            this.AmplificationValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // differenceValue
-            // 
-            this.differenceValue.AutoSize = true;
-            this.differenceValue.Location = new System.Drawing.Point(678, 447);
-            this.differenceValue.Name = "differenceValue";
-            this.differenceValue.Size = new System.Drawing.Size(137, 12);
-            this.differenceValue.TabIndex = 44;
-            this.differenceValue.Text = "未定标或无法获取定标值";
-            this.differenceValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label15
             // 
@@ -451,6 +348,9 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.BatteryValueLabel);
+            this.tabPage1.Controls.Add(this.LeadLabel);
+            this.tabPage1.Controls.Add(this.PulseLabel);
             this.tabPage1.Controls.Add(this.statusStrip2);
             this.tabPage1.Controls.Add(this.statusStrip1);
             this.tabPage1.Controls.Add(this.PatchMACLabel);
@@ -461,20 +361,16 @@
             this.tabPage1.Controls.Add(this.label19);
             this.tabPage1.Controls.Add(this.label17);
             this.tabPage1.Controls.Add(this.label16);
-            this.tabPage1.Controls.Add(this.Lea);
             this.tabPage1.Controls.Add(this.label15);
             this.tabPage1.Controls.Add(this.label11);
             this.tabPage1.Controls.Add(this.label4);
             this.tabPage1.Controls.Add(this.checkBox1);
             this.tabPage1.Controls.Add(this.ScanButton);
             this.tabPage1.Controls.Add(this.PauseButton);
-            this.tabPage1.Controls.Add(this.ConnectBLEButton);
             this.tabPage1.Controls.Add(this.textBoxScan);
             this.tabPage1.Controls.Add(this.IDValuebutton);
             this.tabPage1.Controls.Add(this.label10);
-            this.tabPage1.Controls.Add(this.differenceValue);
             this.tabPage1.Controls.Add(this.button5);
-            this.tabPage1.Controls.Add(this.AmplificationValue);
             this.tabPage1.Controls.Add(this.PairButton);
             this.tabPage1.Controls.Add(this.button1);
             this.tabPage1.Controls.Add(this.textBox5);
@@ -485,6 +381,54 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "心电补丁测试";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // BatteryValueLabel
+            // 
+            this.BatteryValueLabel.AutoSize = true;
+            this.BatteryValueLabel.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.BatteryValueLabel.Location = new System.Drawing.Point(345, 36);
+            this.BatteryValueLabel.Name = "BatteryValueLabel";
+            this.BatteryValueLabel.Size = new System.Drawing.Size(69, 19);
+            this.BatteryValueLabel.TabIndex = 56;
+            this.BatteryValueLabel.Text = "label6";
+            // 
+            // LeadLabel
+            // 
+            this.LeadLabel.AutoSize = true;
+            this.LeadLabel.BackColor = System.Drawing.Color.White;
+            this.LeadLabel.CausesValidation = false;
+            this.LeadLabel.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.LeadLabel.Location = new System.Drawing.Point(252, 36);
+            this.LeadLabel.Name = "LeadLabel";
+            this.LeadLabel.Size = new System.Drawing.Size(69, 19);
+            this.LeadLabel.TabIndex = 55;
+            this.LeadLabel.Text = "label5";
+            // 
+            // PulseLabel
+            // 
+            this.PulseLabel.AutoSize = true;
+            this.PulseLabel.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.PulseLabel.Location = new System.Drawing.Point(92, 36);
+            this.PulseLabel.Name = "PulseLabel";
+            this.PulseLabel.Size = new System.Drawing.Size(69, 19);
+            this.PulseLabel.TabIndex = 54;
+            this.PulseLabel.Text = "label2";
+            // 
+            // statusStrip2
+            // 
+            this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel4});
+            this.statusStrip2.Location = new System.Drawing.Point(3, 556);
+            this.statusStrip2.Name = "statusStrip2";
+            this.statusStrip2.Size = new System.Drawing.Size(817, 22);
+            this.statusStrip2.TabIndex = 53;
+            this.statusStrip2.Text = "statusStrip2";
+            // 
+            // toolStripStatusLabel4
+            // 
+            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
+            this.toolStripStatusLabel4.Size = new System.Drawing.Size(131, 17);
+            this.toolStripStatusLabel4.Text = "toolStripStatusLabel4";
             // 
             // statusStrip1
             // 
@@ -529,29 +473,16 @@
             // 
             this.MAClistBox.FormattingEnabled = true;
             this.MAClistBox.ItemHeight = 12;
-            this.MAClistBox.Location = new System.Drawing.Point(547, 168);
+            this.MAClistBox.Location = new System.Drawing.Point(547, 36);
             this.MAClistBox.Name = "MAClistBox";
-            this.MAClistBox.Size = new System.Drawing.Size(268, 88);
+            this.MAClistBox.Size = new System.Drawing.Size(268, 100);
             this.MAClistBox.TabIndex = 50;
             this.MAClistBox.Click += new System.EventHandler(this.MAClistBox_Click);
             this.MAClistBox.SelectedIndexChanged += new System.EventHandler(this.MAClistBox_SelectedIndexChanged);
             this.MAClistBox.DoubleClick += new System.EventHandler(this.MAClistBox_DoubleClick);
             // 
-            // ConnectBLEButton
-            // 
-            this.ConnectBLEButton.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.ConnectBLEButton.Enabled = false;
-            this.ConnectBLEButton.Location = new System.Drawing.Point(723, 310);
-            this.ConnectBLEButton.Name = "ConnectBLEButton";
-            this.ConnectBLEButton.Size = new System.Drawing.Size(93, 23);
-            this.ConnectBLEButton.TabIndex = 18;
-            this.ConnectBLEButton.Text = "设备已断开";
-            this.ConnectBLEButton.UseVisualStyleBackColor = false;
-            this.ConnectBLEButton.Click += new System.EventHandler(this.ConnectBLEButton_Click);
-            // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.MACComboBox);
             this.tabPage2.Controls.Add(this.button2);
             this.tabPage2.Controls.Add(this.textBox3);
             this.tabPage2.Controls.Add(this.UpDataButton);
@@ -562,17 +493,6 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "程序下载";
             this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // MACComboBox
-            // 
-            this.MACComboBox.Enabled = false;
-            this.MACComboBox.FormattingEnabled = true;
-            this.MACComboBox.Items.AddRange(new object[] {
-            "无设备"});
-            this.MACComboBox.Location = new System.Drawing.Point(283, 279);
-            this.MACComboBox.Name = "MACComboBox";
-            this.MACComboBox.Size = new System.Drawing.Size(257, 20);
-            this.MACComboBox.TabIndex = 61;
             // 
             // button2
             // 
@@ -620,22 +540,6 @@
             this.menuStrip2.TabIndex = 60;
             this.menuStrip2.Text = "menuStrip2";
             // 
-            // statusStrip2
-            // 
-            this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel4});
-            this.statusStrip2.Location = new System.Drawing.Point(3, 556);
-            this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(817, 22);
-            this.statusStrip2.TabIndex = 53;
-            this.statusStrip2.Text = "statusStrip2";
-            // 
-            // toolStripStatusLabel4
-            // 
-            this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
-            this.toolStripStatusLabel4.Size = new System.Drawing.Size(131, 17);
-            this.toolStripStatusLabel4.Text = "toolStripStatusLabel4";
-            // 
             // RF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -652,19 +556,17 @@
             this.Text = "HM502B2心电数据显示软件V2.00(201507016)";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.RF_FormClosed);
             this.Load += new System.EventHandler(this.Motion_Load);
-            this.Lea.ResumeLayout(false);
-            this.Lea.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.statusStrip2.ResumeLayout(false);
+            this.statusStrip2.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
-            this.statusStrip2.ResumeLayout(false);
-            this.statusStrip2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -672,24 +574,17 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel Lea;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label4;
         private System.Timers.Timer Timer;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private Sunisoft.IrisSkin.SkinEngine skinEngine1;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button ScanButton;
         private System.Windows.Forms.Button DataStoreButton;
         private System.Windows.Forms.RichTextBox MonitorText;
-        private System.Windows.Forms.TextBox BatteryValue;
-        private System.Windows.Forms.RichTextBox Lead;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Button PauseButton;
         private System.Windows.Forms.Button IDValuebutton;
         private System.Windows.Forms.TextBox textBoxScan;
-        private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button5;
@@ -697,8 +592,6 @@
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label differenceValue;
-        private System.Windows.Forms.Label AmplificationValue;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label18;
@@ -711,18 +604,19 @@
         private System.IO.Ports.SerialPort serialPort1;
         private System.Windows.Forms.ListBox MAClistBox;
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.ComboBox MACComboBox;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Button UpDataButton;
         private System.Windows.Forms.Label PatchMACLabel;
-        private System.Windows.Forms.Button ConnectBLEButton;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
+        private System.Windows.Forms.Label PulseLabel;
+        private System.Windows.Forms.Label BatteryValueLabel;
+        private System.Windows.Forms.Label LeadLabel;
     }
 }
 

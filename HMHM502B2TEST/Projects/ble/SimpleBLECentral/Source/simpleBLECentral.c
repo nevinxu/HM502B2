@@ -371,6 +371,15 @@ uint16 SimpleBLECentral_ProcessEvent( uint8 task_id, uint16 events )
                                        DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                        DEFAULT_DISCOVERY_WHITE_LIST );      
       }
+      else
+      {
+        txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+        txSerialPkt.header.opCode = APP_CMD_ADVERTISEOVER;
+        txSerialPkt.header.status = 0x00;
+        txSerialPkt.length = 1;
+        txSerialPkt.data[0] = 0x00;
+        sendSerialEvt();
+      }
     }   
     return ( events ^ START_SCAN_EVT );
   }
@@ -813,7 +822,8 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
         txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
         txSerialPkt.header.opCode = APP_CMD_ADVERTISEOVER;
         txSerialPkt.header.status = 0x00;
-        txSerialPkt.length = 0;
+        txSerialPkt.length = 1;
+        txSerialPkt.data[0] = 0x01;
         sendSerialEvt();
 #endif
 #if 1
@@ -826,20 +836,21 @@ static void simpleBLECentralEventCB( gapCentralRoleEvent_t *pEvent )
                        (sizeof( gapDevRec_t ) * pEvent->discCmpl.numDevs) );
         }
         simpleBLEScanning = FALSE;
+        
         HalLedSet( HAL_LED_BLUE, HAL_LED_MODE_ON );    
         HalLedSet( HAL_LED_YELLOW, HAL_LED_MODE_OFF );
         
-        txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
-        txSerialPkt.header.opCode = APP_CMD_ADVERTISEACK;
-        txSerialPkt.header.status = 0x00;
-        txSerialPkt.length = simpleBLEScanRes*6;
-        for(int i = 0;i<simpleBLEScanRes; i++)
-        {
-          for(int j = 0;j<6;j++)
-          {
-            txSerialPkt.data[i*6+j] = simpleBLEDevList[i].addr[j];
-          }
-        }
+//        txSerialPkt.header.identifier = SERIAL_IDENTIFIER;
+//        txSerialPkt.header.opCode = APP_CMD_ADVERTISEACK;
+//        txSerialPkt.header.status = 0x00;
+//        txSerialPkt.length = simpleBLEScanRes*6;
+//        for(int i = 0;i<simpleBLEScanRes; i++)
+//        {
+//          for(int j = 0;j<6;j++)
+//          {
+//            txSerialPkt.data[i*6+j] = simpleBLEDevList[i].addr[j];
+//          }
+//        }
       //  sendSerialEvt();
         
         // initialize scan index to last device

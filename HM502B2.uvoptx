@@ -177,26 +177,6 @@
           <WinNumber>1</WinNumber>
           <ItemText>flashdatapackage</ItemText>
         </Ww>
-        <Ww>
-          <count>6</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>rxbuffer</ItemText>
-        </Ww>
-        <Ww>
-          <count>7</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>rxbuffer</ItemText>
-        </Ww>
-        <Ww>
-          <count>8</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>rxbuffer</ItemText>
-        </Ww>
-        <Ww>
-          <count>9</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>rxbuffer</ItemText>
-        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -217,47 +197,47 @@
         <Ww>
           <count>3</count>
           <WinNumber>2</WinNumber>
-          <ItemText>SETNAME</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>2</WinNumber>
-          <ItemText>a,0x0A</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>2</WinNumber>
-          <ItemText>a,0x0A</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>2</WinNumber>
-          <ItemText>a,0x0A</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>2</WinNumber>
-          <ItemText>a</ItemText>
+          <ItemText>SETNAME</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>a,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>a,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>a,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>a</ItemText>
         </Ww>
         <Ww>
           <count>12</count>
@@ -272,17 +252,17 @@
         <Ww>
           <count>14</count>
           <WinNumber>2</WinNumber>
-          <ItemText>g_lpuartStatePtr[instance]</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>15</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>16</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>17</count>
@@ -292,17 +272,17 @@
         <Ww>
           <count>18</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>g_lpuartStatePtr[instance]</ItemText>
         </Ww>
         <Ww>
           <count>19</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>20</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>21</count>
@@ -367,12 +347,12 @@
         <Ww>
           <count>33</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>34</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>35</count>
@@ -387,12 +367,12 @@
         <Ww>
           <count>37</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>38</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>39</count>
@@ -402,7 +382,7 @@
         <Ww>
           <count>40</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer[8]</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>41</count>
@@ -417,12 +397,12 @@
         <Ww>
           <count>43</count>
           <WinNumber>2</WinNumber>
-          <ItemText>txSize</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>44</count>
           <WinNumber>2</WinNumber>
-          <ItemText>txBuff</ItemText>
+          <ItemText>rxbuffer[8]</ItemText>
         </Ww>
         <Ww>
           <count>45</count>
@@ -437,12 +417,12 @@
         <Ww>
           <count>47</count>
           <WinNumber>2</WinNumber>
-          <ItemText>txBuff</ItemText>
+          <ItemText>txSize</ItemText>
         </Ww>
         <Ww>
           <count>48</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>txBuff</ItemText>
         </Ww>
         <Ww>
           <count>49</count>
@@ -457,7 +437,7 @@
         <Ww>
           <count>51</count>
           <WinNumber>2</WinNumber>
-          <ItemText>rxbuffer</ItemText>
+          <ItemText>txBuff</ItemText>
         </Ww>
         <Ww>
           <count>52</count>
@@ -467,22 +447,22 @@
         <Ww>
           <count>53</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>54</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>55</count>
           <WinNumber>2</WinNumber>
-          <ItemText>RxBuffer</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>56</count>
           <WinNumber>2</WinNumber>
-          <ItemText>lpuartState</ItemText>
+          <ItemText>rxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>57</count>
@@ -492,40 +472,60 @@
         <Ww>
           <count>58</count>
           <WinNumber>2</WinNumber>
-          <ItemText>bluerxbuffer</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>59</count>
           <WinNumber>2</WinNumber>
-          <ItemText>bluerxbuffer</ItemText>
+          <ItemText>RxBuffer</ItemText>
         </Ww>
         <Ww>
           <count>60</count>
           <WinNumber>2</WinNumber>
-          <ItemText>DataArray</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>61</count>
           <WinNumber>2</WinNumber>
-          <ItemText>flashdatapackage</ItemText>
+          <ItemText>lpuartState</ItemText>
         </Ww>
         <Ww>
           <count>62</count>
           <WinNumber>2</WinNumber>
-          <ItemText>s_bt_lpuart</ItemText>
+          <ItemText>bluerxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>63</count>
           <WinNumber>2</WinNumber>
-          <ItemText>g_lpuartStatePtr</ItemText>
+          <ItemText>bluerxbuffer</ItemText>
         </Ww>
         <Ww>
           <count>64</count>
           <WinNumber>2</WinNumber>
-          <ItemText>g_lpuartStatePtr[instance]</ItemText>
+          <ItemText>DataArray</ItemText>
         </Ww>
         <Ww>
           <count>65</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>flashdatapackage</ItemText>
+        </Ww>
+        <Ww>
+          <count>66</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>s_bt_lpuart</ItemText>
+        </Ww>
+        <Ww>
+          <count>67</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>g_lpuartStatePtr</ItemText>
+        </Ww>
+        <Ww>
+          <count>68</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>g_lpuartStatePtr[instance]</ItemText>
+        </Ww>
+        <Ww>
+          <count>69</count>
           <WinNumber>2</WinNumber>
           <ItemText>flashdatapackage,0x0A</ItemText>
         </Ww>

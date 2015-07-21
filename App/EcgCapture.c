@@ -96,9 +96,9 @@ static void ecg_adc_isr_callback(void)
 				else  if( CalibrationFlag == 0) //ÒÑÐ£×¼
 				{
 					a = ADC_DRV_GetConvValueRAWInt(ECG_INST, ECGCHNGROUP);
-					a = a -flashdatapackage.difference_Value;
+					a = a - flashdatapackage.difference_Value;
 					a = a*100;
-					a = a/60;
+					a = a/flashdatapackage.amplification;
 					a = a+500;
 					Ecgbuffer[Ecg_Row][Ecg_Col++] = a;
 				}

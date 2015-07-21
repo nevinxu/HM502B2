@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Threading;
 using RFtest;
+using System.Collections;
 
 namespace MotionSensor
 {
@@ -23,6 +24,7 @@ namespace MotionSensor
         double[] XdataV = new double[M * N];
 
         private double[,] EcgData_Com = new double[64, 8];   //原始采集到的心电数据
+        private List<double> EcgData_Pulse = new List<double>(512);
 
         byte[] ECGData = new byte[M * 2];
 
@@ -160,6 +162,97 @@ namespace MotionSensor
             InitializeComponent();
         }
 
+
+        public double[] SoAndChan(double[] voltages)
+        {
+            const double THRESHOLD_PARAM = 8;
+            const double FILTER_PARAMETER = 16;
+            const int SAMPLE_RATE = 510;
+
+            // initial maxi should be the max slope of the first 250 points.
+            double initial_maxi = -2 * voltages[0] - voltages[1] + voltages[3] + 2 * voltages[4];
+            for (int i = 2; i < SAMPLE_RATE; i++)
+            {
+                double slope = -2 * voltages[i - 2] - voltages[i - 1] + voltages[i + 1] + 2 * voltages[i + 2];
+                if (slope > initial_maxi)
+                    initial_maxi = slope;
+            }
+
+            // Since we don't know how many R peaks we'll have, we'll use an ArrayList
+            List<double> rTime = new List<double>(100);
+          //  ArrayList rTime = new ArrayList();
+
+            // set initial maxi
+            double maxi = initial_maxi;
+            bool first_satisfy = false;
+            bool second_satisfy = false;
+            int onset_point = 0;
+            int R_point = 0;
+            bool rFound = false;
+            // I want a way to plot all the r dots that are found...
+            int[] rExist = new int[voltages.Length];
+            // First two voltages should be ignored because we need rom length
+            for (int i = 2; i < voltages.Length - 2; i++)
+            {
+
+                // Last two voltages should be ignored too
+                if (!first_satisfy || !second_satisfy)
+                {
+                    // Get Slope:
+                    double slope = -2 * voltages[i - 2] - voltages[i - 1] + voltages[i + 1] + 2 * voltages[i + 2];
+
+                    // Get slope threshold
+                    double slope_threshold = (THRESHOLD_PARAM / 16) * maxi;
+
+                    // We need two consecutive datas that satisfy slope > slope_threshold
+                    if (slope > slope_threshold)
+                    {
+                        if (!first_satisfy)
+                        {
+                            first_satisfy = true;
+                            onset_point = i;
+                        }
+                        else
+                        {
+                            if (!second_satisfy)
+                            {
+                                second_satisfy = true;
+                            }
+                        }
+                    }
+                }
+                // We found the ONSET already, now we find the R point
+                else
+                {
+
+                    if (voltages[i] < voltages[i - 1])
+                    {
+                        rTime.Add(i - 1);
+                        R_point = i - 1;
+
+                        // Since we have the R, we should reset
+                        first_satisfy = false;
+                        second_satisfy = false;
+
+                        // and update maxi
+                        double first_maxi = voltages[R_point] - voltages[onset_point];
+                        maxi = ((first_maxi - maxi) / FILTER_PARAMETER) + maxi;
+                    }
+                }
+            }
+
+            double[] results = new double[rTime.Count];
+
+            // Now we convert the ArrayList to an array and return it
+            for (int i = 0; i < rTime.Count; i++)
+            {
+                results[i] = rTime[i];
+            }
+
+            return results;
+        }
+
+
         int TestFlagCharge(int Flag,string DisplayString,int delay)
         {
             int num = 0;
@@ -174,6 +267,16 @@ namespace MotionSensor
                 }
             }
             return 0;
+        }
+
+        void HideWave()
+        {
+            for (int i = 0; i < (N * M); i++)
+            {
+                XdataV[i] = 0;
+            }
+            chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+            chart1.Series["Series_Ecg"].Color = Color.Black;
         }
 
         int TestCommandGetStatus(int EcgComReceiveFlag1, int EcgComReceiveFlag2, string DisplayString1, string DisplayString2, string DisplayString3,int delay)
@@ -213,7 +316,7 @@ namespace MotionSensor
                 string bb = "(" + ScanBLEMAC[i, 5].ToString("X2") + ":" + ScanBLEMAC[i, 4].ToString("X2") + ":" + 
                     ScanBLEMAC[i, 3].ToString("X2") + ":" + ScanBLEMAC[i, 2].ToString("X2") + ":" + 
                     ScanBLEMAC[i, 1].ToString("X2") + ":" + ScanBLEMAC[i, 0].ToString("X2") + ")" + aa;
-                MACComboBox.Invoke(new EventHandler(delegate
+                MAClistBox.Invoke(new EventHandler(delegate
                 {
                     if (ScanBleName[i, 0] == 'B' && (ScanBleName[i, 1] == 'D'))
                     {
@@ -227,12 +330,15 @@ namespace MotionSensor
                     {
                         MAClistBox.Items.Add(bb + "(未知设备)");
                     }
-                    MACComboBox.Enabled = true;
+                //    MACComboBox.Enabled = true;
                 }));
             }
             if (ScanBLENum == 0)
             {
-                MAClistBox.Items.Add ("无设备");
+                //MACComboBox.Invoke(new EventHandler(delegate
+                //{
+                //MAClistBox.Items.Add ("无设备");
+                //}));
             }
         }
 
@@ -261,6 +367,7 @@ namespace MotionSensor
                             {
                                 ScanButton.Text = "搜索完成";
                                 ScanButton.Enabled = false;
+                                MAClistBox.Enabled = true;
                             }));
                             Thread.Sleep(1000);
                             ScanButton.Invoke(new EventHandler(delegate
@@ -304,18 +411,33 @@ namespace MotionSensor
                             button1.Enabled = true;
                         }));
                     }
-                    else
+                    else 
                     {
-                        ScanButton.Invoke(new EventHandler(delegate
+                        if (EcgComReceiveFlag == 0x43)
                         {
-                            ScanButton.Text = "连接失败";
-                            button5.Enabled = false;
-                            button1.Enabled = false;
-                        }));
+                            ScanButton.Invoke(new EventHandler(delegate
+                            {
+                                ScanButton.Text = "配对MAC出错";
+                                ScanButton.Enabled = false;
+                                button5.Enabled = false;
+                                button1.Enabled = false;
+                            }));
+                        }
+                        else if (EcgComReceiveFlag == 0x41)
+                        {
+                            ScanButton.Invoke(new EventHandler(delegate
+                            {
+                                ScanButton.Text = "连接失败";
+                                ScanButton.Enabled = false;
+                                button5.Enabled = false;
+                                button1.Enabled = false;
+                            }));
+                        }
                         Thread.Sleep(1000);
                         ScanButton.Invoke(new EventHandler(delegate
                         {
                             ScanButton.Text = "搜索设备";
+                            ScanButton.Enabled = true;
                             PairButton.Enabled = true;
                             ConnectDeviceFlag = 0;
                         }));
@@ -339,6 +461,13 @@ namespace MotionSensor
                             toolStripStatusLabel3.Text = "";
                             button5.Enabled = false;
                             button1.Enabled = false;
+
+                            LeadLabel.Text = "";
+                            BatteryValueLabel.Text = "";
+                            PulseLabel.Text = "";
+
+                            HideWave();
+
                         }));
                         Thread.Sleep(1000);
                         ScanButton.Invoke(new EventHandler(delegate
@@ -430,17 +559,109 @@ namespace MotionSensor
                 }
                 else if (ConnectDeviceFlag == 4)
                 {
-                    for(int i = 0;i<512;i++)
+                    if (EcgComReceiveFlag == 4)
                     {
-                        XdataV[i] = EcgData_Com[i / 8, i % 8];
+                        ConnectDeviceFlag = 0;
+                        ScanButton.Invoke(new EventHandler(delegate
+                        {
+                            ScanButton.Text = "连接断开";
+                            ScanButton.Enabled = false;
+                        }));
+                        Thread.Sleep(1000);
+                        ScanButton.Invoke(new EventHandler(delegate
+                        {
+                            ScanButton.Text = "搜索设备";
+                            ScanButton.Enabled = true;
+                        }));
                     }
-                    chart1.Invoke(new EventHandler(delegate
+                    else
                     {
-                        chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
-                        chart1.Series["Series_Ecg"].Color = Color.FromArgb(0, 192, 0);
-                    }));
-                    ScalingFuction();
-                    Thread.Sleep(100);
+
+                        for (int i = 0; i < 512; i++)
+                        {
+                            XdataV[i] = EcgData_Com[i / 8, i % 8];
+                        }
+
+                        
+
+                        chart1.Invoke(new EventHandler(delegate
+                        {
+                            if (LeadOffStatus == 0)
+                            {
+                                LeadLabel.Text = "导联脱落";
+                                LeadLabel.ForeColor = Color.Red;
+                            }
+                            else
+                            {
+                                LeadLabel.Text = "导联正常";
+                                LeadLabel.ForeColor = Color.Green;
+
+                            }
+
+                            BatteryValueLabel.Text = "当前电池电量:" + Vbat.ToString() + "%";
+
+                          //  
+                            if (EcgData_Pulse.Count >= 512)
+                            {
+                                double[] ff = new double[512];
+                                for (int i = 0; i < 512; i++)
+                                {
+                                    ff[i] = EcgData_Pulse[i];
+                                }
+                                double[] aa = SoAndChan(ff);
+
+                                int bb = aa.GetLength(0);
+                                if (bb >= 2)
+                                {
+                                    List<double> cc = new List<double>(100);
+                                    for (int i = 1; i < bb; i++)
+                                    {
+                                        cc.Add(aa[i] - aa[i - 1]);
+                                    }
+                                    double dd = new double();
+                                    for (int i = 0; i < cc.Count(); i++)
+                                    {
+                                        dd += cc[i];
+                                    }
+                                    dd = dd / cc.Count();
+
+                                    dd = 60 * 128 / dd + 0.5;
+
+                                    dd = (double)(int)(dd);
+                                    PulseLabel.Text = "当前心率：" + dd.ToString();
+
+                                }
+                            }
+                            else
+                            {
+                                PulseLabel.Text = "正在计算心率...";
+                            }
+
+                            chart1.Series["Series_Ecg"].Points.DataBindXY(Xdata, XdataV);
+                            chart1.Series["Series_Ecg"].Color = Color.FromArgb(0, 192, 0);
+                            if (EcgDataTimer < 64 && (EcgDataTimer >= 0))
+                            {
+                                chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 2).Color = Color.Black;
+                                chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 3).Color = Color.Black;
+                                chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 4).Color = Color.Black;
+                                chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 5).Color = Color.Black;
+                                chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 6).Color = Color.Black;
+                                chart1.Series["Series_Ecg"].Points.ElementAt(EcgDataTimer * M + 7).Color = Color.Black;
+                            }
+                            //for (int i = 1; i < 512; i++)
+                            //{
+                            //    if ((XdataV[i] > 7000) || (XdataV[i] < -7000))
+                            //    {
+                            //        chart1.Series["Series_Ecg"].Points.ElementAt(i).Color = Color.Black;
+                            //        chart1.Series["Series_Ecg"].Points.ElementAt(i - 1).Color = Color.Black;
+                            //    }
+                            //}
+
+
+                        }));
+                        ScalingFuction();
+                        Thread.Sleep(100);
+                    }
                 }
                 else if (ConnectDeviceFlag == 5)
                 {
@@ -481,6 +702,7 @@ namespace MotionSensor
                 }
                 else
                 {
+                    Thread.Sleep(5);
                     DisplayString1 = "请求断开心电补丁...\r\n";
                     DisplayString2 = "断开心电补丁失败！\r\n";
                     DisplayString3 = "心电补丁已断开！\r\n";
@@ -573,6 +795,7 @@ namespace MotionSensor
                         {
                             EcgUartProcessThread.Abort();
                         }
+                        EcgComReceiveFlag = 0;
                 }
                 if (EcgComReceiveFlag == 0x02)
                 {
@@ -996,7 +1219,7 @@ namespace MotionSensor
                         }
                         else if (ReceiveDataList[1] == 0x0B) //心电补丁已断开
                         {
-                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0) || (ConnectDeviceFlag == 3))
+                            if (ScanDeviceFlag == 0 && (ConnectDeviceFlag == 0) && (PairDeviceFlag == 0) || (ConnectDeviceFlag == 3) || (ConnectDeviceFlag == 4))
                             {
                                 EcgComReceiveFlag = 4;
                             }
@@ -1043,9 +1266,9 @@ namespace MotionSensor
                         else if (ReceiveDataList[1] == 0x0E)  //正在搜索设备
                         {
                             ScanBLENum = 0;
-                            MACComboBox.Invoke(new EventHandler(delegate
+                            MAClistBox.Invoke(new EventHandler(delegate
                             {
-                                MACComboBox.Items.Clear();
+                                //MACComboBox.Items.Clear();
                                 MAClistBox.Items.Clear();
                             }));
                         }
@@ -1186,7 +1409,7 @@ namespace MotionSensor
                         else if (ReceiveDataList[1] == 0x27)//获取1mv定标值成功
                         {
                             amplification = (Int16)(ReceiveDataList[4] + (ReceiveDataList[5] << 8));
-                            if (amplification <= 0 || (amplification > 100))
+                            if (amplification <= 0 || (amplification > 200))
                             {
                                 amplification = 60;
                                 
@@ -1197,14 +1420,14 @@ namespace MotionSensor
                         {
                             if (ReceiveDataList[4] == 1)
                             {
-                                ;
+                                EcgComReceiveFlag = 0x7A;
                             }
                         }
                         else if (ReceiveDataList[1] == 0x29)//设置1mv定标值成功
                         {
                             if (ReceiveDataList[4] == 1)
                             {
-                                ;
+                                EcgComReceiveFlag = 0x7C;
                             }
                         }
                         else if (ReceiveDataList[1] == 0x35)  //设置心电补丁ID成功
@@ -1233,6 +1456,11 @@ namespace MotionSensor
                             if (ConnectDeviceFlag == 4)
                             {
                                 EcgComReceiveFlag = 0x99;
+                                EcgDataTimer = ReceiveDataList[4]%64;
+
+                                LeadOffStatus = (ReceiveDataList[5]>>7);
+                                Vbat = ReceiveDataList[5] & 0x7F;
+
                                 EcgData_Com[ReceiveDataList[4] % 64, 0] = (Convert.ToDouble(ReceiveDataList[6]) + Convert.ToDouble((ReceiveDataList[10] & 0xc0) << 2)) * DisplayMultipleNum - ZeroValue;
                                 EcgData_Com[ReceiveDataList[4] % 64, 1] = (Convert.ToDouble(ReceiveDataList[7]) + Convert.ToDouble((ReceiveDataList[10] & 0x30) << 4)) * DisplayMultipleNum - ZeroValue;
                                 EcgData_Com[ReceiveDataList[4] % 64, 2] = (Convert.ToDouble(ReceiveDataList[8]) + Convert.ToDouble((ReceiveDataList[10] & 0x0c) << 6)) * DisplayMultipleNum - ZeroValue;
@@ -1241,6 +1469,20 @@ namespace MotionSensor
                                 EcgData_Com[ReceiveDataList[4] % 64, 5] = (Convert.ToDouble(ReceiveDataList[12]) + Convert.ToDouble((ReceiveDataList[15] & 0x30) << 4)) * DisplayMultipleNum - ZeroValue;
                                 EcgData_Com[ReceiveDataList[4] % 64, 6] = (Convert.ToDouble(ReceiveDataList[13]) + Convert.ToDouble((ReceiveDataList[15] & 0x0c) << 6)) * DisplayMultipleNum - ZeroValue;
                                 EcgData_Com[ReceiveDataList[4] % 64, 7] = (Convert.ToDouble(ReceiveDataList[14]) + Convert.ToDouble((ReceiveDataList[15] & 0x03) << 8)) * DisplayMultipleNum - ZeroValue;
+
+                                if (EcgData_Pulse.Count > (512 - 8))
+                                {
+                                    EcgData_Pulse.RemoveRange(0, 8);
+                                }
+                                EcgData_Pulse.Add(EcgData_Com[ReceiveDataList[4] % 64, 0]);
+                                EcgData_Pulse.Add(EcgData_Com[ReceiveDataList[4] % 64, 1]);
+                                EcgData_Pulse.Add(EcgData_Com[ReceiveDataList[4] % 64, 2]);
+                                EcgData_Pulse.Add(EcgData_Com[ReceiveDataList[4] % 64, 3]);
+                                EcgData_Pulse.Add(EcgData_Com[ReceiveDataList[4] % 64, 4]);
+                                EcgData_Pulse.Add(EcgData_Com[ReceiveDataList[4] % 64, 5]);
+                                EcgData_Pulse.Add(EcgData_Com[ReceiveDataList[4] % 64, 6]);
+                                EcgData_Pulse.Add(EcgData_Com[ReceiveDataList[4] % 64, 7]);
+
                                 if ((ScalingFlag == 1) || (ScalingFlag == 11))   //校准或定标
                                 {
                                     calibration_Value.Add(EcgData_Com[ReceiveDataList[4] % 64, 0]);
@@ -1331,15 +1573,72 @@ namespace MotionSensor
                     ScalingFlag = 2;   //完成1mv定标
                     ZeroValue = 5000;
                     DisplayMultipleNum = 10;
-                    button1.Invoke(new EventHandler(delegate
-                    {
-                        button5.Text = "1mv定标成功";
-                        button5.Enabled = false;
-                    }));
 
+                    ConnectDeviceFlag = 5;
+
+                    Thread.Sleep(50);
+                    string DisplayString1 = "请求停止接收心电数据...\r\n";
+                    string DisplayString2 = "请求停止接收心电数据失败！\r\n";
+                    string DisplayString3 = "请求停止接收心电数据成功！\r\n";
+                    serialcommand.StopReceiveECGDataSerialCommand(EcgCom);
+                    TestCommandGetStatus(5, 6, DisplayString1, DisplayString2, DisplayString3, 500);
+
+                    DisplayString1 = "请求保存1mv校准值...\r\n";
+                    DisplayString2 = "保存1mv校准值失败！\r\n";
+                    DisplayString3 = "保存1mv校准值成功！\r\n";
+                    serialcommand.Setcalibration1mvSerialCommand(EcgCom, amplification);
+                    if (TestCommandGetStatus(0x7b, 0x7c, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                    {
+                        button1.Invoke(new EventHandler(delegate
+                        {
+                            button5.Text = "1mv校准成功";
+                            button5.Enabled = false;
+                        }));
+                        DisplayString1 = "请求获取1mv校准值...\r\n";
+                        DisplayString2 = "获取1mv校准值失败！\r\n";
+                        DisplayString3 = "获取1mv校准值成功！\r\n";
+                        serialcommand.calibration1mvSerialCommand(EcgCom);
+                        if (TestCommandGetStatus(0x83, 0x84, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                        {
+                            ;
+                        }
+                        else
+                        {
+                            ;
+                        }
+                        DisplayString1 = "请求获取0mv校准值...\r\n";
+                        DisplayString2 = "获取0mv校准值失败！\r\n";
+                        DisplayString3 = "获取0mv校准值成功！\r\n";
+                        serialcommand.calibration0mvSerialCommand(EcgCom);
+                        if (TestCommandGetStatus(0x81, 0x82, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                        {
+                            ;
+                        }
+                        else
+                        {
+                            ;
+                        }
+                        DisplayString1 = "请求接收心电数据...\r\n";
+                        DisplayString2 = "接收心电数据失败！\r\n";
+                        DisplayString3 = "接收心电数据成功！\r\n";
+                        serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                        TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500);
+
+                        toolStripStatusLabel2.Text = "当前心电补丁 1mv校准值: " + amplification.ToString() + "    0mv校准值： " + difference_Value.ToString();
+                    }
+                    else
+                    {
+                        button1.Invoke(new EventHandler(delegate
+                        {
+                            button5.Text = "1mv校准失败";
+                            button5.Enabled = false;
+                        }));
+                    }
+                    ConnectDeviceFlag = 4;
                     Thread.Sleep(1000);
                     button1.Invoke(new EventHandler(delegate
                     {
+                        button5.ForeColor = Color.Black;
                         button5.Text = "1mv定标";
                         button5.Enabled = true;
                         button1.Enabled = true;
@@ -1359,15 +1658,74 @@ namespace MotionSensor
                     ZeroValue = 5000;
                     DisplayMultipleNum = 10;
                     ScalingFlag = 12;   //完成0mv校准
-                    button1.Invoke(new EventHandler(delegate
+
+                    ConnectDeviceFlag = 5;
+
+                    Thread.Sleep(50);
+                    string DisplayString1 = "请求停止接收心电数据...\r\n";
+                    string DisplayString2 = "请求停止接收心电数据失败！\r\n";
+                    string DisplayString3 = "请求停止接收心电数据成功！\r\n";
+                    serialcommand.StopReceiveECGDataSerialCommand(EcgCom);
+                    TestCommandGetStatus(5, 6, DisplayString1, DisplayString2, DisplayString3, 500);
+
+                    DisplayString1 = "请求保存0mv校准值...\r\n";
+                    DisplayString2 = "保存0mv校准值失败！\r\n";
+                    DisplayString3 = "保存0mv校准值成功！\r\n";
+                    serialcommand.Setcalibration0mvSerialCommand(EcgCom, difference_Value);
+                    if (TestCommandGetStatus(0x79, 0x7a, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
                     {
-                        button1.Text = "0mv校准成功";
-                        button1.Enabled = false;
-                    }));
+                        button1.Invoke(new EventHandler(delegate
+                        {
+                            button1.Text = "0mv校准成功";
+                            button1.Enabled = false;
+                        }));
+                        DisplayString1 = "请求获取1mv校准值...\r\n";
+                        DisplayString2 = "获取1mv校准值失败！\r\n";
+                        DisplayString3 = "获取1mv校准值成功！\r\n";
+                        serialcommand.calibration1mvSerialCommand(EcgCom);
+                        if (TestCommandGetStatus(0x83, 0x84, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                        {
+                            ;
+                        }
+                        else
+                        {
+                            ;
+                        }
+                        DisplayString1 = "请求获取0mv校准值...\r\n";
+                        DisplayString2 = "获取0mv校准值失败！\r\n";
+                        DisplayString3 = "获取0mv校准值成功！\r\n";
+                        serialcommand.calibration0mvSerialCommand(EcgCom);
+                        if (TestCommandGetStatus(0x81, 0x82, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
+                        {
+                            ;
+                        }
+                        else
+                        {
+                            ;
+                        }
+
+                        DisplayString1 = "请求接收心电数据...\r\n";
+                        DisplayString2 = "接收心电数据失败！\r\n";
+                        DisplayString3 = "接收心电数据成功！\r\n";
+                        serialcommand.ReceiveECGDataSerialCommand(EcgCom);
+                        TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500);
+
+                        toolStripStatusLabel2.Text = "当前心电补丁 1mv校准值: " + amplification.ToString() + "    0mv校准值： " + difference_Value.ToString();
+                    }
+                    else
+                    {
+                        button1.Invoke(new EventHandler(delegate
+                        {
+                            button1.Text = "0mv校准失败";
+                            button1.Enabled = false;
+                        }));
+                    }
+                    ConnectDeviceFlag = 4;
                     
                     Thread.Sleep(1000);
                     button1.Invoke(new EventHandler(delegate
                     {
+                        button1.ForeColor = Color.Black;
                         button1.Text = "0mv校准";
                         button1.Enabled = true;
                         button5.Enabled = true;
@@ -1433,6 +1791,10 @@ namespace MotionSensor
         #region 波形的初始化
         private void Motion_Load(object sender, EventArgs e)
         {
+
+            LeadLabel.Text = "";
+            BatteryValueLabel.Text = "";
+            PulseLabel.Text = "";
 
             for (int i = 0; i < (N * M); i++)
             {
@@ -1584,8 +1946,8 @@ namespace MotionSensor
                                             string DisplayString2 = "正在1mv定标...\r\n";
                                             DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString2;
                                             OutMsg(MonitorText, DisplayString, Color.Red);
-                                            AmplificationValue.Text = "正在1mv定标...";
-                                            differenceValue.Text = "正在1mv定标...";
+                                            //AmplificationValue.Text = "正在1mv定标...";
+                                            //differenceValue.Text = "正在1mv定标...";
                                         }
                                         else if (ScalingFlag == 11)
                                         {
@@ -1593,13 +1955,13 @@ namespace MotionSensor
                                             string DisplayString3 = "正在0mv校准...\r\n";
                                             DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString3;
                                             OutMsg(MonitorText, DisplayString, Color.Red);
-                                            AmplificationValue.Text = "正在0mv校准...";
-                                            differenceValue.Text = "正在0mv校准...";
+                                            //AmplificationValue.Text = "正在0mv校准...";
+                                            //differenceValue.Text = "正在0mv校准...";
                                         }
                                         else
                                         {
-                                            AmplificationValue.Text = "获取的1mv定标值为：" + Convert.ToString(amplification);
-                                            differenceValue.Text = "获取的0mv校准值为：" + Convert.ToString(difference_Value);
+                                            //AmplificationValue.Text = "获取的1mv定标值为：" + Convert.ToString(amplification);
+                                            //differenceValue.Text = "获取的0mv校准值为：" + Convert.ToString(difference_Value);
                                         }
                                     }
                                     if (LastPackageNum != -1)  //不是第一次  
@@ -1799,8 +2161,6 @@ namespace MotionSensor
                 if (DataTransmissionFlag == 1)
                 {
                     DataTransmissionFlag = 0;
-                    ConnectBLEButton.Text = "设备已连接";
-                    ConnectBLEButton.Enabled = true;
                     PairButton.Enabled = false;   //定标按键
                     PauseButton.Enabled = true;
                     ScanButton.Enabled = false;
@@ -1911,27 +2271,19 @@ namespace MotionSensor
                     }
                 }
             }
-            if (ConnectBLEButton.Text == "设备已连接")
+            //if (ConnectBLEButton.Text == "设备已连接")
             {
-                //HeartRate.Text = rate.ToString();
-                BatteryValue.SelectAll();
-                //  double batteryValue = 3300 *4 * Vbat /1024 ;
-                double batteryValue = Vbat;
-                BatteryValue.Text = batteryValue.ToString();
+
                 //  BloodPressure.Text = "";
                 if ((LeadOffStatus & 0x01) == 0x01)
                 {
-                    Lead.Text = "连接正常";
-                    Lead.SelectAll();
-                    Lead.SelectionColor = Color.Green;
+
                 }
                 else
                 {
                     try
                     {
-                        Lead.Text = "导联脱落";
-                        Lead.SelectAll();
-                        Lead.SelectionColor = Color.Red;
+
                     }
                     finally
                     {
@@ -1939,10 +2291,9 @@ namespace MotionSensor
                     }
                 }
             }
-            else
+            //else
             {
-                BatteryValue.Text = "";
-                Lead.Text = "";
+
             }
 
             Timer.Enabled = false;
@@ -2051,7 +2402,7 @@ namespace MotionSensor
         #region 选择连接设备的MAC
         private void MACComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ChoiceBLE = (byte)MACComboBox.SelectedIndex;
+            //ChoiceBLE = (byte)MACComboBox.SelectedIndex;
             textBox5.Text = ScanBLEMAC[ChoiceBLE, 5].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 4].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 3].ToString("X2")
         + ":" + ScanBLEMAC[ChoiceBLE, 2].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 1].ToString("X2") + ":" + ScanBLEMAC[ChoiceBLE, 0].ToString("X2");
         }
@@ -2067,7 +2418,7 @@ namespace MotionSensor
         #region 第一个按键处理函数
         private void ConnectBLEButton_Click(object sender, EventArgs e)
         {
-            if (ConnectBLEButton.Text == "设备已连接")
+            //if (ConnectBLEButton.Text == "设备已连接")
             {
                 checkBox1.Enabled = true;
                 serialcommand.DisconnectBLESerialCommand(serialPort1);
@@ -2078,31 +2429,31 @@ namespace MotionSensor
                 DisConnectBLEEnableFlag = 1;
                 //this.toolStripStatusLabel2.Text = "蓝牙设备状态：未连接";
             }
-            else
+            //else
             {
                 checkBox1.Enabled = false;
 
-                if (MACComboBox.SelectedIndex < 100)
-                {
+                //if (MACComboBox.SelectedIndex < 100)
+                //{
 
-                    if (ScanBleName[MACComboBox.SelectedIndex, 0] == 'B' && (ScanBleName[MACComboBox.SelectedIndex, 1] == 'D'))
-                    {
-                        serialcommand.ConnectBLESerialCommand(serialPort1, (byte)MACComboBox.SelectedIndex);
-                        System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                        string DisplayString = "请求连接设备...\r\n";
-                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                        OutMsg(MonitorText, DisplayString, Color.Red);
-                        DisConnectBLEEnableFlag = 0;
-                    }
-                    else
-                    {
-                        System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
-                        string DisplayString = "所选设备不是心电补丁，请重新选择连接！！！\r\n";
-                        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
-                        OutMsg(MonitorText, DisplayString, Color.Red);
-                        checkBox1.Enabled = true;
-                    }
-                }
+                //    if (ScanBleName[MACComboBox.SelectedIndex, 0] == 'B' && (ScanBleName[MACComboBox.SelectedIndex, 1] == 'D'))
+                //    {
+                //        serialcommand.ConnectBLESerialCommand(serialPort1, (byte)MACComboBox.SelectedIndex);
+                //        System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                //        string DisplayString = "请求连接设备...\r\n";
+                //        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                //        OutMsg(MonitorText, DisplayString, Color.Red);
+                //        DisConnectBLEEnableFlag = 0;
+                //    }
+                //    else
+                //    {
+                //        System.Text.ASCIIEncoding converter = new System.Text.ASCIIEncoding();
+                //        string DisplayString = "所选设备不是心电补丁，请重新选择连接！！！\r\n";
+                //        DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
+                //        OutMsg(MonitorText, DisplayString, Color.Red);
+                //        checkBox1.Enabled = true;
+                //    }
+                //}
             }
 
         }
@@ -2168,7 +2519,7 @@ namespace MotionSensor
 
         private void IDValuebutton_Click(object sender, EventArgs e)
         {
-            if (ConnectBLEButton.Text == "设备已连接")
+            //if (ConnectBLEButton.Text == "设备已连接")
             {
                 byte[] ssss = new byte[14];
                 ssss[0] = 0x77;   //
@@ -2211,7 +2562,7 @@ namespace MotionSensor
                     MessageBox.Show("数据出错！");
                 }
             }
-            else
+            //else
             {
                 string DisplayString = "未连接心电补丁！\r\n";
                 DisplayString = DateTime.Now.ToLongTimeString() + ": " + DisplayString;
@@ -2242,13 +2593,18 @@ namespace MotionSensor
 
         private void button5_Click(object sender, EventArgs e)
         {
+            
             string DisplayString1 = "请求停止接收心电数据...\r\n";
             string DisplayString2 = "请求停止接收心电数据失败！\r\n";
             string DisplayString3 = "请求停止接收心电数据成功！\r\n";
             ConnectDeviceFlag = 5;
-
+            Thread.Sleep(50);
+                
             button5.Text = "请求1mv定标";
-            button5.Enabled = false;
+            button5.ForeColor = Color.Red;
+            button5.Refresh();
+            
+           // button5.Enabled = false;
             button1.Enabled = false;
 
             serialcommand.StopReceiveECGDataSerialCommand(EcgCom);
@@ -2276,8 +2632,8 @@ namespace MotionSensor
                     if (TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
                     {
                         ConnectDeviceFlag = 4;
-                        button5.Text = "正在1mv定标";
-                        button5.Enabled = false;
+                        button5.Text = "正在1mv定标...";
+                       // button5.Enabled = false;
                     }
                     else
                     {
@@ -2289,7 +2645,8 @@ namespace MotionSensor
                         {
                             button5.Text = "1mv校准失败";
                             button5.Enabled = false;
-                            Thread.Sleep(100);
+                            Thread.Sleep(1000);
+                            button5.ForeColor = Color.Black;
                             button5.Text = "1mv校准";
                             button5.Enabled = true;
                             button1.Enabled = true;
@@ -2309,7 +2666,8 @@ namespace MotionSensor
                     {
                         button5.Text = "1mv定标失败";
                         button5.Enabled = false;
-                        Thread.Sleep(100);
+                        Thread.Sleep(1000);
+                        button5.ForeColor = Color.Black;
                         button5.Text = "1mv定标";
                         button5.Enabled = true;
                         button1.Enabled = true;
@@ -2319,11 +2677,12 @@ namespace MotionSensor
             }
             else
             {
-                button1.Text = "0mv定标失败";
-                button1.Enabled = false;
-                Thread.Sleep(100);
-                button1.Text = "0mv定标";
-                button1.Enabled = true;
+                button5.Text = "1mv定标失败";
+                button5.Enabled = false;
+                Thread.Sleep(1000);
+                button5.ForeColor = Color.Black;
+                button5.Text = "0mv定标";
+                button5.Enabled = true;
                 button1.Enabled = true;
                 ConnectDeviceFlag = 4;
             }
@@ -2419,10 +2778,11 @@ namespace MotionSensor
             string DisplayString2 = "请求停止接收心电数据失败！\r\n";
             string DisplayString3 = "请求停止接收心电数据成功！\r\n";
             ConnectDeviceFlag = 5;
+            Thread.Sleep(50);
 
             button1.Text = "请求0mv校准";
-            button1.Enabled = false;
-            button5.Enabled = false;
+            button1.ForeColor = Color.Red;
+            button1.Refresh();
 
             serialcommand.StopReceiveECGDataSerialCommand(EcgCom);
             if (TestCommandGetStatus(5, 6, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
@@ -2449,8 +2809,8 @@ namespace MotionSensor
                     if (TestCommandGetStatus(0x51, 0x52, DisplayString1, DisplayString2, DisplayString3, 500) == 0)
                     {
                         ConnectDeviceFlag = 4;
-                        button1.Text = "正在0mv校准";
-                        button1.Enabled = false;
+                        button1.Text = "正在0mv校准...";
+                       // button1.Enabled = false;
                     }
                     else
                     {
@@ -2464,6 +2824,7 @@ namespace MotionSensor
                             button1.Enabled = false;
                             Thread.Sleep(100);
                             button1.Text = "0mv校准";
+                            button1.ForeColor = Color.Black;
                             button1.Enabled = true;
                             button5.Enabled = true;
                         }
@@ -2484,6 +2845,7 @@ namespace MotionSensor
                         button1.Enabled = false;
                         Thread.Sleep(100);
                         button1.Text = "0mv校准";
+                        button1.ForeColor = Color.Black;
                         button1.Enabled = true;
                         button5.Enabled = true;
                         ConnectDeviceFlag = 4;
@@ -2497,6 +2859,7 @@ namespace MotionSensor
                 Thread.Sleep(100);
                 button1.Text = "0mv校准";
                 button1.Enabled = true;
+                button1.ForeColor = Color.Black;
                 button5.Enabled = true;
                 ConnectDeviceFlag = 4;
             }
@@ -3071,8 +3434,11 @@ namespace MotionSensor
 
         private void MAClistBox_Click(object sender, EventArgs e)
         {
-            textBox5.Text = ScanBLEMAC[MAClistBox.SelectedIndex, 5].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 4].ToString("X2") + ":" +                   ScanBLEMAC[MAClistBox.SelectedIndex, 3].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 2].ToString("X2") + ":" + ScanBLEMAC                    [MAClistBox.SelectedIndex, 1].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 0].ToString("X2");
-            PairButton.Enabled = true;
+            if (MAClistBox.SelectedIndex < 1000 && (MAClistBox.SelectedIndex>=0))
+            {
+                textBox5.Text = ScanBLEMAC[MAClistBox.SelectedIndex, 5].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 4].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 3].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 2].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 1].ToString("X2") + ":" + ScanBLEMAC[MAClistBox.SelectedIndex, 0].ToString("X2");
+                PairButton.Enabled = true;
+            }
         }
     }
 
